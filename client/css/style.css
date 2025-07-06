@@ -1,0 +1,259 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* --- Style Header --- */
+.main-header {     
+  background-color: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.container {
+  max-width: 1440px;     
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 16px 24px;     
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (min-width: 1440px) {
+  .container {
+   padding: 16px 80px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .container {
+    padding: 12px 40px; 
+  }
+  
+  .nav-links a,
+  .login,
+  .signup {
+    font-size: 18px;
+  }
+
+  .nav-links {
+    gap: 24px; 
+  }
+
+  .right.auth-buttons {
+    margin-left: 32px; 
+  }
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.center {
+  display: flex;
+  flex-grow: 1;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-text {
+  color: #000;
+  font-family: Poppins;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 20px; 
+}
+
+.nav-links {
+  text-decoration: none;
+  border-bottom: none;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-left: 64px;
+}
+
+.nav-links a {
+  color: #4B5563;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; 
+}
+
+.nav-links a.active {
+  color: #2563EB;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; 
+}
+
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 64px;
+}
+
+.login {
+  text-decoration: none;
+  border-bottom: none;
+  box-shadow: none;
+  color: #2563EB;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.signup {
+  background-color: #2b65f8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-links a:hover {
+  color: #2563EB;
+  transition: color 0.3s ease;
+}
+
+a,
+.nav-links a,
+.nav-links a:hover,
+.nav-links a:focus,
+.login,
+.login:hover,
+.login:focus,
+.mobile-menu a,
+.mobile-menu a:hover,
+.mobile-menu a:focus {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  z-index: 1000;
+}
+
+.burger span {
+  width: 100%;
+  height: 3px;
+  background-color: #333;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.burger.open span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.burger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: white;
+  padding: 24px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  border-radius: 0 0 16px 16px;
+  z-index: 999;
+}
+
+.mobile-menu a {
+  font-size: 16px;
+  font-weight: 500;
+  color: #222;
+  text-decoration: none;
+  border-bottom: none;
+  box-shadow: none;
+}
+
+.mobile-menu .login {
+  color: #2b65f8;
+}
+
+.mobile-menu .signup {
+  width: 100%;
+  background-color: #2b65f8;
+  color: white;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.mobile-menu.hidden {
+  display: none !important;
+}
+
+.mobile-menu a:hover {
+  color: #1d4ed8; 
+}
+
+.mobile-menu a.active {
+  color: #2563EB; 
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .nav-links,
+  .auth-buttons {
+    display: none;
+  }
+
+  .burger {
+    display: flex;
+  }
+}
