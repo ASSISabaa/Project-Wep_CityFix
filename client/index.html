@@ -64,7 +64,7 @@
         <div class="hero-content">
           <div class="hero-text">
             <h1>Report City Issues,<br>Make a Difference</h1>
-            <p>Help improve your community by reporting street issues.<br>
+            <p>Help improve your community by reporting street issues.
             Together we can make our city better.</p>
             <a href="#" class="hero-btn">Submit a Report</a>
           </div>
@@ -105,7 +105,62 @@
         </div>
       </div>
     </section>
+    <section class="dashboard-section">
+      <div class="dashboard-wrapper">
+        <!-- Sidebar Filters -->
+        <aside class="filters-panel">
+          <h3><img src="assets/filter-icon.svg" alt="Filter Icon"> Filters</h3>
+          <label>Date Range</label>
+          <input type="date" />
+          <input type="date" />
 
+          <label>District</label>
+          <input type="text" />
+
+          <div class="filter-group">
+            <label class="filter-title">Issue Type</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" /> Potholes</label>
+              <label><input type="checkbox" /> Lighting</label>
+              <label><input type="checkbox" /> Drainage</label>
+            </div>
+          </div>
+
+
+        </aside>
+
+        <div class="dashboard-content">
+          <div class="map-box">
+            <h3><img src="assets/fire.svg"> Issue Density Map</h3>
+            <img src="assets/map-placeholder.webp" alt="Heatmap" class="heatmap-img" />
+          </div>
+
+          <div class="bottom-stats">
+            <div class="stat-card">
+              <img src="assets/chart.svg" />
+              <span>Reports by District</span>
+            </div>
+            <div class="stat-card">
+              <img src="assets/most-reported.svg" />
+              <span>Most Reported Issues<br><strong>84%</strong></span>
+            </div>
+            <div class="stat-card">
+              <img src="assets/check.svg" />
+              <span>Resolution Rate</span>
+            </div>
+            <div class="stat-card">
+              <img src="assets/weekly-trends.svg" />
+              <span>Weekly Trends</span>
+            </div>
+          </div>
+
+          <div class="dashboard-buttons">
+            <button class="share-btn"><img src="assets/share-icon.svg" /> Share Report</button>
+            <button class="pdf-btn"><img src="assets/pdf-icon.svg" /> Export to PDF</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
   </main>
 
