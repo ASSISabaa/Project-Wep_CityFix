@@ -583,6 +583,72 @@ body {
 }
 
 
+.common-issues-section {
+  padding: 60px 24px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.common-issues-section h2 {
+  color: #1e3a8a;
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 32px;
+}
+
+.issue-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+.issue-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  width: 300px;
+  min-height: 200px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+  border-top: 4px solid transparent;
+}
+
+.issue-card img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.issue-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.issue-card p {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+/* Theme Colors */
+.issue-card.blue {
+  border-color: #3b82f6;
+}
+
+.issue-card.yellow {
+  border-color: #facc15;
+}
+
+.issue-card.green {
+  border-color: #22c55e;
+}
+
+.issue-card:hover {
+  transform: translateY(-6px);
+}
 
 
 
