@@ -1,0 +1,16 @@
+# Ignore node modules
+node_modules/
+
+# Ignore environment variables (if you use them later)
+.env
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore OS metadata files
+.DS_Store
+
+# Ignore build output (if any)
+dist/
+build/
