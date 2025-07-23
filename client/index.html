@@ -110,6 +110,59 @@
             </div>
         </div>
     </section>
+     <!-- Filters Section -->
+    <aside class="filters-section">
+        <div class="filters-header">
+            <h3><img src="assets/filter-icon.svg" alt="Filter Icon"> Filters</h3>
+        </div>
+        
+        <div class="filter-group">
+            <label class="filter-label">Date Range</label>
+            <div class="date-inputs">
+                <input type="text" class="date-input" placeholder="mm/dd/yyyy">
+                <input type="text" class="date-input" placeholder="mm/dd/yyyy">
+            </div>
+        </div>
+        
+        <div class="filter-group">
+            <label class="filter-label">District</label>
+            <select class="district-select">
+                <option value="">Select District</option>
+                <option value="downtown">Downtown</option>
+                <option value="north">North District</option>
+                <option value="south">South District</option>
+                <option value="east">East District</option>
+                <option value="west">West District</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label class="filter-label">Issue Type</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="potholes" name="issue-type" value="potholes" checked>
+                    <label for="potholes" class="checkbox-label">
+                        <span class="checkbox-icon"></span>
+                        Potholes
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="lighting" name="issue-type" value="lighting" checked>
+                    <label for="lighting" class="checkbox-label">
+                        <span class="checkbox-icon"></span>
+                        Lighting
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="drainage" name="issue-type" value="drainage" checked>
+                    <label for="drainage" class="checkbox-label">
+                        <span class="checkbox-icon"></span>
+                        Drainage
+                    </label>
+                </div>
+            </div>
+        </div>
+    </aside>
 
     <script src="js/script.js"></script>
     <script src="js/homepage.js"></script>
