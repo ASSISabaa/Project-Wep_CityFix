@@ -962,9 +962,11 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 24px 20px;
     position: relative;
-    margin-top: 30px;
+    margin-top: 78px;
     margin-left: 141px;
     border: 1px solid #E5E7EB;
+    display: inline-block;
+    vertical-align: top;
 }
 
 /* Filters Header */
@@ -973,7 +975,7 @@ body {
     padding-bottom: 0;
 }
 
-.filters-header h3 {
+.filters-title {
     color: #155FA0;
     font-family: 'Inter', sans-serif;
     font-size: 18px;
@@ -1171,5 +1173,249 @@ body {
     
     .checkbox-label {
         font-size: 13px;
+    }
+}
+
+/* Map Section */
+.map-section {
+    width: 900px;
+    position: relative;
+    margin-top: 78px;
+    margin-left: 32px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+/* Map Card Container */
+.map-card {
+    width: 100%;
+    border-radius: 16px;
+    border: 0px solid #E5E7EB;
+    background-color: #ffffff;
+    box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, 0.10), 0px 20px 25px 0px rgba(0, 0, 0, 0.10);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+/* Map Header */
+.map-header {
+    margin-bottom: 20px;
+}
+
+.map-title {
+    color: #155FA0;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 28px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* Map Container */
+.map-container {
+    width: 852px;
+    height: 320px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.density-map {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Statistics Cards Container */
+.map-stats-container {
+    display: grid;
+    grid-template-columns: repeat(4, 200px);
+    gap: 16px;
+    margin-bottom: 24px;
+    justify-content: space-between;
+}
+
+/* Individual Stat Cards */
+.map-stat-card {
+    background-color: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 20px 16px;
+    width: 200px;
+    height: 232px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.map-stat-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Stat Card Header */
+.map-stat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.map-stat-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.map-stat-title {
+    color: #1E3A8A;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin: 0;
+}
+
+/* Stat Card Content */
+.map-stat-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resolution-percentage {
+    color: #15803D;
+    font-family: 'Inter', sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Action Buttons */
+.map-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.share-report-btn,
+.export-pdf-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.share-report-btn {
+    background-color: #3B82F6;
+    color: white;
+}
+
+.share-report-btn:hover {
+    background-color: #2563EB;
+    transform: translateY(-1px);
+}
+
+.export-pdf-btn {
+    background-color: #ffffff;
+    color: #374151;
+    border: 1px solid #D1D5DB;
+}
+
+.export-pdf-btn:hover {
+    background-color: #F9FAFB;
+    border-color: #9CA3AF;
+}
+
+.share-report-btn img,
+.export-pdf-btn img {
+    width: 16px;
+    height: 16px;
+}
+
+/* Map Responsive Design */
+@media screen and (max-width: 1200px) {
+    .map-section {
+        width: 600px;
+        margin-left: 24px;
+    }
+    
+    .map-container {
+        width: 552px;
+        height: 280px;
+    }
+    
+    .map-stats-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .map-section {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 20px;
+    }
+    
+    .map-container {
+        width: 100%;
+        height: 240px;
+    }
+    
+    .map-stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .map-section {
+        padding: 20px;
+        margin: 20px;
+    }
+    
+    .map-container {
+        height: 200px;
+    }
+    
+    .map-stats-container {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .map-stat-card {
+        height: 100px;
+        padding: 16px 12px;
+    }
+    
+    .map-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .share-report-btn,
+    .export-pdf-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
