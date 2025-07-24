@@ -6,10 +6,7 @@
     <title>CityFix - Home Page</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="assets/CityFix-logo.svg">
-    <link rel="icon" type="image/png" href="assets/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="assets/favicon-16x16.png" sizes="16x16">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -175,14 +172,14 @@
             <!-- Map Header -->
             <div class="map-header">
                 <h3 class="map-title">
-                    <img src="assets/map-icon.svg" alt="Map Icon" class="map-icon">
+                    <img src="assets/fire.svg" alt="Map Icon" class="map-icon">
                     Issue Density Map
                 </h3>
             </div>
             
             <!-- Map Container -->
             <div class="map-container">
-                <img src="assets/density-map.png" alt="Issue Density Map" class="density-map">
+                <img src="assets/map-placeholder.webp" alt="Issue Density Map" class="density-map">
             </div>
         </div>
         
@@ -190,27 +187,25 @@
         <div class="map-stats-container">
             <div class="map-stat-card">
                 <div class="map-stat-header">
-                    <img src="assets/reports-icon.svg" alt="Reports Icon" class="map-stat-icon">
+                    <img src="assets/chart.svg" alt="Reports Icon" class="map-stat-icon">
                     <h4 class="map-stat-title">Reports by District</h4>
                 </div>
                 <div class="map-stat-content">
-                    <!-- Content will be added here -->
                 </div>
             </div>
             
             <div class="map-stat-card">
                 <div class="map-stat-header">
-                    <img src="assets/issues-icon.svg" alt="Issues Icon" class="map-stat-icon">
+                    <img src="assets/check.svg" alt="Issues Icon" class="map-stat-icon">
                     <h4 class="map-stat-title">Most Reported Issues</h4>
                 </div>
                 <div class="map-stat-content">
-                    <!-- Content will be added here -->
                 </div>
             </div>
             
             <div class="map-stat-card">
                 <div class="map-stat-header">
-                    <img src="assets/resolution-icon.svg" alt="Resolution Icon" class="map-stat-icon">
+                    <img src="assets/chart.svg" alt="Resolution Icon" class="map-stat-icon">
                     <h4 class="map-stat-title">Resolution Rate</h4>
                 </div>
                 <div class="map-stat-content">
@@ -220,11 +215,10 @@
             
             <div class="map-stat-card">
                 <div class="map-stat-header">
-                    <img src="assets/trends-icon.svg" alt="Trends Icon" class="map-stat-icon">
+                    <img src="assets/weekly-trends.svg" alt="Trends Icon" class="map-stat-icon">
                     <h4 class="map-stat-title">Weekly Trends</h4>
                 </div>
                 <div class="map-stat-content">
-                    <!-- Content will be added here -->
                 </div>
             </div>
         </div>
@@ -236,13 +230,13 @@
                 Share Report
             </button>
             <button class="export-pdf-btn">
-                <img src="assets/export-icon.svg" alt="Export Icon">
+                <img src="assets/pdf-icon.svg" alt="Export Icon">
                 Export to PDF
             </button>
         </div>
     </section>
 
-    <!-- Common Issues Section -->
+    <!-- Common Issues Section - Updated -->
     <section class="common-issues-section">
         <h2 class="common-issues-title">Common Issues Reported</h2>
         
@@ -250,7 +244,7 @@
             <!-- Road Potholes Card -->
             <div class="issue-card pothole-card">
                 <div class="issue-icon-container">
-                    <img src="assets/pothole-icon.png" alt="Road Potholes" class="issue-icon">
+                    <img src="assets/pothole-icon.webp" alt="Road Potholes" class="issue-icon">
                 </div>
                 <h3 class="issue-title">Road Potholes</h3>
                 <p class="issue-description">Damaged or missing road surfaces causing danger for vehicles.</p>
@@ -259,7 +253,7 @@
             <!-- Street Lighting Card -->
             <div class="issue-card lighting-card">
                 <div class="issue-icon-container">
-                    <img src="assets/lighting-icon.png" alt="Street Lighting" class="issue-icon">
+                    <img src="assets/lighting-icon.webp" alt="Street Lighting" class="issue-icon">
                 </div>
                 <h3 class="issue-title">Street Lighting</h3>
                 <p class="issue-description">Broken or malfunctioning street lights affecting visibility at night.</p>
@@ -268,7 +262,7 @@
             <!-- Drainage Issues Card -->
             <div class="issue-card drainage-card">
                 <div class="issue-icon-container">
-                    <img src="assets/drainage-icon.png" alt="Drainage Issues" class="issue-icon">
+                    <img src="assets/drainage-icon.webp" alt="Drainage Issues" class="issue-icon">
                 </div>
                 <h3 class="issue-title">Drainage Issues</h3>
                 <p class="issue-description">Water accumulation or blocked drains causing flooding and hazards.</p>
@@ -276,55 +270,53 @@
         </div>
     </section>
 
-      <footer class="main-footer">
-    <div class="footer-container">
-      <div class="footer-top">
-        <div class="footer-column">
-        
-      <a href="index.html" class="footer-logo">
-        <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
-        <span class="brand-name">CityFix</span>
-      </a>
-  
-          <p class="footer-description">Making our city better together.</p>
-        </div>
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-column">
+                    <a href="index.html" class="footer-logo">
+                        <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                        <span class="brand-name">CityFix</span>
+                    </a>
+                    <p class="footer-description">Making our city better together.</p>
+                </div>
 
-        <div class="footer-column">
-          <h4>Quick Links</h4>
-          <a href="index.html">Home</a>
-          <a href="reports.html">Reports</a>
-          <a href="submit.html">Submit Report</a>
-        </div>
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="reports.html">Reports</a>
+                    <a href="submit.html">Submit Report</a>
+                </div>
 
-        <div class="footer-column">
-          <h4>Connect</h4>
-          <a href="about.html">About Us</a>
-          <a href="contact.html">Contact</a>
-          <a href="privacy.html">Privacy Policy</a>
-        </div>
+                <div class="footer-column">
+                    <h4>Connect</h4>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contact</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                </div>
 
-        <div class="footer-column">
-          <h4>Follow Us</h4>
-          <div class="social-icons">
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
-            </a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
-            </a>
-          </div>
-        </div>
-      </div>
+                <div class="footer-column">
+                    <h4>Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                        </a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                        </a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-      <div class="footer-bottom">
-        <hr />
-        <p>© 2025 CityFix. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
+            <div class="footer-bottom">
+                <hr />
+                <p>© 2025 CityFix. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
     <script src="js/script.js"></script>
     <script src="js/homepage.js"></script>
