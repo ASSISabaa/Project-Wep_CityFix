@@ -10,6 +10,7 @@ body {
     line-height: 1.6;
     color: #333;
     background: #F5F7FB;
+    overflow-x: hidden;
 }
 
 /* Header Styles */
@@ -416,7 +417,7 @@ body {
     color: #A16207;
 }
 
-/* Filters Section */
+/* Filters Section - ORIGINAL DESIGN */
 .filters-section {
     width: 256px;
     height: 710px;
@@ -613,7 +614,7 @@ body {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
-/* Map Section */
+/* Map Section - ORIGINAL DESIGN */
 .map-section {
     width: 900px;
     position: relative;
@@ -790,7 +791,7 @@ body {
     height: 16px;
 }
 
-/* Common Issues Section */
+/* Common Issues Section - ORIGINAL DESIGN */
 .common-issues-section {
     margin-top: 64px;
     margin-left: 147px;
@@ -847,7 +848,6 @@ body {
     border-top: 4px solid #10B981;
 }
 
-/* Updated Icon Container */
 .issue-icon-container {
     width: 80px;
     height: 80px;
@@ -862,7 +862,6 @@ body {
     border: none;
 }
 
-/* Image Icons - Made larger to fill the container */
 .issue-icon {
     width: 80px;
     height: 80px;
@@ -905,7 +904,7 @@ body {
     text-align: center;
 }
 
-/* Footer Styles */
+/* Footer Styles - ORIGINAL DESIGN */
 .main-footer {
     background-color: #111827;
     color: #d1d5db;
@@ -1031,10 +1030,16 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* MOBILE RESPONSIVE */
+/* ============================================= */
+/* MOBILE RESPONSIVE IMPROVEMENTS - ONLY SMALL SCREENS */
+/* ============================================= */
 
 /* Tablets (641px - 768px) */
 @media screen and (min-width: 641px) and (max-width: 768px) {
+    .header {
+        padding: 16px 30px;
+    }
+    
     .nav-section,
     .auth-section {
         display: none;
@@ -1106,6 +1111,7 @@ body {
         width: 100%;
         max-width: 500px;
         margin: 0 auto;
+        margin-top: 0;
     }
     
     .filters-section {
@@ -1114,6 +1120,12 @@ body {
         height: auto;
         display: block;
         position: relative;
+    }
+    
+    .date-input,
+    .district-select {
+        width: 100%;
+        box-sizing: border-box;
     }
     
     .map-section {
@@ -1241,6 +1253,7 @@ body {
         height: 110px;
         padding: 20px 24px;
         margin: 0 auto;
+        margin-top: 0;
     }
     
     .filters-section {
@@ -1457,6 +1470,7 @@ body {
         max-width: 450px;
         margin: 0 auto;
         box-sizing: border-box;
+        margin-top: 0;
     }
     
     .stat-number {
@@ -1638,35 +1652,20 @@ body {
     }
     
     .header {
-        padding: 6px 12px;
+        padding: 8px 12px;
         min-height: 50px;
-        text-align: center;
-        justify-content: center;
-        position: relative;
-    }
-    
-    .logo-section {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    
-    .mobile-menu-btn {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
         display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
     
     .logo-image {
-        width: 20px;
-        height: 16px;
+        width: 24px;
+        height: 19px;
     }
     
     .logo-text {
-        font-size: 12px;
+        font-size: 14px;
         width: auto;
     }
     
@@ -1675,21 +1674,24 @@ body {
         display: none;
     }
     
+    .mobile-menu-btn {
+        display: flex;
+    }
+    
     .mobile-menu-btn span {
         width: 18px;
         height: 2px;
     }
     
     .hero-section {
-        padding: 6px 10px 12px 10px;
-        text-align: center;
+        padding: 16px 12px 24px 12px;
         min-height: auto;
     }
     
     .hero-container {
         flex-direction: column;
         text-align: center;
-        gap: 6px;
+        gap: 16px;
         width: 100%;
         max-width: 100%;
         align-items: center;
@@ -1711,69 +1713,75 @@ body {
     }
     
     .hero-title {
-        font-size: 14px;
-        line-height: 16px;
+        font-size: 18px;
+        line-height: 22px;
         width: auto;
         height: auto;
-        margin-bottom: 4px;
+        margin-bottom: 12px;
         text-align: center;
     }
     
     .hero-description {
-        font-size: 10px;
-        line-height: 12px;
-        max-width: 75%;
-        margin: 0 auto 6px auto;
+        font-size: 12px;
+        line-height: 16px;
+        margin: 0 auto 16px auto;
         text-align: center;
+        max-width: 90%;
     }
     
     .hero-button {
-        max-width: 85px;
-        font-size: 9px;
-        padding: 4px 6px;
+        max-width: 120px;
+        font-size: 12px;
+        padding: 8px 12px;
         margin: 0 auto;
         display: block;
     }
     
     .hero-image {
-        width: 110px;
-        height: 94px;
+        width: 180px;
+        height: 153px;
         margin: 0 auto;
+    }
+    
+    .stats-section {
+        padding: 8px 12px 12px 12px;
+        margin-top: -8px;
     }
     
     .stats-container {
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
         align-items: center;
         width: 100%;
         max-width: 100%;
     }
     
     .stat-card {
-        height: 50px;
-        padding: 6px 10px;
-        width: 75%;
-        max-width: 260px;
+        height: 70px;
+        padding: 10px 12px;
+        width: 90%;
+        max-width: 300px;
         margin: 0 auto;
         box-sizing: border-box;
+        margin-top: 0;
     }
     
     .stat-number {
-        font-size: 12px;
+        font-size: 16px;
     }
     
     .stat-label {
-        font-size: 8px;
+        font-size: 11px;
     }
     
     .stat-icon {
-        width: 24px;
-        height: 24px;
+        width: 30px;
+        height: 30px;
     }
     
     .stat-icon-image {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
     }
     
     .stat-content {
@@ -1781,9 +1789,9 @@ body {
     }
     
     .filters-section {
-        width: 80%;
-        margin: 8px auto;
-        padding: 8px;
+        width: calc(100% - 24px);
+        margin: 12px 12px;
+        padding: 12px;
         display: block;
         position: relative;
         height: auto;
@@ -1793,16 +1801,16 @@ body {
     .filters-title {
         font-size: 12px;
         text-align: center;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
     
     .filter-group {
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
     
     .filter-label {
-        font-size: 9px;
+        font-size: 10px;
         text-align: center;
         display: block;
         margin-bottom: 4px;
@@ -1810,9 +1818,9 @@ body {
     
     .date-input,
     .district-select {
-        height: 26px;
-        font-size: 9px;
-        padding: 2px 4px;
+        height: 28px;
+        font-size: 10px;
+        padding: 4px 6px;
         width: 100%;
         box-sizing: border-box;
         margin: 0 auto;
@@ -1823,30 +1831,35 @@ body {
     }
     
     .checkbox-label {
-        font-size: 9px;
+        font-size: 10px;
         justify-content: center;
     }
     
+    .checkbox-icon {
+        width: 12px;
+        height: 12px;
+    }
+    
     .map-section {
-        width: 80%;
-        margin: 8px auto;
+        width: calc(100% - 24px);
+        margin: 12px 12px;
         display: block;
         box-sizing: border-box;
     }
     
     .map-card {
-        padding: 8px;
+        padding: 12px;
         text-align: center;
     }
     
     .map-title {
         font-size: 12px;
         text-align: center;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
     
     .map-container {
-        height: 120px;
+        height: 140px;
         width: 100%;
         margin: 0 auto;
     }
@@ -1854,14 +1867,14 @@ body {
     .map-stats-container {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 6px;
-        margin: 8px auto;
+        gap: 8px;
+        margin: 12px auto;
         width: 100%;
     }
     
     .map-stat-card {
-        height: 65px;
-        padding: 6px;
+        height: 80px;
+        padding: 8px;
         width: 100%;
         text-align: center;
         margin: 0 auto;
@@ -1869,10 +1882,16 @@ body {
     
     .map-stat-header {
         justify-content: center;
+        margin-bottom: 6px;
+    }
+    
+    .map-stat-icon {
+        width: 12px;
+        height: 12px;
     }
     
     .map-stat-title {
-        font-size: 9px;
+        font-size: 10px;
         text-align: center;
     }
     
@@ -1886,7 +1905,7 @@ body {
     
     .map-actions {
         flex-direction: column;
-        gap: 4px;
+        gap: 6px;
         align-items: center;
     }
     
@@ -1894,22 +1913,22 @@ body {
     .export-pdf-btn {
         padding: 6px 8px;
         font-size: 10px;
-        width: 70%;
-        max-width: 150px;
+        width: 80%;
+        max-width: 140px;
         justify-content: center;
         margin: 0 auto;
     }
     
     .common-issues-section {
-        margin: 15px auto;
+        margin: 16px 12px 0 12px;
         padding: 0;
-        width: 85%;
+        width: calc(100% - 24px);
         text-align: center;
     }
     
     .common-issues-title {
         font-size: 16px;
-        margin-bottom: 15px;
+        margin-bottom: 16px;
         text-align: center;
     }
     
@@ -1921,23 +1940,23 @@ body {
     }
     
     .issue-card {
-        padding: 15px 12px;
-        width: 90%;
-        max-width: 260px;
+        padding: 16px 12px;
+        width: 95%;
+        max-width: 280px;
         box-sizing: border-box;
         text-align: center;
         margin: 0 auto;
     }
     
     .issue-icon-container {
-        width: 48px;
-        height: 48px;
+        width: 50px;
+        height: 50px;
         margin: 0 auto 12px auto;
     }
     
     .issue-icon {
-        width: 48px;
-        height: 48px;
+        width: 50px;
+        height: 50px;
     }
     
     .issue-title {
@@ -1953,47 +1972,49 @@ body {
     }
     
     .mobile-nav {
-        padding: 15px;
+        padding: 12px;
         text-align: center;
+        top: 50px;
     }
     
     .mobile-nav .nav-item {
-        font-size: 14px;
-        padding: 10px 0;
+        font-size: 12px;
+        padding: 8px 0;
         text-align: center;
         display: block;
     }
     
     .mobile-nav .auth-section {
         flex-direction: column;
-        gap: 10px;
-        margin-top: 15px;
+        gap: 8px;
+        margin-top: 12px;
         align-items: center;
     }
     
     .mobile-nav .login-btn,
     .mobile-nav .signup-btn {
         font-size: 12px;
-        padding: 8px 15px;
-        width: 80%;
-        max-width: 150px;
+        padding: 6px 12px;
+        width: 90%;
+        max-width: 140px;
         text-align: center;
     }
     
     .main-footer {
-        padding: 20px 15px;
+        padding: 16px 12px 24px 12px;
         text-align: center;
     }
     
     .footer-container {
         text-align: center;
         width: 100%;
+        padding: 0;
     }
     
     .footer-top {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 12px;
         text-align: center;
         justify-items: center;
     }
@@ -2005,12 +2026,12 @@ body {
     }
     
     .footer-column h4 {
-        font-size: 14px;
+        font-size: 12px;
         text-align: center;
     }
     
     .footer-column a {
-        font-size: 12px;
+        font-size: 11px;
         text-align: center;
     }
     
@@ -2019,35 +2040,35 @@ body {
     }
     
     .footer-logo-img {
-        width: 28px;
-        height: 22px;
+        width: 20px;
+        height: 16px;
     }
     
     .brand-name {
-        font-size: 16px;
+        font-size: 14px;
     }
     
     .footer-description {
-        font-size: 12px;
+        font-size: 11px;
         text-align: center;
         margin: 0 auto;
-        max-width: 90%;
+        max-width: 95%;
     }
     
     .social-icons {
         justify-content: center;
-        gap: 10px;
+        gap: 8px;
     }
     
     .social-icon {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
     }
     
     .footer-bottom {
-        font-size: 11px;
-        padding-top: 15px;
-        margin-top: 20px;
+        font-size: 10px;
+        padding-top: 12px;
+        margin-top: 16px;
         text-align: center;
     }
 }
@@ -2386,6 +2407,116 @@ body {
 
 .enhanced-input:focus {
     transform: scale(1.02);
+}
+
+/* Additional Mobile Fixes */
+@media screen and (max-width: 768px) {
+    /* Ensure no horizontal scrolling */
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    /* Fix any elements that might cause overflow */
+    * {
+        max-width: 100%;
+    }
+    
+    /* Ensure images don't overflow */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Fix notification position on mobile */
+    .notification-toast {
+        right: 10px;
+        left: 10px;
+        max-width: calc(100% - 20px);
+        transform: translateY(-100px);
+    }
+    
+    .notification-toast.show {
+        transform: translateY(0);
+    }
+}
+
+/* Very Small Screens - Additional fixes */
+@media screen and (max-width: 320px) {
+    .hero-title {
+        font-size: 16px;
+        line-height: 20px;
+    }
+    
+    .hero-description {
+        font-size: 11px;
+        line-height: 15px;
+    }
+    
+    .hero-button {
+        font-size: 11px;
+        padding: 6px 10px;
+        max-width: 100px;
+    }
+    
+    .hero-image {
+        width: 160px;
+        height: 136px;
+    }
+    
+    .stat-card {
+        height: 60px;
+        padding: 8px 10px;
+    }
+    
+    .stat-number {
+        font-size: 14px;
+    }
+    
+    .stat-label {
+        font-size: 10px;
+    }
+    
+    .stat-icon {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .stat-icon-image {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .filters-title,
+    .map-title,
+    .common-issues-title {
+        font-size: 11px;
+    }
+    
+    .issue-card {
+        padding: 12px 8px;
+    }
+    
+    .issue-icon-container {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 8px;
+    }
+    
+    .issue-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .issue-title {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+    
+    .issue-description {
+        font-size: 10px;
+        line-height: 13px;
+    }
 }
 
 /* Remove text decorations */
