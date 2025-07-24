@@ -15,17 +15,17 @@ const DateValidator = {
     // Get current date with precise time handling - REAL system date
     getCurrentDate: function() {
         const now = new Date(); // Get actual system date
-        // Set to end of day for proper comparison
-        now.setHours(23, 59, 59, 999);
-        return now;
+        // Set to end of day for proper comparison (23:59:59.999)
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        return endOfDay;
     },
 
     // Get formatted current date string for display
     getCurrentDateString: function() {
-        const today = this.getCurrentDate();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const year = today.getFullYear();
+        const now = new Date(); // Fresh date object for current time
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const year = now.getFullYear();
         return `${month}/${day}/${year}`;
     },
 
@@ -37,7 +37,10 @@ const DateValidator = {
             date: dateStr,
             time: now.toLocaleTimeString(),
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            timestamp: now.getTime()
+            timestamp: now.getTime(),
+            year: now.getFullYear(),
+            month: now.getMonth() + 1,
+            day: now.getDate()
         };
     },
 
@@ -66,7 +69,7 @@ const DateValidator = {
         });
     },
 
-    // Perform comprehensive system date check
+    // Perform comprehensive system date check (silent background operation)
     performSystemDateCheck: function() {
         const now = new Date();
         const currentDateInfo = this.checkSystemDate();
@@ -77,10 +80,7 @@ const DateValidator = {
         // Update internal date references
         this.updateInternalDateReferences(now);
         
-        // Auto-populate or update date inputs based on real system date
-        this.updateAutoPopulatedDates();
-        
-        // Check all existing date inputs against new system date
+        // Check all existing date inputs against new system date (no auto-populate)
         this.revalidateAllInputsAgainstSystemDate(now);
         
         return currentDateInfo;
@@ -195,34 +195,10 @@ const DateValidator = {
         return validationResults;
     },
 
-    // Auto-populate date inputs with intelligent defaults (no minimum date restriction)
+    // Auto-populate date inputs - DISABLED (let user input manually)
     autoPopulateDateInputs: function() {
-        const dateInputs = document.querySelectorAll('.date-input');
-        if (dateInputs.length < 2) return;
-        
-        const currentDate = this.getCurrentDate();
-        const currentDateStr = this.getCurrentDateString();
-        
-        // Calculate intelligent start date (30 days ago)
-        const thirtyDaysAgo = new Date(currentDate);
-        thirtyDaysAgo.setDate(currentDate.getDate() - 30);
-        const startDateStr = this.formatDateToString(thirtyDaysAgo);
-        
-        // Auto-fill the inputs if they're empty
-        if (dateInputs[0] && !dateInputs[0].value) {
-            dateInputs[0].value = startDateStr;
-            dateInputs[0].style.color = '#666'; // Indicate auto-filled
-            setTimeout(() => performRealTimeValidation(dateInputs[0]), 100);
-        }
-        
-        if (dateInputs[1] && !dateInputs[1].value) {
-            dateInputs[1].value = currentDateStr;
-            dateInputs[1].style.color = '#666'; // Indicate auto-filled
-            setTimeout(() => performRealTimeValidation(dateInputs[1]), 100);
-        }
-        
-        console.log(`📅 Auto-populated dates: ${startDateStr} to ${currentDateStr}`);
-        return { startDate: startDateStr, endDate: currentDateStr };
+        // No auto-population - user must enter dates manually
+        return;
     },
 
     // Format Date object to mm/dd/yyyy string
@@ -233,26 +209,10 @@ const DateValidator = {
         return `${month}/${day}/${year}`;
     },
 
-    // Update auto-populated dates when system date changes
+    // Update auto-populated dates - DISABLED  
     updateAutoPopulatedDates: function() {
-        const dateInputs = document.querySelectorAll('.date-input');
-        if (dateInputs.length < 2) return;
-        
-        const currentDateStr = this.getCurrentDateString();
-        
-        // Update end date if it was auto-filled and is now outdated
-        if (dateInputs[1] && dateInputs[1].style.color === 'rgb(102, 102, 102)') {
-            const inputDate = this.parseDate(dateInputs[1].value);
-            const systemDate = this.getCurrentDate();
-            
-            // If auto-filled date is more than a day behind system date, update it
-            const daysDifference = (systemDate - inputDate) / (1000 * 60 * 60 * 24);
-            if (daysDifference >= 1) {
-                dateInputs[1].value = currentDateStr;
-                setTimeout(() => performRealTimeValidation(dateInputs[1]), 100);
-                console.log(`📅 Auto-updated end date to: ${currentDateStr}`);
-            }
-        }
+        // No auto-population updates - system works silently
+        return;
     },
 
     // Advanced system date monitoring with change detection
@@ -340,11 +300,17 @@ const DateValidator = {
             return { isValid: false, message: 'Invalid date' };
         }
 
-        const date = this.parseDate(dateString);
-        const currentDate = this.getCurrentDate();
+        const inputDate = this.parseDate(dateString);
+        const todayEndOfDay = this.getCurrentDate();
+        
+        // Debug logging to see what's happening
+        console.log('Validating:', dateString);
+        console.log('Input date:', inputDate);
+        console.log('Today end:', todayEndOfDay);
+        console.log('Is future?', inputDate > todayEndOfDay);
 
         // Only check if date is in the future - allow any past date
-        if (date > currentDate) {
+        if (inputDate > todayEndOfDay) {
             return { isValid: false, message: 'Date cannot be in the future' };
         }
 
@@ -496,33 +462,20 @@ function initializeDateValidationSystem() {
         input.autocomplete = 'off';
         input.setAttribute('data-date-input', index === 0 ? 'start' : 'end');
         
+        // Set clean placeholders without date information
+        if (index === 0) {
+            input.placeholder = 'Start Date (mm/dd/yyyy)';
+        } else {
+            input.placeholder = 'End Date (mm/dd/yyyy)';
+        }
+        
         // Add comprehensive event listeners
         input.addEventListener('input', handleAdvancedDateInput);
         input.addEventListener('blur', handleAdvancedDateBlur);
         input.addEventListener('focus', handleAdvancedDateFocus);
         input.addEventListener('keydown', handleAdvancedDateKeydown);
         input.addEventListener('paste', handleDatePaste);
-        
-        // Clear auto-fill styling when user starts typing
-        input.addEventListener('input', function() {
-            if (this.style.color === 'rgb(102, 102, 102)') {
-                this.style.color = ''; // Reset to normal color
-            }
-        });
     });
-
-    // Set dynamic date limits based on real system date
-    DateValidator.setDynamicDateLimits();
-    
-    // Auto-populate date inputs with intelligent defaults
-    setTimeout(() => {
-        DateValidator.autoPopulateDateInputs();
-        // Trigger initial data update with auto-populated dates
-        setTimeout(() => {
-            updateCurrentFilters();
-            updateDashboardData();
-        }, 200);
-    }, 500);
 
     // Continuous validation check every 5 seconds with system awareness
     setInterval(() => {
@@ -1328,8 +1281,23 @@ function fallbackCopyTextToClipboard(text) {
     }
 }
 
-// Generate real PDF file
+// Generate real PDF file using jsPDF library
 function generateMockPDF() {
+    // Check if jsPDF is available, if not load it
+    if (typeof window.jsPDF === 'undefined') {
+        // Load jsPDF library
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = function() {
+            createPDFDocument();
+        };
+        document.head.appendChild(script);
+    } else {
+        createPDFDocument();
+    }
+}
+
+function createPDFDocument() {
     const reportData = {
         date: new Date().toLocaleDateString(),
         district: currentFilters.district || 'All Districts',
@@ -1338,99 +1306,94 @@ function generateMockPDF() {
         resolved: document.querySelector('.stat-card:nth-child(2) .stat-number')?.textContent || '12,847',
         inProgress: document.querySelector('.stat-card:nth-child(3) .stat-number')?.textContent || '2,387'
     };
+
+    // Create new PDF document
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
     
-    // Create HTML content for PDF
-    const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>CityFix Community Report</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-                .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-                .header h1 { color: #2563EB; margin: 0; font-size: 28px; }
-                .header p { color: #666; margin: 5px 0; }
-                .section { margin: 25px 0; }
-                .section h2 { color: #333; border-left: 4px solid #2563EB; padding-left: 15px; }
-                .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 20px 0; }
-                .stat-box { border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; }
-                .stat-number { font-size: 24px; font-weight: bold; color: #2563EB; }
-                .stat-label { color: #666; font-size: 14px; margin-top: 5px; }
-                .info-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-                .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #888; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>🏙️ CityFix Community Report</h1>
-                <p>Generated on ${reportData.date}</p>
-            </div>
-            
-            <div class="section">
-                <h2>📋 Report Summary</h2>
-                <div class="info-row">
-                    <span><strong>District:</strong></span>
-                    <span>${reportData.district}</span>
-                </div>
-                <div class="info-row">
-                    <span><strong>Issue Types:</strong></span>
-                    <span>${reportData.issueTypes}</span>
-                </div>
-                <div class="info-row">
-                    <span><strong>Date Range:</strong></span>
-                    <span>${currentFilters.startDate || 'All Time'} - ${currentFilters.endDate || 'Present'}</span>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2>📊 Statistics Overview</h2>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-number">${reportData.totalReports}</div>
-                        <div class="stat-label">Total Reports</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">${reportData.resolved}</div>
-                        <div class="stat-label">Issues Resolved</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">${reportData.inProgress}</div>
-                        <div class="stat-label">In Progress</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2>📈 Key Insights</h2>
-                <ul>
-                    <li>Resolution Rate: 84% of reported issues have been addressed</li>
-                    <li>Most Active District: Downtown with highest report volume</li>
-                    <li>Top Issue Type: Potholes requiring immediate attention</li>
-                    <li>Trend: +12% improvement in response time this week</li>
-                </ul>
-            </div>
-            
-            <div class="footer">
-                <p>This report was generated by CityFix Community Platform</p>
-                <p>Helping make our city better, one report at a time</p>
-            </div>
-        </body>
-        </html>
-    `;
+    // Set font
+    doc.setFont('helvetica');
     
-    // Convert HTML to PDF using browser's print functionality
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    // Header
+    doc.setFontSize(24);
+    doc.setTextColor(37, 99, 235); // Blue color
+    doc.text('CityFix Community Report', 20, 30);
     
-    // Wait for content to load, then trigger print dialog
-    printWindow.onload = function() {
-        setTimeout(() => {
-            printWindow.print();
-            // Note: User will need to choose "Save as PDF" in print dialog
-        }, 500);
-    };
+    // Date
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on ${reportData.date}`, 20, 45);
+    
+    // Line separator
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 55, 190, 55);
+    
+    // Report Summary Section
+    doc.setFontSize(16);
+    doc.setTextColor(50, 50, 50);
+    doc.text('Report Summary', 20, 70);
+    
+    doc.setFontSize(12);
+    doc.text(`District: ${reportData.district}`, 30, 85);
+    doc.text(`Issue Types: ${reportData.issueTypes}`, 30, 95);
+    doc.text(`Date Range: ${currentFilters.startDate || 'All Time'} - ${currentFilters.endDate || 'Present'}`, 30, 105);
+    
+    // Statistics Section
+    doc.setFontSize(16);
+    doc.setTextColor(50, 50, 50);
+    doc.text('Statistics Overview', 20, 125);
+    
+    // Statistics boxes
+    doc.setFillColor(240, 248, 255); // Light blue background
+    doc.rect(20, 135, 50, 30, 'F');
+    doc.rect(75, 135, 50, 30, 'F');
+    doc.rect(130, 135, 50, 30, 'F');
+    
+    // Statistics text
+    doc.setFontSize(18);
+    doc.setTextColor(37, 99, 235);
+    doc.text(reportData.totalReports, 45 - (doc.getTextWidth(reportData.totalReports) / 2), 150);
+    doc.text(reportData.resolved, 100 - (doc.getTextWidth(reportData.resolved) / 2), 150);
+    doc.text(reportData.inProgress, 155 - (doc.getTextWidth(reportData.inProgress) / 2), 150);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Total Reports', 45 - (doc.getTextWidth('Total Reports') / 2), 160);
+    doc.text('Issues Resolved', 100 - (doc.getTextWidth('Issues Resolved') / 2), 160);
+    doc.text('In Progress', 155 - (doc.getTextWidth('In Progress') / 2), 160);
+    
+    // Key Insights Section
+    doc.setFontSize(16);
+    doc.setTextColor(50, 50, 50);
+    doc.text('Key Insights', 20, 185);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(70, 70, 70);
+    const insights = [
+        'Resolution Rate: 84% of reported issues have been addressed',
+        'Most Active District: Downtown with highest report volume',
+        'Top Issue Type: Potholes requiring immediate attention',
+        'Trend: +12% improvement in response time this week'
+    ];
+    
+    insights.forEach((insight, index) => {
+        doc.text(`• ${insight}`, 30, 200 + (index * 10));
+    });
+    
+    // Footer
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 250, 190, 250);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(120, 120, 120);
+    doc.text('This report was generated by CityFix Community Platform', 20, 260);
+    doc.text('Helping make our city better, one report at a time', 20, 270);
+    
+    // Save the PDF
+    const fileName = `CityFix-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    
+    console.log(`PDF saved as: ${fileName}`);
 }
 
 // ==============================================
@@ -1800,8 +1763,7 @@ window.CityFix = {
     areAllDatesValid: areAllDatesValid
 };
 
-console.log('🚀 CityFix Enhanced JavaScript Loaded - Smart Auto-Date System Active!');
-console.log('✏️  Date format: mm/dd/yyyy with deletable "/" characters');
-console.log('📅 System automatically detects and uses real computer date');
-console.log('🔄 Auto-populates date fields with intelligent defaults');
-console.log('⚡ Continuous real-time validation and updates');
+console.log('🚀 CityFix Enhanced JavaScript Loaded - Date Validation System Active!');
+console.log('📅 System loaded and monitoring real computer date');
+console.log('🔍 Check console for date debug information');
+console.log('⚡ Ready for user input validation');

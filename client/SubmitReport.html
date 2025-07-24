@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit a Report - CityFix</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏢</div>
+                <span class="logo-text">CityFix</span>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Reports</a>
+                <a href="#" class="nav-link active">Submit Report</a>
+                <a href="#" class="nav-link">City Insights</a>
+                <a href="#" class="nav-link">My Impact</a>
+                <a href="#" class="nav-link">Contact</a>
+            </nav>
+            <div class="header-actions">
+                <div class="notification-icon">🔔</div>
+                <div class="profile-icon">👤</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="progress-section">
+        <div class="progress-container">
+            <div class="step active">
+                <div class="step-circle">1</div>
+                <span class="step-text">Fill Details</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">2</div>
+                <span class="step-text">Submit</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <span class="step-text">Track Report</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="form-container">
+            <h1 class="page-title">Submit a Report</h1>
+            
+            <form class="report-form">
+                <!-- Problem Type -->
+                <div class="form-group">
+                    <label class="form-label">Problem Type</label>
+                    <select class="form-select">
+                        <option value="">Select issue type</option>
+                        <option value="pothole">Pothole</option>
+                        <option value="streetlight">Street Light</option>
+                        <option value="garbage">Garbage Collection</option>
+                        <option value="water">Water Issue</option>
+                        <option value="traffic">Traffic Signal</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Location -->
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" placeholder="Enter address or location">
+                    <div class="map-preview">
+                        <div class="map-placeholder">
+                            <div class="map-icon">📍</div>
+                            <span class="map-text">Map Preview</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Images -->
+                <div class="form-group">
+                    <label class="form-label">Upload Images</label>
+                    <div class="upload-area">
+                        <div class="upload-content">
+                            <div class="upload-icon">☁️</div>
+                            <p class="upload-text">Drag and drop files here or</p>
+                            <button type="button" class="browse-button">Browse Files</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" placeholder="Describe the issue..."></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-button">Submit Report</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <div class="logo-icon">🏢</div>
+                    <span class="logo-text">CityFix</span>
+                </div>
+                <p class="footer-tagline">Making our city better together.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3 class="footer-title">Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Reports</a></li>
+                    <li><a href="#">Submit Report</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3 class="footer-title">Connect</h3>
+                <ul class="footer-links">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3 class="footer-title">Follow Us</h3>
+                <div class="social-icons">
+                    <a href="#" class="social-icon">📘</a>
+                    <a href="#" class="social-icon">🐦</a>
+                    <a href="#" class="social-icon">📷</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 CityFix. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
