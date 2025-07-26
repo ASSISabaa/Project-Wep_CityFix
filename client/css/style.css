@@ -2208,11 +2208,12 @@ body {
 }
 
 .form-label {
-    display: block;
-    margin-bottom: 8px;
-    color: #374151;
-    font-weight: 500;
+    color: #404040;
+    font-family: Inter;
     font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
 }
 
 .form-input,
@@ -2732,9 +2733,9 @@ a,
 /* Wrapper: margin from header */
 .progress-wrapper {
   margin-top: 32px;
- 
   padding: 0 80px;
   box-sizing: border-box;
+  margin-bottom: 48p;
 }
 
 /* Container of all progress */
@@ -2837,25 +2838,17 @@ a,
 }
 
 .form-title {
-    color: #1F2937;
-    font-family: 'Inter', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
+    color: #000;
+    font-family: Inter;
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 30px; /* 100% */
     margin-bottom: 32px;
-    text-align: left;
 }
 
 .form-group {
     margin-bottom: 24px;
-}
-
-.form-label {
-    display: block;
-    color: #374151;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 8px;
 }
 
 .form-select,
