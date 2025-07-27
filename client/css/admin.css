@@ -1,0 +1,739 @@
+/* Icon color change on hover and active states */
+.nav-item:hover[data-icon="dashboard"] .nav-icon::after,
+.nav-item.active[data-icon="dashboard"] .nav-icon::after {
+    background-image: url('../assets/dashboard-icon.svg');
+    filter: brightness(0) invert(1); /* Makes icon white */
+}
+
+.nav-item:hover[data-icon="reports"] .nav-icon::after,
+.nav-item.active[data-icon="reports"] .nav-icon::after {
+    background-image: url('../assets/reports-icon.svg');
+    filter: brightness(0) invert(1); /* Makes icon white */
+}
+
+.nav-item:hover[data-icon="analytics"] .nav-icon::after,
+.nav-item.active[data-icon="analytics"] .nav-icon::after {
+    background-image: url('../assets/Analytics.svg');
+    filter: brightness(0) invert(1); /* Makes icon white */
+}
+
+.nav-item:hover[data-icon="team"] .nav-icon::after,
+.nav-item.active[data-icon="team"] .nav-icon::after {
+    background-image: url('../assets/team-icon.svg');
+    filter: brightness(0) invert(1); /* Makes icon white */
+}
+
+/* Notifications icon stays white always - no hover/active changes needed */
+
+.nav-item:hover[data-icon="settings"] .nav-icon::after,
+.nav-item.active[data-icon="settings"] .nav-icon::after {
+    background-image: url('../assets/Settings.svg');
+    filter: brightness(0) invert(1); /* Makes icon white */
+}/* Reset and basic rules */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    overflow-x: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Mobile Header - Always visible on mobile */
+.mobile-header {
+    background: #111827;
+    padding: 16px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #374151;
+    height: 70px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon-mobile {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    position: relative;
+    background-image: url('../assets/CityFix-logo.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: brightness(0) invert(1); /* Makes logo white */
+}
+
+.logo-icon-mobile::after {
+    content: '';
+}
+
+.logo-text-mobile {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Hamburger Button */
+.hamburger-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 10px;
+    gap: 4px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.hamburger-btn span {
+    width: 24px;
+    height: 4px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Hamburger Animation */
+.hamburger-btn.hamburger-active {
+    background: #EF4444;
+}
+
+.hamburger-btn.hamburger-active span {
+    background: white;
+}
+
+.hamburger-btn.hamburger-active span:nth-child(1) {
+    transform: rotate(45deg) translate(7px, 7px);
+}
+
+.hamburger-btn.hamburger-active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.hamburger-active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Main sidebar */
+.sidebar {
+    border: 0 solid #E5E7EB;
+    background: #111827;
+    display: flex;
+    width: 256px;
+    height: 100vh;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-shrink: 0;
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+/* Logo section */
+.logo-section {
+    padding: 16px 16px 17px 16px; 
+    width: 100%;
+    border-bottom: 1px solid #374151;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    position: relative;
+    background-image: url('../assets/CityFix-logo.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: brightness(0) invert(1); /* Makes logo white */
+    flex-shrink: 0;
+}
+
+.logo-icon::after {
+    content: '';
+}
+
+.logo-text-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.logo-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    line-height: 1.2;
+}
+
+/* Navigation menu */
+.nav-menu {
+    width: 100%;
+    padding-top: 24px;
+    flex: 1;
+}
+
+.nav-item {
+    width: 100%;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #D1D5DB;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-item:hover {
+    background: #374151;
+    color: white;
+    transform: translateX(4px);
+}
+
+.nav-item.active {
+    border-radius: 8px;
+    border: 0 solid #E5E7EB;
+    background: #262626;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Navigation icons - images only */
+.nav-item[data-icon="dashboard"] .nav-icon::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-image: url('../assets/dashboard-icon.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+.nav-item[data-icon="reports"] .nav-icon::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-image: url('../assets/reports-icon.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+.nav-item[data-icon="analytics"] .nav-icon::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-image: url('../assets/Analytics.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+.nav-item[data-icon="team"] .nav-icon::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-image: url('../assets/team-icon.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+.nav-item[data-icon="notifications"] .nav-icon::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-image: url('../assets/notifications.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: block;
+    filter: brightness(0) invert(1); /* Always white */
+}
+
+.nav-item[data-icon="settings"] .nav-icon::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-image: url('../assets/Settings.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+.nav-text {
+    font-weight: inherit;
+    flex: 1;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 256px;
+    min-height: 100vh;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.content-wrapper h1 {
+    color: #111827;
+    margin-bottom: 16px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.content-wrapper p {
+    color: #6B7280;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Overlay for mobile */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+/* Responsive Breakpoints */
+
+/* Large Desktop (1400px and up) */
+@media (min-width: 1400px) {
+    .mobile-header {
+        display: none; /* Hide header on large desktop */
+    }
+    
+    .sidebar {
+        width: 280px;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        transform: translateX(0);
+    }
+    
+    .sidebar.sidebar-open {
+        left: 0;
+        transform: translateX(0);
+        box-shadow: none;
+    }
+    
+    .main-content {
+        margin-left: 280px;
+        margin-top: 0;
+    }
+    
+    .logo-text {
+        font-size: 20px;
+    }
+    
+    .nav-item {
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+}
+
+/* Desktop (1025px to 1399px) */
+@media (min-width: 1025px) and (max-width: 1399px) {
+    .mobile-header {
+        display: none; /* Hide header on desktop */
+    }
+    
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 256px;
+        transform: translateX(0);
+    }
+    
+    .sidebar.sidebar-open {
+        left: 0;
+        transform: translateX(0);
+        box-shadow: none;
+    }
+    
+    .main-content {
+        margin-left: 256px;
+        margin-top: 0;
+    }
+}
+
+/* Large Desktop - Keep sidebar always visible */
+@media (min-width: 1025px) {
+    .mobile-header {
+        display: none; /* Hide mobile header on desktop */
+    }
+    
+    .overlay {
+        display: none !important; /* No overlay on desktop */
+    }
+    
+    .main-content {
+        margin-left: 256px; /* Fixed margin for sidebar */
+        margin-top: 0; /* No top margin */
+    }
+    
+    .sidebar {
+        position: fixed;
+        left: 0; /* Always visible */
+        top: 0;
+        width: 256px;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(0); /* Always shown */
+    }
+    
+    .sidebar.sidebar-open {
+        left: 0;
+        transform: translateX(0);
+        box-shadow: none; /* No shadow on desktop */
+    }
+}
+
+/* Tablet Landscape (769px to 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .mobile-header {
+        display: flex;
+    }
+    
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 70px;
+        width: 320px;
+        height: calc(100vh - 70px);
+        z-index: 1000;
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.sidebar-open {
+        left: 0;
+        transform: translateX(0);
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        margin-top: 70px;
+        padding: 25px;
+    }
+    
+    .nav-item {
+        padding: 16px 20px;
+        font-size: 15px;
+    }
+    
+    .logo-section {
+        padding: 24px 20px;
+    }
+}
+
+/* Tablet Portrait (481px to 768px) */
+@media (max-width: 768px) and (min-width: 481px) {
+    .mobile-header {
+        display: flex;
+        padding: 14px 18px;
+    }
+    
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 70px;
+        width: 300px;
+        height: calc(100vh - 70px);
+        z-index: 1000;
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.sidebar-open {
+        left: 0;
+        transform: translateX(0);
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        margin-top: 70px;
+        padding: 20px;
+    }
+    
+    .nav-item {
+        padding: 15px 18px;
+        font-size: 15px;
+    }
+    
+    .logo-section {
+        padding: 20px 18px;
+        text-align: center;
+    }
+    
+    .content-wrapper {
+        padding: 18px;
+    }
+    
+    .content-wrapper h1 {
+        font-size: 24px;
+    }
+}
+
+/* Mobile (320px to 480px) */
+@media (max-width: 480px) {
+    .mobile-header {
+        display: flex;
+        padding: 12px 16px;
+        height: 65px;
+    }
+    
+    .hamburger-btn {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .hamburger-btn span {
+        width: 22px;
+        height: 3px;
+    }
+    
+    .logo-text-mobile {
+        font-size: 16px;
+    }
+    
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 65px;
+        width: 100vw;
+        height: calc(100vh - 65px);
+        z-index: 1000;
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.sidebar-open {
+        left: 0;
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        margin-top: 65px;
+        padding: 15px;
+    }
+    
+    .nav-item {
+        padding: 18px 20px;
+        font-size: 16px;
+    }
+    
+    .logo-section {
+        padding: 18px 20px;
+        text-align: center;
+    }
+    
+    .content-wrapper {
+        padding: 15px;
+    }
+    
+    .content-wrapper h1 {
+        font-size: 22px;
+    }
+    
+    .content-wrapper p {
+        font-size: 15px;
+    }
+}
+
+/* Extra Small Mobile (below 320px) */
+@media (max-width: 319px) {
+    .mobile-header {
+        padding: 10px 12px;
+        height: 60px;
+    }
+    
+    .hamburger-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .hamburger-btn span {
+        width: 20px;
+        height: 3px;
+    }
+    
+    .logo-text-mobile {
+        font-size: 14px;
+    }
+    
+    .sidebar {
+        top: 60px;
+        height: calc(100vh - 60px);
+    }
+    
+    .main-content {
+        margin-top: 60px;
+        padding: 12px;
+    }
+    
+    .nav-item {
+        padding: 16px 18px;
+        font-size: 15px;
+    }
+    
+    .content-wrapper {
+        padding: 12px;
+    }
+    
+    .content-wrapper h1 {
+        font-size: 20px;
+    }
+}
+
+/* High DPI / Retina Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .nav-icon::after {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Animation improvements for better performance */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .content-wrapper {
+        background: #1F2937;
+        color: #F9FAFB;
+    }
+    
+    .content-wrapper h1 {
+        color: #F9FAFB;
+    }
+    
+    .content-wrapper p {
+        color: #D1D5DB;
+    }
+}
+
+/* Focus states for accessibility */
+.nav-item:focus,
+.hamburger-btn:focus {
+    outline: 2px solid #60A5FA;
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .sidebar,
+    .mobile-header,
+    .overlay {
+        display: none;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        margin-top: 0;
+    }
+}
