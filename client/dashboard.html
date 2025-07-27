@@ -32,6 +32,14 @@
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
+        <div class="logo-section">
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <div class="logo-text-container">
+                    <div class="logo-text">CityFix Admin</div>
+                </div>
+            </div>
+        </div>
         <nav class="nav-menu">
             <a href="#" class="nav-item active" data-icon="dashboard" onclick="setActive(this)">
                 <span class="nav-icon"></span>
@@ -65,6 +73,171 @@
         </nav>
     </div>
 
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Dashboard Overview</h1>
+                    <p>Welcome back, Admin</p>
+                </div>
+                <div class="header-right">
+                    <div class="notification-container">
+                        <span class="notification-icon"></span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar"></div>
+                        <span class="user-name">John Doe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon reports-icon"></div>
+                    <div class="stat-content">
+                        <h3>Total Reports</h3>
+                        <div class="stat-number">2,451</div>
+                        <div class="stat-trend positive">+15% from last month</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon progress-icon"></div>
+                    <div class="stat-content">
+                        <h3>In Progress</h3>
+                        <div class="stat-number">543</div>
+                        <div class="stat-trend neutral">Active cases</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon resolved-icon"></div>
+                    <div class="stat-content">
+                        <h3>Resolved</h3>
+                        <div class="stat-number">1,908</div>
+                        <div class="stat-trend positive">78% resolution rate</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon response-icon"></div>
+                    <div class="stat-content">
+                        <h3>Avg. Response</h3>
+                        <div class="stat-number">4.2h</div>
+                        <div class="stat-trend positive">-30min from target</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Issue Map -->
+                <div class="map-section">
+                    <h3>Issue Map</h3>
+                    <div class="map-container">
+                        <div class="map-placeholder">
+                            <p>Interactive Map View</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Reports -->
+                <div class="reports-section">
+                    <h3>Recent Reports</h3>
+                    <div class="reports-list">
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Broken Streetlight</h4>
+                                <p>Main St. & 5th Ave</p>
+                                <div class="report-time"> 10 minutes ago</div>
+                            </div>
+                            <span class="report-status new">New</span>
+                        </div>
+                        
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Pothole Repair</h4>
+                                <p>West End Road</p>
+                                <div class="report-time"> 1 hour ago</div>
+                            </div>
+                            <span class="report-status progress">In Progress</span>
+                        </div>
+                        
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Graffiti Removal</h4>
+                                <p>Central Park</p>
+                                <div class="report-time"> 2 hours ago</div>
+                            </div>
+                            <span class="report-status pending">Pending</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <a href="dashboard.html" class="footer-logo">
+                    <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                    <span class="brand-name">CityFix</span>
+                </a>
+                <p class="footer-description">Making our city better together.</p>
+            </div>
+            
+            <div class="footer-section links">
+                <h4>Quick Links</h4>
+                <div class="footer-links">
+                    <a href="#dashboard">Dashboard</a>
+                    <a href="#reports">Reports</a>
+                    <a href="#analytics">Analytics</a>
+                </div>
+            </div>
+            
+            <div class="footer-section tools">
+                <h4>Admin Tools</h4>
+                <div class="footer-links">
+                    <a href="#team">Team Management</a>
+                    <a href="#notifications">Notifications</a>
+                    <a href="#settings">Settings</a>
+                </div>
+            </div>
+            
+            <div class="footer-section support">
+                <h4>Support</h4>
+                <div class="footer-links">
+                    <a href="#contact">Contact IT</a>
+                    <a href="#privacy">Privacy Policy</a>
+                </div>
+            </div>
+            
+            
+            <div class="footer-column">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                    </a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2025 CityFix. All rights reserved.</p>
+        </div>
+    </footer>
 
     <!-- Overlay for mobile -->
     <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
