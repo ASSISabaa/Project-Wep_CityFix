@@ -1980,10 +1980,432 @@ reports.css styles
 
 /* 
 ==============================================
+==============================================
+
 Reports Details.css styles
+
+==============================================
 ==============================================
 */
+/* Back Button */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #111827;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    transition: all 0.2s ease;
+}
 
+.back-btn:hover {
+    color: #2563EB;
+    transform: translateX(-2px);
+}
+
+.back-icon {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Report Details Header */
+.report-details-header {
+    margin-bottom: 32px;
+}
+
+.report-details-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.report-details-title h1 {
+    margin: 0 0 8px 0;
+    color: #000;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 32px;
+}
+
+.report-id {
+    margin: 0;
+    color: #6B7280;
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+/* Report Details Content Layout */
+.report-details-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+/* Left Column - Main Content */
+.report-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Map Section */
+.report-map-section {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.report-map-section .map-container {
+    height: 250px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B7280;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border: 0 solid #E5E7EB;
+    background: #E5E5E5;
+}
+
+/* Description Section */
+.report-description-section {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.description-title {
+    color: #000;
+    font-family: Inter;
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 30px; 
+    margin-bottom: 18px;
+    margin-top: 16px;
+}
+
+.description-text {
+    margin: 0;
+    color: #4B5563;
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E5E7EB;
+}
+
+/* Right Column - Sidebar */
+.report-sidebar {
+    position: sticky;
+    top: 20px;
+}
+
+.status-notes-container {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E5E7EB;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+
+.status-title {
+    margin: 0 0 16px 0;
+    color: #111827;
+    font-family: Inter;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 18px;
+}
+
+.status-dropdown {
+    width: 100%;
+    background: #F9FAFB;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 16px;
+    color: #111827;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.status-dropdown:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Notes Section */
+/* .notes-section {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E5E7EB;
+} */
+
+.notes-title {
+    margin: 0 0 16px 0;
+    color: #111827;
+    font-family: Inter;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 18px;
+}
+
+.notes-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: #F9FAFB;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #111827;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
+    resize: vertical;
+    transition: all 0.2s ease;
+    margin-bottom: 16px;
+}
+
+.notes-textarea:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.notes-textarea::placeholder {
+    color: #9CA3AF;
+}
+
+.save-btn {
+    width: 100%;
+    background: #000000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.save-btn:hover {
+    background: #1F2937;
+    transform: translateY(-1px);
+}
+
+.save-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design for Report Details */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+    .report-details-content {
+        grid-template-columns: 2.5fr 1fr;
+        gap: 40px;
+    }
+    
+    .report-details-title h1 {
+        font-size: 36px;
+        line-height: 36px;
+    }
+}
+
+/* Desktop (1025px - 1199px) */
+@media (min-width: 1025px) and (max-width: 1199px) {
+    .report-details-content {
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+}
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    .report-details-content {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .report-sidebar {
+        position: static;
+        order: -1;
+    }
+    
+    .status-notes-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .report-details-title h1 {
+        font-size: 28px;
+        line-height: 28px;
+    }
+}
+
+/* Mobile Large (600px - 767px) */
+@media (max-width: 767px) {
+    .status-notes-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .report-details-title h1 {
+        font-size: 24px;
+        line-height: 24px;
+    }
+    
+    .report-map-section .map-container {
+        height: 300px;
+    }
+    
+    .report-description-section,
+    .status-section,
+    .notes-section {
+        padding: 0;
+    }
+    
+    .description-text {
+        padding: 20px;
+    }
+    
+    .back-btn {
+        margin-bottom: 20px;
+    }
+}
+
+/* Mobile Small (480px and below) */
+@media (max-width: 479px) {
+    .report-details-header {
+        margin-bottom: 24px;
+    }
+    
+    .report-details-title h1 {
+        font-size: 20px;
+        line-height: 20px;
+        margin-bottom: 4px;
+    }
+    
+    .report-id {
+        font-size: 14px;
+        line-height: 14px;
+    }
+    
+    .report-details-content {
+        gap: 16px;
+    }
+    
+    .report-map-section .map-container {
+        height: 250px;
+    }
+    
+    .report-description-section,
+    .status-section,
+    .notes-section {
+        padding: 0;
+    }
+    
+    .description-text {
+        padding: 16px;
+    }
+    
+    .description-title,
+    .status-title,
+    .notes-title {
+        font-size: 16px;
+        line-height: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .description-text {
+        font-size: 14px;
+        line-height: 20px;
+    }
+    
+    .status-dropdown,
+    .save-btn {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+    
+    .notes-textarea {
+        padding: 10px 14px;
+        font-size: 13px;
+        min-height: 100px;
+        margin-bottom: 12px;
+    }
+    
+    .back-btn {
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+    
+    .status-notes-container {
+        gap: 12px;
+    }
+}
+
+/* Ultra Small (320px and below) */
+@media (max-width: 320px) {
+    .report-details-title h1 {
+        font-size: 18px;
+        line-height: 18px;
+    }
+    
+    .report-map-section .map-container {
+        height: 200px;
+        font-size: 14px;
+    }
+    
+    .report-description-section,
+    .status-section,
+    .notes-section,
+    .report-map-section {
+        padding: 12px;
+    }
+}
 
 
 
