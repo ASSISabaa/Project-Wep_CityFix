@@ -1,16 +1,18 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CityFix - Reports Details</title>
+    <title>CityFix -  Reports Details</title>
+   
+    <!-- Favicon -->
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
    
-    <!-- CSS Stylesheets -->
+    <!-- CSS Stylesheet -->
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
@@ -101,7 +103,7 @@
             <div class="report-details-header">
                 <div class="report-details-title">
                     <div>
-                        <h1>123 Main St</h1>
+                        <h2>123 Main St</h2>
                         <p class="report-id">Jan 16, 2025</p>
                     </div>
                 </div>
@@ -146,7 +148,7 @@
                         <!-- Notes Section -->
                         <div class="notes-section">
                             <h3 class="notes-title">Notes</h3>
-                            <textarea class="notes-textarea" placeholder="Add a note...">Initial assessment completed. Electrical team dispatched to investigate the issue. Parts may need to be ordered.</textarea>
+                            <textarea class="notes-textarea" placeholder="Add a note..."></textarea>
                             <button class="save-btn">Save</button>
                         </div>
                     </div>
@@ -217,76 +219,6 @@
     <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            const hamburger = document.querySelector('.hamburger-btn');
-            
-            sidebar.classList.toggle('sidebar-open');
-            overlay.classList.toggle('show');
-            hamburger.classList.toggle('hamburger-active');
-        }
-
-        function closeSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            const hamburger = document.querySelector('.hamburger-btn');
-            
-            sidebar.classList.remove('sidebar-open');
-            overlay.classList.remove('show');
-            hamburger.classList.remove('hamburger-active');
-        }
-
-        function updateStatus(status) {
-            console.log('Status updated to:', status);
-            // Add your status update logic here
-        }
-
-        function saveChanges() {
-            const notes = document.getElementById('notesText').value;
-            const status = document.querySelector('.status-dropdown').value;
-            
-            console.log('Saving changes:', { notes, status });
-            
-            // Show save confirmation
-            const saveBtn = document.querySelector('.save-btn');
-            const originalText = saveBtn.textContent;
-            saveBtn.textContent = 'Saved!';
-            saveBtn.style.background = '#10B981';
-            
-            setTimeout(() => {
-                saveBtn.textContent = originalText;
-                saveBtn.style.background = '#000';
-            }, 2000);
-            
-            // Add your save logic here
-        }
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const hamburger = document.querySelector('.hamburger-btn');
-            const overlay = document.getElementById('overlay');
-            
-            if (window.innerWidth <= 1024) {
-                if (!sidebar.contains(event.target) && !hamburger.contains(event.target) && sidebar.classList.contains('sidebar-open')) {
-                    closeSidebar();
-                }
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 1024) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('overlay');
-                const hamburger = document.querySelector('.hamburger-btn');
-                
-                sidebar.classList.remove('sidebar-open');
-                overlay.classList.remove('show');
-                hamburger.classList.remove('hamburger-active');
-            }
-        });
     </script>
 </body>
 </html>
