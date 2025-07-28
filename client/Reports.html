@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityFix - Admin Dashboard</title>
+   
+    <!-- Favicon -->
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
+   
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-logo">
+            <div class="logo-icon-mobile"></div>
+            <div class="logo-text-mobile">CityFix Admin</div>
+        </div>
+        <div class="hamburger-btn" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo-section">
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <div class="logo-text-container">
+                    <div class="logo-text">CityFix Admin</div>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-menu">
+            <a href="#" class="nav-item" data-icon="dashboard" onclick="setActive(this)">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+           
+            <a href="#" class="nav-item active" data-icon="reports" onclick="setActive(this)">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Reports</span>
+            </a>
+           
+            <a href="#" class="nav-item" data-icon="analytics" onclick="setActive(this)">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Analytics</span>
+            </a>
+           
+            <a href="#" class="nav-item" data-icon="team" onclick="setActive(this)">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Team</span>
+            </a>
+           
+            <a href="#" class="nav-item" data-icon="notifications" onclick="setActive(this)">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Notifications</span>
+            </a>
+           
+            <a href="#" class="nav-item" data-icon="settings" onclick="setActive(this)">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Reports Management</h1>
+                    <p>Track, review, and resolve citizen-submitted reports</p>
+                </div>
+                <div class="header-right">
+                    <div class="notification-container">
+                        <span class="notification-icon"></span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar"></div>
+                        <span class="user-name">John Doe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <select class="filter-dropdown" id="issueTypeFilter">
+                            <option value="">All Issue Types</option>
+                            <option value="lighting">Lighting</option>
+                            <option value="roads">Roads</option>
+                            <option value="water">Water</option>
+                            <option value="waste">Waste Management</option>
+                            <option value="parks">Parks & Recreation</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <select class="filter-dropdown" id="districtFilter">
+                            <option value="">All Districts</option>
+                            <option value="downtown">Downtown</option>
+                            <option value="northside">Northside</option>
+                            <option value="westend">West End</option>
+                            <option value="eastside">Eastside</option>
+                            <option value="suburbs">Suburbs</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <select class="filter-dropdown" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="new">New</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="pending">Pending</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <input type="date" class="date-input" id="dateFrom" placeholder="Date From">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <div class="search-container">
+                            <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
+                            <span class="search-icon"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="export-btn">
+                    <span class="export-icon"></span>
+                    Export
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-icon"></span>
+                    Filter
+                </button>
+            </div>
+
+            <!-- Reports Table -->
+            <div class="reports-table-section">
+                <div class="table-container">
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Location</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Reported On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="report-id">#12345</td>
+                                <td class="report-title">Broken Streetlight</td>
+                                <td class="report-location">123 Main St</td>
+                                <td class="report-type">Lighting</td>
+                                <td>
+                                    <span class="status-badge status-new">New</span>
+                                </td>
+                                <td class="report-date">Jan 15, 2025</td>
+                                <td class="actions-cell">
+                                    <button class="action-menu-btn">
+                                        <span class="dots-icon"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="report-id">#12346</td>
+                                <td class="report-title">Pothole on Oak Avenue</td>
+                                <td class="report-location">456 Oak Ave</td>
+                                <td class="report-type">Roads</td>
+                                <td>
+                                    <span class="status-badge status-progress">In Progress</span>
+                                </td>
+                                <td class="report-date">Jan 14, 2025</td>
+                                <td class="actions-cell">
+                                    <button class="action-menu-btn">
+                                        <span class="dots-icon"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="report-id">#12347</td>
+                                <td class="report-title">Garbage Collection Missed</td>
+                                <td class="report-location">789 Elm St</td>
+                                <td class="report-type">Waste</td>
+                                <td>
+                                    <span class="status-badge status-pending">Pending</span>
+                                </td>
+                                <td class="report-date">Jan 13, 2025</td>
+                                <td class="actions-cell">
+                                    <button class="action-menu-btn">
+                                        <span class="dots-icon"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="report-id">#12348</td>
+                                <td class="report-title">Water Leak in Park</td>
+                                <td class="report-location">Central Park</td>
+                                <td class="report-type">Water</td>
+                                <td>
+                                    <span class="status-badge status-resolved">Resolved</span>
+                                </td>
+                                <td class="report-date">Jan 12, 2025</td>
+                                <td class="actions-cell">
+                                    <button class="action-menu-btn">
+                                        <span class="dots-icon"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="report-id">#12349</td>
+                                <td class="report-title">Damaged Park Bench</td>
+                                <td class="report-location">Riverside Park</td>
+                                <td class="report-type">Parks</td>
+                                <td>
+                                    <span class="status-badge status-new">New</span>
+                                </td>
+                                <td class="report-date">Jan 11, 2025</td>
+                                <td class="actions-cell">
+                                    <button class="action-menu-btn">
+                                        <span class="dots-icon"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination-section">
+                    <div class="pagination-info">
+                        <span>Showing 1 to 10 of 100 entries</span>
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn" id="prevBtn">Previous</button>
+                        <button class="pagination-btn" id="nextBtn">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <a href="dashboard.html" class="footer-logo">
+                    <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                    <span class="brand-name">CityFix</span>
+                </a>
+                <p class="footer-description">Making our city better together.</p>
+            </div>
+            
+            <div class="footer-section links">
+                <h4>Quick Links</h4>
+                <div class="footer-links">
+                    <a href="#dashboard">Dashboard</a>
+                    <a href="#reports">Reports</a>
+                    <a href="#analytics">Analytics</a>
+                </div>
+            </div>
+            
+            <div class="footer-section tools">
+                <h4>Admin Tools</h4>
+                <div class="footer-links">
+                    <a href="#team">Team Management</a>
+                    <a href="#notifications">Notifications</a>
+                    <a href="#settings">Settings</a>
+                </div>
+            </div>
+            
+            <div class="footer-section support">
+                <h4>Support</h4>
+                <div class="footer-links">
+                    <a href="#contact">Contact IT</a>
+                    <a href="#privacy">Privacy Policy</a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                    </a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2025 CityFix. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- JavaScript Files -->
+    <script src="js/admin.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
