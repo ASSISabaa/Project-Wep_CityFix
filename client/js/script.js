@@ -1,159 +1,249 @@
-// Super Simple Hamburger Menu - STAYS OPEN UNTIL X CLICKED!
-// File: js/script.js
+// CityFix Simple Navigation System
+// File: homepage.js  
 
-console.log('🔥 SIMPLE SCRIPT LOADED');
+console.log('🏙️ CityFix Loading...');
 
-// Wait for page to load completely
-window.addEventListener('load', function() {
-    console.log('🔥 PAGE FULLY LOADED - STARTING SCRIPT');
+// Wait for page to load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Page loaded - Starting navigation setup');
     
-    // Get the hamburger button
-    const burger = document.querySelector('.mobile-menu-btn');
-    const menu = document.querySelector('.mobile-nav');
+    // Find all navigation items (both desktop and mobile)
+    const navItems = document.querySelectorAll('.nav-item');
+    console.log(`Found ${navItems.length} navigation items`);
     
-    console.log('🔍 Burger button:', burger);
-    console.log('🔍 Mobile menu:', menu);
-    
-    if (!burger) {
-        console.error('❌ BURGER BUTTON NOT FOUND!');
-        alert('Burger button not found! Check HTML class: .mobile-menu-btn');
-        return;
-    }
-    
-    if (!menu) {
-        console.error('❌ MOBILE MENU NOT FOUND!');
-        alert('Mobile menu not found! Check HTML class: .mobile-nav');
-        return;
-    }
-    
-    console.log('✅ BOTH ELEMENTS FOUND!');
-    
-    // Track menu state
-    let menuIsOpen = false;
-    
-    // Simple click handler - ONLY BURGER BUTTON CONTROLS MENU
-    burger.onclick = function() {
-        console.log('🍔 BURGER CLICKED!');
+    navItems.forEach((item, index) => {
+        console.log(`Setting up nav item ${index}: "${item.textContent.trim()}"`);
         
-        if (menuIsOpen) {
-            // Close menu
-            menu.style.display = 'none';
-            menu.style.transform = 'translateY(-100%)';
-            burger.classList.remove('active');
-            document.body.style.overflow = '';
-            menuIsOpen = false;
-            console.log('❌ MENU CLOSED');
-        } else {
-            // Open menu
-            menu.style.display = 'block';
-            menu.style.transform = 'translateY(0)';
-            burger.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            menuIsOpen = true;
-            console.log('✅ MENU OPENED');
-        }
-    };
-    
-    // Alternative: also add event listener (double safety)
-    burger.addEventListener('click', function(e) {
-        console.log('🍔 EVENT LISTENER TRIGGERED');
-        e.preventDefault();
-        e.stopPropagation();
-    });
-    
-    // DO NOT close when clicking menu links - let user navigate
-    const links = menu.querySelectorAll('a');
-    links.forEach(function(link) {
-        link.addEventListener('click', function(e) {
-            // Allow normal link behavior, don't close menu
-            console.log('🔗 LINK CLICKED - MENU STAYS OPEN');
-            // Menu will only close when burger is clicked again
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const text = this.textContent.trim();
+            console.log(`🔗 Clicked: "${text}"`);
+            
+            // Simple navigation logic
+            if (text === 'Home') {
+                console.log('→ Going to index.html');
+                window.location.href = 'index.html';
+            }
+            else if (text === 'Reports') {
+                console.log('→ Going to BrowseReports.html');
+                window.location.href = 'BrowseReports.html';
+            }
+            else if (text === 'Submit Report') {
+                console.log('→ Going to SubmitReport.html');  
+                window.location.href = 'SubmitReport.html';
+            }
+            else if (text === 'City Insights') {
+                console.log('→ Showing City Insights modal');
+                showComingSoonModal('City Insights', 'Advanced analytics and insights about your city are coming soon! Stay tuned for data-driven reports and trends.');
+            }
+            else if (text === 'My Impact') {
+                console.log('→ Showing My Impact not found');
+                showPageNotFoundModal('My Impact', 'The My Impact page is not available yet. This feature is currently under development.');
+            }
+            else if (text === 'Contact') {
+                console.log('→ Showing Contact modal');
+                showComingSoonModal('Contact', 'Contact page is coming soon! For now, you can reach us through the feedback options in your profile.');
+            }
+            else {
+                console.log('→ Unknown navigation item');
+            }
         });
     });
     
-    // DO NOT close when clicking outside - only burger controls menu
-    // Remove outside click handler completely
+    // Setup login buttons  
+    const loginBtns = document.querySelectorAll('.login-btn');
+    console.log(`Found ${loginBtns.length} login buttons`);
     
-    // DO NOT close on window resize - keep menu state
-    // Remove resize handler
-    
-    // Only close with Escape key (optional)
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && menuIsOpen) {
-            menu.style.display = 'none';
-            menu.style.transform = 'translateY(-100%)';
-            burger.classList.remove('active');
-            document.body.style.overflow = '';
-            menuIsOpen = false;
-            console.log('⌨️ MENU CLOSED BY ESCAPE KEY');
-        }
+    loginBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🔐 Login clicked → Going to login.html');
+            window.location.href = 'login.html';
+        });
     });
     
-    // Force styles to make sure menu can show
-    menu.style.position = 'fixed';
-    menu.style.top = '70px';
-    menu.style.left = '0';
-    menu.style.right = '0';
-    menu.style.width = '100%';
-    menu.style.backgroundColor = 'rgba(255, 255, 255, 0.98)';
-    menu.style.backdropFilter = 'blur(10px)';
-    menu.style.zIndex = '9999';
-    menu.style.padding = '20px 10px';
-    menu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    menu.style.transition = 'transform 0.3s ease';
-    menu.style.display = 'none'; // Start hidden
-    menu.style.transform = 'translateY(-100%)';
-    menu.style.maxHeight = 'calc(100vh - 70px)';
-    menu.style.overflowY = 'auto';
+    // Setup signup buttons
+    const signupBtns = document.querySelectorAll('.signup-btn');
+    console.log(`Found ${signupBtns.length} signup buttons`);
     
-    // Style menu items
-    const menuItems = menu.querySelectorAll('.nav-item');
-    menuItems.forEach(function(item) {
-        item.style.display = 'block';
-        item.style.padding = '12px 0';
-        item.style.textAlign = 'center';
-        item.style.fontSize = '16px';
-        item.style.color = '#4B5563';
-        item.style.textDecoration = 'none';
-        item.style.borderBottom = '1px solid #F3F4F6';
+    signupBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('📝 Signup clicked → Going to signup.html');
+            window.location.href = 'signup.html';
+        });
     });
     
-    // Style auth buttons
-    const authSection = menu.querySelector('.auth-section');
-    if (authSection) {
-        authSection.style.marginTop = '20px';
-        authSection.style.display = 'flex';
-        authSection.style.flexDirection = 'column';
-        authSection.style.gap = '10px';
-        authSection.style.alignItems = 'center';
-        
-        const authButtons = authSection.querySelectorAll('.login-btn, .signup-btn');
-        authButtons.forEach(function(btn) {
-            btn.style.width = '200px';
-            btn.style.padding = '12px 20px';
-            btn.style.textAlign = 'center';
-            btn.style.borderRadius = '6px';
-            btn.style.fontSize = '14px';
-            btn.style.textDecoration = 'none';
+    // Setup hero button
+    const heroBtn = document.querySelector('.hero-button');
+    if (heroBtn) {
+        console.log('Found hero button');
+        heroBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🚀 Hero button clicked → Going to SubmitReport.html');
+            window.location.href = 'SubmitReport.html';
         });
     }
     
-    console.log('🎯 SCRIPT READY! MENU WILL STAY OPEN UNTIL YOU CLICK THE BURGER AGAIN!');
+    // Make issue cards clickable
+    const issueCards = document.querySelectorAll('.issue-card');
+    console.log(`Found ${issueCards.length} issue cards`);
     
-    // Add visual feedback to burger
-    burger.style.cursor = 'pointer';
-    burger.style.transition = 'all 0.3s ease';
+    issueCards.forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function() {
+            console.log('📋 Issue card clicked → Going to SubmitReport.html');
+            window.location.href = 'SubmitReport.html';
+        });
+    });
     
-    burger.onmouseenter = function() {
-        if (!menuIsOpen) {
-            burger.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
-        }
-    };
-    burger.onmouseleave = function() {
-        if (!menuIsOpen) {
-            burger.style.backgroundColor = '';
-        }
-    };
+    console.log('✅ Navigation setup complete!');
 });
 
-console.log('📄 PERSISTENT MENU SCRIPT LOADED');
+// ==============================================
+// MODAL FUNCTIONS
+// ==============================================
+
+function showComingSoonModal(featureName, description) {
+    // Remove existing modal
+    const existingModal = document.querySelector('.custom-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    `;
+    
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    `;
+    
+    modalContent.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 16px;">🚀</div>
+        <h2 style="color: #1E40AF; margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">${featureName}</h2>
+        <p style="color: #6B7280; margin: 0 0 24px 0; line-height: 1.6; font-size: 16px;">${description}</p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <button onclick="closeModal()" style="
+                background: #3B82F6;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 500;
+                cursor: pointer;
+            ">Got it!</button>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+    
+    // Close on overlay click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+function showPageNotFoundModal(pageName, description) {
+    // Remove existing modal
+    const existingModal = document.querySelector('.custom-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    `;
+    
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    `;
+    
+    modalContent.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
+        <h2 style="color: #EF4444; margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">Page Not Found</h2>
+        <h3 style="color: #1E40AF; margin: 0 0 12px 0; font-size: 18px; font-weight: 500;">${pageName}</h3>
+        <p style="color: #6B7280; margin: 0 0 24px 0; line-height: 1.6; font-size: 16px;">${description}</p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <button onclick="window.location.href='index.html'" style="
+                background: #3B82F6;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 500;
+                cursor: pointer;
+            ">🏠 Go Home</button>
+            <button onclick="closeModal()" style="
+                background: #F3F4F6;
+                color: #6B7280;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 500;
+                cursor: pointer;
+            ">Close</button>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+    
+    // Close on overlay click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+function closeModal() {
+    const modal = document.querySelector('.custom-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+console.log('📄 CityFix Navigation Script Loaded');

@@ -1,1145 +1,1646 @@
-// CityFix Homepage Complete Frontend System
-// File: homepage.js
-// Complete navigation system with all pages and functionality
+// CityFix Enhanced JavaScript - Clean Advanced Date Validation System
+// Enhanced date checking system with real-time validation and map integration
 
-console.log('🏙️ CityFix Complete System Loading...');
-
-// ==============================================
-// GLOBAL CONFIGURATION & STATE MANAGEMENT
-// ==============================================
-
-const CityFixApp = {
-    currentPage: 'home',
-    user: {
-        isLoggedIn: false,
-        username: '',
-        email: '',
-        reports: 0,
-        impact: 0
-    },
-    navigation: {
-        pages: ['home', 'reports', 'submit', 'browse', 'insights', 'dashboard', 'login', 'signup'],
-        history: []
-    },
-    data: {
-        reports: [],
-        insights: {},
-        dashboard: {},
-        filters: {
-            startDate: '',
-            endDate: '',
-            district: '',
-            issueTypes: ['potholes', 'lighting', 'drainage']
-        }
-    }
+// Global variables and data
+let isFilterApplied = false;
+let currentFilters = {
+    startDate: '',
+    endDate: '',
+    district: '',
+    issueTypes: ['potholes', 'lighting', 'drainage']
 };
 
-// ==============================================
-// PAGE DEFINITIONS & CONTENT
-// ==============================================
+// Advanced Date Validation System
+const DateValidator = {
+    // Get current date with precise time handling - REAL system date
+    getCurrentDate: function() {
+        const now = new Date(); // Get actual system date
+        // Set to end of day for proper comparison (23:59:59.999)
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        return endOfDay;
+    },
 
-const PageTemplates = {
-    // Home Page (الصفحة الرئيسية)
-    home: `
-        <div class="page-container home-page">
-            <!-- Hero Section -->
-            <section class="hero-section">
-                <div class="hero-container">
-                    <div class="hero-content">
-                        <h1 class="hero-title">Report City Issues, Make a Difference</h1>
-                        <p class="hero-description">Join thousands of citizens making our city better by reporting issues and tracking progress in real-time.</p>
-                        <a href="#" class="hero-button" onclick="navigateTo('submit')">Report Now</a>
-                    </div>
-                    <div class="hero-image-container">
-                        <div class="hero-image" style="background: linear-gradient(135deg, #3B82F6, #1E40AF); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🏙️ City View</div>
-                    </div>
-                </div>
-            </section>
+    // Get formatted current date string for display
+    getCurrentDateString: function() {
+        const now = new Date(); // Fresh date object for current time
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const year = now.getFullYear();
+        return `${month}/${day}/${year}`;
+    },
 
-            <!-- Stats Section -->
-            <section class="stats-section">
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <div class="stat-icon-image" style="background: #3B82F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">📊</div>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">15,234</div>
-                            <div class="stat-label">Total Reports</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <div class="stat-icon-image" style="background: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">✅</div>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">12,847</div>
-                            <div class="stat-label">Issues Resolved</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <div class="stat-icon-image" style="background: #F59E0B; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">⏳</div>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">2,387</div>
-                            <div class="stat-label">In Progress</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+    // Check current system date and log it (silently)
+    checkSystemDate: function() {
+        const now = new Date();
+        const dateStr = this.getCurrentDateString();
+        return {
+            date: dateStr,
+            time: now.toLocaleTimeString(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timestamp: now.getTime(),
+            year: now.getFullYear(),
+            month: now.getMonth() + 1,
+            day: now.getDate()
+        };
+    },
 
-            <!-- Main Content Area -->
-            <div class="main-content-area">
-                <!-- Filters Section -->
-                <aside class="filters-section">
-                    <div class="filters-header">
-                        <h3 class="filters-title">🔍 Filters</h3>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Date Range</label>
-                        <div class="date-inputs">
-                            <input type="text" class="date-input" placeholder="Start Date (mm/dd/yyyy)" maxlength="10">
-                            <input type="text" class="date-input" placeholder="End Date (mm/dd/yyyy)" maxlength="10">
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">District</label>
-                        <select class="district-select">
-                            <option value="">All Districts</option>
-                            <option value="downtown">Downtown</option>
-                            <option value="north">North District</option>
-                            <option value="south">South District</option>
-                            <option value="east">East District</option>
-                            <option value="west">West District</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Issue Type</label>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="potholes" name="issue-type" value="potholes" checked>
-                                <label for="potholes" class="checkbox-label">
-                                    <span class="checkbox-icon"></span>
-                                    Potholes
-                                </label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="lighting" name="issue-type" value="lighting" checked>
-                                <label for="lighting" class="checkbox-label">
-                                    <span class="checkbox-icon"></span>
-                                    Street Lighting
-                                </label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="drainage" name="issue-type" value="drainage" checked>
-                                <label for="drainage" class="checkbox-label">
-                                    <span class="checkbox-icon"></span>
-                                    Drainage Issues
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
-
-                <!-- Map Section -->
-                <main class="map-section">
-                    <div class="map-card">
-                        <div class="map-header">
-                            <h3 class="map-title">🗺️ Issue Density Map</h3>
-                        </div>
-                        <div class="map-stats-container">
-                            <div class="map-stat-card">
-                                <div class="map-stat-header">
-                                    <span class="map-stat-icon">🏢</span>
-                                    <h4 class="map-stat-title">Active District</h4>
-                                </div>
-                                <div class="map-stat-content">
-                                    <div class="resolution-percentage">Downtown</div>
-                                </div>
-                            </div>
-                            <div class="map-stat-card">
-                                <div class="map-stat-header">
-                                    <span class="map-stat-icon">🔥</span>
-                                    <h4 class="map-stat-title">Top Issue</h4>
-                                </div>
-                                <div class="map-stat-content">
-                                    <div class="resolution-percentage">Potholes</div>
-                                </div>
-                            </div>
-                            <div class="map-stat-card">
-                                <div class="map-stat-header">
-                                    <span class="map-stat-icon">📈</span>
-                                    <h4 class="map-stat-title">Resolution Rate</h4>
-                                </div>
-                                <div class="map-stat-content">
-                                    <div class="resolution-percentage">84%</div>
-                                </div>
-                            </div>
-                            <div class="map-stat-card">
-                                <div class="map-stat-header">
-                                    <span class="map-stat-icon">📊</span>
-                                    <h4 class="map-stat-title">Weekly Trend</h4>
-                                </div>
-                                <div class="map-stat-content">
-                                    <div class="resolution-percentage">↗️ +12%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="map-container">
-                            <div class="density-map" style="background: linear-gradient(135deg, #EFF6FF, #DBEAFE); display: flex; align-items: center; justify-content: center; color: #1E40AF; font-size: 18px; border-radius: 12px;">
-                                🗺️ Interactive City Map<br><small>Click areas to view details</small>
-                            </div>
-                        </div>
-                        <div class="map-actions">
-                            <button class="share-report-btn">
-                                📤 Share Report
-                            </button>
-                            <button class="export-pdf-btn">
-                                📄 Export PDF
-                            </button>
-                        </div>
-                    </div>
-                </main>
-            </div>
-
-            <!-- Common Issues Section -->
-            <section class="common-issues-section">
-                <h2 class="common-issues-title">Most Common Issues Reported</h2>
-                <div class="issues-container">
-                    <div class="issue-card pothole-card">
-                        <div class="issue-icon-container">
-                            <div class="issue-icon" style="background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 40px;">🕳️</div>
-                        </div>
-                        <h3 class="issue-title">Potholes</h3>
-                        <p class="issue-description">Road surface damage affecting vehicle safety and comfort</p>
-                    </div>
-                    <div class="issue-card lighting-card">
-                        <div class="issue-icon-container">
-                            <div class="issue-icon" style="background: rgba(245, 158, 11, 0.1); display: flex; align-items: center; justify-content: center; font-size: 40px;">💡</div>
-                        </div>
-                        <h3 class="issue-title">Street Lighting</h3>
-                        <p class="issue-description">Broken or dim street lights compromising safety at night</p>
-                    </div>
-                    <div class="issue-card drainage-card">
-                        <div class="issue-icon-container">
-                            <div class="issue-icon" style="background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; font-size: 40px;">🌊</div>
-                        </div>
-                        <h3 class="issue-title">Drainage Issues</h3>
-                        <p class="issue-description">Poor water drainage causing flooding and damage</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-    `,
-
-    // Submit a Report Page
-    submit: `
-        <div class="page-container submit-page">
-            <div class="submit-header">
-                <h1 class="page-title">Submit a Report</h1>
-                <p class="page-description">Help improve our community by reporting local issues</p>
-            </div>
-            
-            <div class="submit-content">
-                <form class="report-form" id="submitReportForm">
-                    <div class="form-section">
-                        <h3 class="section-title">📍 Location Information</h3>
-                        <div class="form-group">
-                            <label class="form-label">Street Address *</label>
-                            <input type="text" class="form-input" id="reportAddress" required placeholder="Enter the street address">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">District</label>
-                            <select class="form-select" id="reportDistrict">
-                                <option value="">Select District</option>
-                                <option value="downtown">Downtown</option>
-                                <option value="north">North District</option>
-                                <option value="south">South District</option>
-                                <option value="east">East District</option>
-                                <option value="west">West District</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3 class="section-title">🔧 Issue Details</h3>
-                        <div class="form-group">
-                            <label class="form-label">Issue Type *</label>
-                            <select class="form-select" id="reportIssueType" required>
-                                <option value="">Select Issue Type</option>
-                                <option value="potholes">Potholes</option>
-                                <option value="lighting">Street Lighting</option>
-                                <option value="drainage">Drainage Issues</option>
-                                <option value="traffic">Traffic Signals</option>
-                                <option value="sidewalk">Sidewalk Issues</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Priority Level</label>
-                            <select class="form-select" id="reportPriority">
-                                <option value="low">Low - Not urgent</option>
-                                <option value="medium" selected>Medium - Needs attention</option>
-                                <option value="high">High - Safety concern</option>
-                                <option value="critical">Critical - Immediate danger</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Description *</label>
-                            <textarea class="form-textarea" id="reportDescription" required placeholder="Please describe the issue in detail..." rows="4"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3 class="section-title">📸 Additional Information</h3>
-                        <div class="form-group">
-                            <label class="form-label">Photo Upload</label>
-                            <div class="file-upload-area" onclick="document.getElementById('photoUpload').click()">
-                                <div class="upload-icon">📷</div>
-                                <div class="upload-text">Click to upload photos</div>
-                                <div class="upload-hint">Supports JPG, PNG files</div>
-                            </div>
-                            <input type="file" id="photoUpload" accept="image/*" multiple style="display: none;">
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="navigateTo('home')">Cancel</button>
-                        <button type="submit" class="btn-primary">
-                            <span class="btn-icon">📤</span>
-                            Submit Report
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `,
-
-    // Browse Reports Page
-    browse: `
-        <div class="page-container browse-page">
-            <div class="browse-header">
-                <h1 class="page-title">Browse Reports</h1>
-                <div class="browse-actions">
-                    <button class="btn-filter" onclick="toggleBrowseFilters()">🔽 Filters</button>
-                    <button class="btn-sort" onclick="toggleSortMenu()">📊 Sort</button>
-                </div>
-            </div>
-
-            <div class="browse-filters" id="browseFilters" style="display: none;">
-                <div class="filter-row">
-                    <select class="form-select" id="browseDistrict">
-                        <option value="">All Districts</option>
-                        <option value="downtown">Downtown</option>
-                        <option value="north">North District</option>
-                        <option value="south">South District</option>
-                    </select>
-                    <select class="form-select" id="browseStatus">
-                        <option value="">All Status</option>
-                        <option value="open">Open</option>
-                        <option value="in-progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
-                    </select>
-                    <select class="form-select" id="browseIssueType">
-                        <option value="">All Types</option>
-                        <option value="potholes">Potholes</option>
-                        <option value="lighting">Street Lighting</option>
-                        <option value="drainage">Drainage</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="reports-grid" id="reportsGrid">
-                ${generateSampleReports()}
-            </div>
-
-            <div class="pagination">
-                <button class="page-btn" onclick="changePage('prev')">← Previous</button>
-                <span class="page-info">Page 1 of 45</span>
-                <button class="page-btn" onclick="changePage('next')">Next →</button>
-            </div>
-        </div>
-    `,
-
-    // City Insights Page (New!)
-    insights: `
-        <div class="page-container insights-page">
-            <div class="insights-header">
-                <h1 class="page-title">🏙️ City Insights</h1>
-                <p class="page-description">Data-driven insights about your community</p>
-                <div class="coming-soon-badge">Coming Soon!</div>
-            </div>
-
-            <div class="insights-content">
-                <div class="insights-preview">
-                    <div class="preview-card">
-                        <div class="preview-icon">📊</div>
-                        <h3>Analytics Dashboard</h3>
-                        <p>Comprehensive data analysis and trends</p>
-                    </div>
-                    <div class="preview-card">
-                        <div class="preview-icon">🎯</div>
-                        <h3>Performance Metrics</h3>
-                        <p>Track resolution times and efficiency</p>
-                    </div>
-                    <div class="preview-card">
-                        <div class="preview-icon">🔮</div>
-                        <h3>Predictive Insights</h3>
-                        <p>AI-powered predictions for better planning</p>
-                    </div>
-                    <div class="preview-card">
-                        <div class="preview-icon">📈</div>
-                        <h3>Trend Analysis</h3>
-                        <p>Identify patterns and seasonal trends</p>
-                    </div>
-                </div>
-
-                <div class="insights-demo">
-                    <h3>Preview: Analytics Dashboard</h3>
-                    <div class="demo-chart" style="background: linear-gradient(135deg, #EFF6FF, #DBEAFE); border-radius: 12px; padding: 40px; text-align: center;">
-                        <div style="font-size: 24px; color: #1E40AF; margin-bottom: 20px;">📊 Live Data Visualization</div>
-                        <div style="display: flex; justify-content: space-around; margin-top: 30px;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 32px; font-weight: bold; color: #3B82F6;">84%</div>
-                                <div style="color: #6B7280;">Resolution Rate</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 32px; font-weight: bold; color: #10B981;">4.2</div>
-                                <div style="color: #6B7280;">Avg Days</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 32px; font-weight: bold; color: #F59E0B;">2.3K</div>
-                                <div style="color: #6B7280;">This Month</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="notify-section">
-                    <h3>Get Notified When Available</h3>
-                    <div class="notify-form">
-                        <input type="email" class="form-input" placeholder="Enter your email" id="notifyEmail">
-                        <button class="btn-primary" onclick="addToNotifyList()">Notify Me</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
-
-    // Dashboard Page (Admin/User Dashboard)
-    dashboard: `
-        <div class="page-container dashboard-page">
-            <div class="dashboard-header">
-                <h1 class="page-title">📊 Dashboard</h1>
-                <div class="dashboard-stats">
-                    <div class="quick-stat">
-                        <span class="stat-value">47</span>
-                        <span class="stat-label">Your Reports</span>
-                    </div>
-                    <div class="quick-stat">
-                        <span class="stat-value">32</span>
-                        <span class="stat-label">Resolved</span>
-                    </div>
-                    <div class="quick-stat">
-                        <span class="stat-value">856</span>
-                        <span class="stat-label">Impact Points</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-content">
-                <div class="dashboard-section">
-                    <h3>🎯 Your Impact Overview</h3>
-                    <div class="impact-cards">
-                        <div class="impact-card">
-                            <div class="impact-icon">🏆</div>
-                            <div class="impact-info">
-                                <h4>Community Champion</h4>
-                                <p>Top 10% contributor this month</p>
-                            </div>
-                        </div>
-                        <div class="impact-card">
-                            <div class="impact-icon">⚡</div>
-                            <div class="impact-info">
-                                <h4>Quick Reporter</h4>
-                                <p>Average response time: 2.3 days</p>
-                            </div>
-                        </div>
-                        <div class="impact-card">
-                            <div class="impact-icon">🌟</div>
-                            <div class="impact-info">
-                                <h4>Quality Reports</h4>
-                                <p>95% acceptance rate</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dashboard-section">
-                    <h3>📋 Recent Activity</h3>
-                    <div class="activity-list">
-                        ${generateUserActivity()}
-                    </div>
-                </div>
-
-                <div class="dashboard-section">
-                    <h3>📈 Analytics Preview</h3>
-                    <div class="analytics-preview">
-                        <div class="chart-placeholder" style="background: linear-gradient(135deg, #F3F4F6, #E5E7EB); border-radius: 12px; padding: 40px; text-align: center;">
-                            <div style="font-size: 20px; color: #6B7280;">📊 Personal Analytics</div>
-                            <p style="color: #9CA3AF; margin-top: 10px;">Track your reporting trends and impact</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
-
-    // Reports Page (Detailed Reports View)
-    reports: `
-        <div class="page-container reports-page">
-            <div class="reports-header">
-                <h1 class="page-title">📋 Reports Management</h1>
-                <div class="reports-actions">
-                    <button class="btn-primary" onclick="navigateTo('submit')">+ New Report</button>
-                    <button class="btn-secondary" onclick="exportAllReports()">📤 Export All</button>
-                </div>
-            </div>
-
-            <div class="reports-tabs">
-                <button class="tab-btn active" onclick="switchReportsTab('all')">All Reports</button>
-                <button class="tab-btn" onclick="switchReportsTab('my')">My Reports</button>
-                <button class="tab-btn" onclick="switchReportsTab('following')">Following</button>
-            </div>
-
-            <div class="reports-content" id="reportsContent">
-                <div class="reports-table">
-                    <div class="table-header">
-                        <div class="table-cell">ID</div>
-                        <div class="table-cell">Type</div>
-                        <div class="table-cell">Location</div>
-                        <div class="table-cell">Status</div>
-                        <div class="table-cell">Date</div>
-                        <div class="table-cell">Actions</div>
-                    </div>
-                    ${generateReportsTable()}
-                </div>
-            </div>
-        </div>
-    `,
-
-    // Login Page
-    login: `
-        <div class="page-container login-page">
-            <div class="auth-container">
-                <div class="auth-header">
-                    <h1 class="auth-title">Welcome Back!</h1>
-                    <p class="auth-description">Sign in to continue making a difference</p>
-                </div>
-                
-                <form class="auth-form" id="loginForm">
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-input" id="loginEmail" required placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-input" id="loginPassword" required placeholder="Enter your password">
-                    </div>
-                    <div class="form-options">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="rememberMe">
-                            <span class="checkbox-icon"></span>
-                            Remember me
-                        </label>
-                        <a href="#" class="forgot-link">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="btn-primary auth-btn">Sign In</button>
-                </form>
-                
-                <div class="auth-footer">
-                    <p>Don't have an account? <a href="#" onclick="navigateTo('signup')">Sign up</a></p>
-                </div>
-            </div>
-        </div>
-    `,
-
-    // Signup Page
-    signup: `
-        <div class="page-container signup-page">
-            <div class="auth-container">
-                <div class="auth-header">
-                    <h1 class="auth-title">Join CityFix</h1>
-                    <p class="auth-description">Create an account to start reporting and making a difference</p>
-                </div>
-                
-                <form class="auth-form" id="signupForm">
-                    <div class="form-group">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" class="form-input" id="signupName" required placeholder="Enter your full name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-input" id="signupEmail" required placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-input" id="signupPassword" required placeholder="Create a password">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Confirm Password</label>
-                        <input type="password" class="form-input" id="confirmPassword" required placeholder="Confirm your password">
-                    </div>
-                    <div class="form-options">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="agreeTerms" required>
-                            <span class="checkbox-icon"></span>
-                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
-                        </label>
-                    </div>
-                    <button type="submit" class="btn-primary auth-btn">Create Account</button>
-                </form>
-                
-                <div class="auth-footer">
-                    <p>Already have an account? <a href="#" onclick="navigateTo('login')">Sign in</a></p>
-                </div>
-            </div>
-        </div>
-    `
-};
-
-// ==============================================
-// NAVIGATION SYSTEM
-// ==============================================
-
-function navigateTo(pageName, addToHistory = true) {
-    console.log(`🧭 Navigating to: ${pageName}`);
-    
-    if (!PageTemplates[pageName]) {
-        console.error(`❌ Page not found: ${pageName}`);
-        showNotification('Page not found', 'error');
-        return;
-    }
-
-    // Add to history
-    if (addToHistory && CityFixApp.currentPage !== pageName) {
-        CityFixApp.navigation.history.push(CityFixApp.currentPage);
-    }
-
-    // Update current page
-    const previousPage = CityFixApp.currentPage;
-    CityFixApp.currentPage = pageName;
-
-    // Update page content
-    updatePageContent(pageName);
-    
-    // Update navigation highlighting
-    updateNavigationHighlight(pageName);
-    
-    // Update URL without page refresh
-    updateURL(pageName);
-    
-    // Initialize page-specific functionality
-    initializePage(pageName);
-    
-    // Close mobile menu if open
-    closeMobileMenu();
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    console.log(`✅ Navigation complete: ${previousPage} → ${pageName}`);
-}
-
-function updatePageContent(pageName) {
-    const pageContent = document.querySelector('.page-content');
-    if (!pageContent) {
-        console.error('❌ Page content container not found');
-        return;
-    }
-
-    // Add loading animation
-    pageContent.style.opacity = '0.5';
-    
-    setTimeout(() => {
-        pageContent.innerHTML = PageTemplates[pageName];
-        pageContent.style.opacity = '1';
+    // Continuous date monitoring (background only) - Enhanced
+    startDateMonitoring: function() {
+        // Check system date immediately on start
+        this.performSystemDateCheck();
         
-        // Re-initialize common components for new page
-        initializeCommonComponents();
-    }, 150);
-}
+        // Update validation silently every minute
+        setInterval(() => {
+            this.performSystemDateCheck();
+            this.updateAllDateValidations();
+        }, 60000);
+        
+        // Also check every 30 seconds for more frequent monitoring
+        setInterval(() => {
+            this.performSystemDateCheck();
+        }, 30000);
+        
+        // Check when page becomes visible
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                this.performSystemDateCheck();
+                setTimeout(() => this.updateAllDateValidations(), 100);
+            }
+        });
+    },
 
-function updateNavigationHighlight(pageName) {
-    // Update desktop navigation
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('href') === `#${pageName}` || 
-            item.textContent.toLowerCase().includes(pageName.toLowerCase())) {
-            item.classList.add('active');
+    // Perform comprehensive system date check (silent background operation)
+    performSystemDateCheck: function() {
+        const now = new Date();
+        const currentDateInfo = this.checkSystemDate();
+        
+        // Validate system constraints
+        this.validateSystemConstraints(now);
+        
+        // Update internal date references
+        this.updateInternalDateReferences(now);
+        
+        // Check all existing date inputs against new system date (no auto-populate)
+        this.revalidateAllInputsAgainstSystemDate(now);
+        
+        return currentDateInfo;
+    },
+
+    // Validate system constraints and date logic (no minimum date restriction)
+    validateSystemConstraints: function(systemDate) {
+        const maxDate = this.getCurrentDate();
+        
+        // Ensure system date is reasonable
+        if (systemDate > maxDate) {
+            console.warn('System date appears to be in the future');
         }
-    });
-
-    // Update mobile navigation
-    const mobileNavItems = document.querySelectorAll('.mobile-nav .nav-item');
-    mobileNavItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('href') === `#${pageName}`) {
-            item.classList.add('active');
+        
+        // Check for reasonable date ranges (no minimum restriction)
+        const currentYear = systemDate.getFullYear();
+        if (currentYear > 2030) {
+            console.warn('System date year seems outside expected range');
         }
-    });
-}
+        
+        return true;
+    },
 
-function updateURL(pageName) {
-    const newURL = `${window.location.origin}${window.location.pathname}#${pageName}`;
-    history.pushState({ page: pageName }, `CityFix - ${pageName}`, newURL);
-}
+    // Update internal date references
+    updateInternalDateReferences: function(systemDate) {
+        // Update internal date references (no minimum date restriction)
+        this._lastSystemCheck = systemDate.getTime();
+        this._currentSystemDate = new Date(systemDate);
+        
+        // No minimum date restriction needed
+        this._maxSystemDate = this.getCurrentDate();
+    },
 
-function goBack() {
-    if (CityFixApp.navigation.history.length > 0) {
-        const previousPage = CityFixApp.navigation.history.pop();
-        navigateTo(previousPage, false);
-    } else {
-        navigateTo('home', false);
+    // Revalidate all inputs against current system date
+    revalidateAllInputsAgainstSystemDate: function(systemDate) {
+        const dateInputs = document.querySelectorAll('.date-input');
+        let hasChanges = false;
+        
+        dateInputs.forEach(input => {
+            if (input.value && input.value.length === 10) {
+                const inputDate = this.parseDate(input.value);
+                if (inputDate) {
+                    // Check if this date is now invalid due to system date change (only future dates)
+                    const wasValid = !input.classList.contains('invalid-date');
+                    const isNowValid = inputDate <= systemDate; // No minimum date restriction
+                    
+                    if (wasValid !== isNowValid) {
+                        hasChanges = true;
+                        // Trigger revalidation
+                        setTimeout(() => performRealTimeValidation(input), 10);
+                    }
+                }
+            }
+        });
+        
+        // If there were validation changes, update map functionality
+        if (hasChanges) {
+            setTimeout(() => {
+                const allValid = validateAllDates();
+                updateMapFunctionality(allValid);
+            }, 50);
+        }
+    },
+
+    // Update displayed dates throughout the UI (minimal)
+    updateDisplayedDates: function() {
+        // Only update if there are validation errors that need current date
+        const dateInputs = document.querySelectorAll('.date-input');
+        dateInputs.forEach(input => {
+            if (input.value) {
+                performRealTimeValidation(input);
+            }
+        });
+    },
+
+    // Enhanced real-time date validation with system date awareness
+    updateAllDateValidations: function() {
+        // First check current system date
+        const currentSystemDate = this.getCurrentDate();
+        
+        const dateInputs = document.querySelectorAll('.date-input');
+        let validationResults = [];
+        
+        dateInputs.forEach((input, index) => {
+            if (input.value) {
+                const inputDate = this.parseDate(input.value);
+                if (inputDate) {
+                    // Check against current system date
+                    const isValid = this.isDateValidAgainstSystem(inputDate, currentSystemDate);
+                    validationResults.push({ input, isValid, date: inputDate });
+                    
+                    // Update validation display if needed
+                    performRealTimeValidation(input);
+                }
+            }
+        });
+        
+        // Check date range validity
+        if (validationResults.length === 2) {
+            const startResult = validationResults[0];
+            const endResult = validationResults[1];
+            
+            if (startResult.isValid && endResult.isValid) {
+                // Both dates are individually valid, check range
+                if (startResult.date > endResult.date) {
+                    // Range is invalid
+                    setTimeout(() => validateDateRangeIfBothPresent(), 10);
+                }
+            }
+        }
+        
+        return validationResults;
+    },
+
+    // Auto-populate date inputs - DISABLED (let user input manually)
+    autoPopulateDateInputs: function() {
+        // No auto-population - user must enter dates manually
+        return;
+    },
+
+    // Format Date object to mm/dd/yyyy string
+    formatDateToString: function(date) {
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}/${day}/${year}`;
+    },
+
+    // Update auto-populated dates - DISABLED  
+    updateAutoPopulatedDates: function() {
+        // No auto-population updates - system works silently
+        return;
+    },
+
+    // Advanced system date monitoring with change detection
+    monitorSystemDateChanges: function() {
+        let lastKnownDate = this.getCurrentDate().getTime();
+        
+        return setInterval(() => {
+            const currentDate = this.getCurrentDate().getTime();
+            
+            // Detect if system date has changed significantly
+            const timeDifference = Math.abs(currentDate - lastKnownDate);
+            const expectedDifference = 60000; // 1 minute expected
+            
+            if (timeDifference > expectedDifference * 2) {
+                // System date seems to have jumped - revalidate everything
+                console.log('System date change detected - revalidating all dates');
+                this.performSystemDateCheck();
+                
+                // Force revalidation of all inputs
+                setTimeout(() => {
+                    const allValid = validateAllDates();
+                    updateMapFunctionality(allValid);
+                }, 100);
+            }
+            
+            lastKnownDate = currentDate;
+        }, 30000); // Check every 30 seconds
+    },
+
+    // Get system start date (earliest allowed date for reports)
+    getSystemStartDate: function() {
+        const startDate = new Date('2020-01-01');
+        return startDate;
+    },
+
+    // Check if date format is valid (mm/dd/yyyy only)
+    isValidDateFormat: function(dateString) {
+        const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
+        return regex.test(dateString);
+    },
+
+    // Parse date string to Date object
+    parseDate: function(dateString) {
+        if (!this.isValidDateFormat(dateString)) return null;
+        const [month, day, year] = dateString.split('/').map(num => parseInt(num));
+        return new Date(year, month - 1, day);
+    },
+
+    // Check if date is a real calendar date
+    isRealDate: function(dateString) {
+        if (!this.isValidDateFormat(dateString)) return false;
+        
+        const date = this.parseDate(dateString);
+        const [month, day, year] = dateString.split('/').map(num => parseInt(num));
+        
+        return date && date.getMonth() + 1 === month && 
+               date.getDate() === day && 
+               date.getFullYear() === year;
+    },
+
+    // Check if date is within allowed range (not future, not too old)
+    isDateInRange: function(dateString) {
+        if (!this.isRealDate(dateString)) return false;
+        
+        const date = this.parseDate(dateString);
+        const currentDate = this.getCurrentDate();
+        const systemStartDate = this.getSystemStartDate();
+        
+        return date >= systemStartDate && date <= currentDate;
+    },
+
+    // Get validation message for date (accepts any date up to today)
+    getValidationMessage: function(dateString, isStartDate = false) {
+        if (!dateString) return { isValid: true, message: '' };
+        
+        if (dateString.length < 10) {
+            return { isValid: false, message: 'Complete date required' };
+        }
+
+        if (!this.isValidDateFormat(dateString)) {
+            return { isValid: false, message: 'Invalid format' };
+        }
+
+        if (!this.isRealDate(dateString)) {
+            return { isValid: false, message: 'Invalid date' };
+        }
+
+        const inputDate = this.parseDate(dateString);
+        const todayEndOfDay = this.getCurrentDate();
+        
+        // Debug logging to see what's happening
+        console.log('Validating:', dateString);
+        console.log('Input date:', inputDate);
+        console.log('Today end:', todayEndOfDay);
+        console.log('Is future?', inputDate > todayEndOfDay);
+
+        // Only check if date is in the future - allow any past date
+        if (inputDate > todayEndOfDay) {
+            return { isValid: false, message: 'Date cannot be in the future' };
+        }
+
+        return { isValid: true, message: 'Valid date' };
+    },
+
+    // Check if date range is valid (start date before end date)
+    isValidDateRange: function(startDate, endDate) {
+        if (!startDate || !endDate) return true;
+        
+        const start = this.parseDate(startDate);
+        const end = this.parseDate(endDate);
+        
+        if (!start || !end) return false;
+        
+        if (start > end) {
+            return { isValid: false, message: 'End date must be after start date' };
+        }
+
+        // Check if range is too large (more than 2 years)
+        const twoYearsInMs = 2 * 365 * 24 * 60 * 60 * 1000;
+        if (end - start > twoYearsInMs) {
+            return { isValid: false, message: 'Date range cannot exceed 2 years' };
+        }
+
+        return { isValid: true, message: 'Valid date range' };
     }
-}
+};
 
-// ==============================================
-// PAGE-SPECIFIC INITIALIZATION
-// ==============================================
-
-function initializePage(pageName) {
-    console.log(`🔧 Initializing page: ${pageName}`);
-    
-    switch (pageName) {
-        case 'home':
-            initializeHomePage();
-            break;
-        case 'submit':
-            initializeSubmitPage();
-            break;
-        case 'browse':
-            initializeBrowsePage();
-            break;
-        case 'insights':
-            initializeInsightsPage();
-            break;
-        case 'dashboard':
-            initializeDashboardPage();
-            break;
-        case 'reports':
-            initializeReportsPage();
-            break;
-        case 'login':
-            initializeLoginPage();
-            break;
-        case 'signup':
-            initializeSignupPage();
-            break;
-        default:
-            console.log(`ℹ️ No specific initialization for: ${pageName}`);
+// Sample data for dynamic functionality (Fallback Data)
+const cityData = {
+    districts: {
+        '': { 
+            name: 'All Districts', 
+            reports: 15234, 
+            resolved: 12847, 
+            avgTime: 4.2 
+        },
+        'downtown': { 
+            name: 'Downtown', 
+            reports: 4521, 
+            resolved: 3846, 
+            avgTime: 3.2 
+        },
+        'north': { 
+            name: 'North District', 
+            reports: 2834, 
+            resolved: 2456, 
+            avgTime: 4.1 
+        },
+        'south': { 
+            name: 'South District', 
+            reports: 3456, 
+            resolved: 2987, 
+            avgTime: 4.8 
+        },
+        'east': { 
+            name: 'East District', 
+            reports: 2987, 
+            resolved: 2534, 
+            avgTime: 5.2 
+        },
+        'west': { 
+            name: 'West District', 
+            reports: 1436, 
+            resolved: 1024, 
+            avgTime: 6.1 
+        }
+    },
+    issueTypes: {
+        'potholes': { 
+            name: 'Potholes', 
+            count: 5423, 
+            resolved: 4230, 
+            avgTime: 4.2, 
+            icon: '🕳️' 
+        },
+        'lighting': { 
+            name: 'Street Lighting', 
+            count: 3891, 
+            resolved: 3579, 
+            avgTime: 2.8, 
+            icon: '💡' 
+        },
+        'drainage': { 
+            name: 'Drainage Issues', 
+            count: 2156, 
+            resolved: 1833, 
+            avgTime: 6.1, 
+            icon: '🌊' 
+        },
+        'traffic': { 
+            name: 'Traffic Signals', 
+            count: 1876, 
+            resolved: 1654, 
+            avgTime: 3.9, 
+            icon: '🚦' 
+        },
+        'sidewalk': { 
+            name: 'Sidewalk Issues', 
+            count: 1888, 
+            resolved: 1551, 
+            avgTime: 5.4, 
+            icon: '🚶' 
+        }
     }
+};
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('CityFix Enhanced Script Loading...');
+    initializeApp();
+});
+
+// Main initialization function
+function initializeApp() {
+    // Start enhanced date monitoring with system awareness
+    DateValidator.startDateMonitoring();
+    
+    // Start system date change monitoring
+    DateValidator.monitorSystemDateChanges();
+    
+    setupEventListeners();
+    initializeMobileMenu();
+    initializeFilters();
+    initializeMapActions();
+    initializeIssueCards();
+    initializeCounterAnimations();
+    initializeTooltips();
+    initializeDateValidationSystem();
+    
+    // Perform initial system validation
+    setTimeout(() => {
+        DateValidator.performSystemDateCheck();
+        validateAllDates();
+    }, 500);
+    
+    console.log('✅ CityFix Enhanced Script Loaded Successfully with Advanced Date Monitoring!');
 }
 
-function initializeHomePage() {
-    // Initialize filters and map functionality
-    setupDateValidation();
-    setupFilters();
-    setupMapInteractions();
-    animateCounters();
-    
-    console.log('🏠 Home page initialized');
-}
-
-function initializeSubmitPage() {
-    const form = document.getElementById('submitReportForm');
-    if (form) {
-        form.addEventListener('submit', handleReportSubmission);
-    }
-    
-    const photoUpload = document.getElementById('photoUpload');
-    if (photoUpload) {
-        photoUpload.addEventListener('change', handlePhotoUpload);
-    }
-    
-    console.log('📝 Submit page initialized');
-}
-
-function initializeBrowsePage() {
-    setupBrowseFilters();
-    loadReports();
-    
-    console.log('🔍 Browse page initialized');
-}
-
-function initializeInsightsPage() {
-    setupNotifyForm();
-    
-    console.log('🏙️ Insights page initialized (Coming Soon)');
-}
-
-function initializeDashboardPage() {
-    loadUserDashboard();
-    setupAnalytics();
-    
-    console.log('📊 Dashboard page initialized');
-}
-
-function initializeReportsPage() {
-    setupReportsTable();
-    setupReportsTabs();
-    
-    console.log('📋 Reports page initialized');
-}
-
-function initializeLoginPage() {
-    const form = document.getElementById('loginForm');
-    if (form) {
-        form.addEventListener('submit', handleLogin);
-    }
-    
-    console.log('🔐 Login page initialized');
-}
-
-function initializeSignupPage() {
-    const form = document.getElementById('signupForm');
-    if (form) {
-        form.addEventListener('submit', handleSignup);
-    }
-    
-    console.log('📝 Signup page initialized');
-}
-
-// ==============================================
-// COMMON COMPONENTS INITIALIZATION
-// ==============================================
-
-function initializeCommonComponents() {
-    // Re-initialize date validation if date inputs exist
+// Initialize advanced date validation system
+function initializeDateValidationSystem() {
+    // Set up real-time date validation
     const dateInputs = document.querySelectorAll('.date-input');
-    if (dateInputs.length > 0) {
-        setupDateValidation();
-    }
+    dateInputs.forEach((input, index) => {
+        // Enhanced input setup
+        input.type = 'text';
+        input.maxLength = 10;
+        input.autocomplete = 'off';
+        input.setAttribute('data-date-input', index === 0 ? 'start' : 'end');
+        
+        // Set clean placeholders without date information
+        if (index === 0) {
+            input.placeholder = 'Start Date (mm/dd/yyyy)';
+        } else {
+            input.placeholder = 'End Date (mm/dd/yyyy)';
+        }
+        
+        // Add comprehensive event listeners
+        input.addEventListener('input', handleAdvancedDateInput);
+        input.addEventListener('blur', handleAdvancedDateBlur);
+        input.addEventListener('focus', handleAdvancedDateFocus);
+        input.addEventListener('keydown', handleAdvancedDateKeydown);
+        input.addEventListener('paste', handleDatePaste);
+    });
 
-    // Re-initialize filters
-    const filters = document.querySelector('.filters-section');
-    if (filters) {
-        setupFilters();
-    }
+    // Continuous validation check every 5 seconds with system awareness
+    setInterval(() => {
+        // Check for system date changes first
+        DateValidator.performSystemDateCheck();
+        // Then validate all dates
+        validateAllDates();
+    }, 5000);
+    
+    // More frequent system monitoring every 10 seconds
+    setInterval(() => {
+        DateValidator.performSystemDateCheck();
+    }, 10000);
+    
+    // Also validate when page becomes visible (user switches back to tab)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // System might have changed while tab was hidden
+            DateValidator.performSystemDateCheck();
+            setTimeout(validateAllDates, 500);
+        }
+    });
+    
+    // Check when window regains focus
+    window.addEventListener('focus', function() {
+        DateValidator.performSystemDateCheck();
+        setTimeout(validateAllDates, 200);
+    });
+    
+    // Initial validation with system check
+    setTimeout(() => {
+        DateValidator.performSystemDateCheck();
+        validateAllDates();
+    }, 1000);
+}
 
-    // Re-initialize issue cards
+// ==============================================
+// ADVANCED DATE INPUT HANDLING
+// ==============================================
+
+function handleAdvancedDateInput(event) {
+    const input = event.target;
+    let value = input.value;
+    const cursorPosition = input.selectionStart;
+    
+    // Handle backspace and delete for slashes
+    if (event.inputType === 'deleteContentBackward' || event.inputType === 'deleteContentForward') {
+        // Allow natural deletion including slashes
+        performRealTimeValidation(input);
+        return;
+    }
+    
+    // Remove all non-digits for processing
+    let digits = value.replace(/\D/g, '');
+    
+    // Auto-format while typing
+    let formattedValue = '';
+    if (digits.length >= 2) {
+        formattedValue = digits.substring(0, 2) + '/' + digits.substring(2);
+    } else {
+        formattedValue = digits;
+    }
+    
+    if (digits.length >= 4) {
+        formattedValue = digits.substring(0, 2) + '/' + digits.substring(2, 4) + '/' + digits.substring(4, 8);
+    }
+    
+    // Update input value
+    input.value = formattedValue;
+    
+    // Maintain cursor position after formatting
+    const newCursorPos = calculateCursorPosition(value, formattedValue, cursorPosition);
+    input.setSelectionRange(newCursorPos, newCursorPos);
+    
+    // Real-time validation with visual feedback
+    performRealTimeValidation(input);
+}
+
+// Helper function to calculate cursor position after formatting
+function calculateCursorPosition(oldValue, newValue, oldCursor) {
+    // Count slashes before cursor in old value
+    const slashesBefore = (oldValue.substring(0, oldCursor).match(/\//g) || []).length;
+    // Count slashes before cursor in new value
+    const newSlashesBefore = (newValue.substring(0, oldCursor).match(/\//g) || []).length;
+    
+    // Adjust cursor position based on slash difference
+    return oldCursor + (newSlashesBefore - slashesBefore);
+}
+
+function handleAdvancedDateKeydown(event) {
+    const input = event.target;
+    const key = event.key;
+    const cursorPosition = input.selectionStart;
+    
+    // Allow: backspace, delete, tab, escape, enter, arrows
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    
+    if (allowedKeys.includes(key)) {
+        return; // Allow these keys
+    }
+    
+    // Allow Ctrl combinations (Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X)
+    if (event.ctrlKey && ['a', 'c', 'v', 'x'].includes(key.toLowerCase())) {
+        return;
+    }
+    
+    // Only allow numbers
+    if (!/[0-9]/.test(key)) {
+        event.preventDefault();
+        return;
+    }
+    
+    // Check if we're at max length (10 characters: mm/dd/yyyy)
+    const currentValue = input.value;
+    if (currentValue.length >= 10 && input.selectionStart === input.selectionEnd) {
+        event.preventDefault();
+        return;
+    }
+    
+    // Allow typing if there's a selection (replacement)
+    if (input.selectionStart !== input.selectionEnd) {
+        return;
+    }
+}
+
+function handleAdvancedDateFocus(event) {
+    const input = event.target;
+    input.style.borderColor = '#2563EB';
+    input.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+    
+    // Show helper text
+    showDateHelper(input);
+}
+
+function handleAdvancedDateBlur(event) {
+    const input = event.target;
+    
+    // Reset focus styles
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
+    
+    // Hide helper text
+    hideDateHelper(input);
+    
+    // Perform comprehensive validation
+    performComprehensiveValidation(input);
+    
+    // Trigger filter update if validation passes
+    setTimeout(() => {
+        if (areAllDatesValid()) {
+            handleFilterChange();
+        }
+    }, 100);
+}
+
+function handleDatePaste(event) {
+    event.preventDefault();
+    
+    const paste = (event.clipboardData || window.clipboardData).getData('text');
+    const input = event.target;
+    
+    // Clean and format pasted date
+    const cleanPaste = paste.replace(/\D/g, '');
+    
+    if (cleanPaste.length === 8) {
+        // Assume format: MMDDYYYY or DDMMYYYY
+        const formatted = cleanPaste.substring(0, 2) + '/' + 
+                         cleanPaste.substring(2, 4) + '/' + 
+                         cleanPaste.substring(4, 8);
+        input.value = formatted;
+        performRealTimeValidation(input);
+    }
+}
+
+// ==============================================
+// VALIDATION FUNCTIONS
+// ==============================================
+
+function performRealTimeValidation(input) {
+    const value = input.value;
+    
+    if (value.length === 10) {
+        const validation = DateValidator.getValidationMessage(value);
+        showDateValidation(input, validation.isValid, validation.message);
+        
+        // If this is a valid date, check range validation
+        if (validation.isValid) {
+            validateDateRangeIfBothPresent();
+        }
+    } else if (value.length > 0) {
+        clearDateValidation(input);
+    }
+}
+
+function performComprehensiveValidation(input) {
+    const value = input.value;
+    
+    if (!value) {
+        clearDateValidation(input);
+        return true;
+    }
+    
+    if (value.length < 10) {
+        showDateValidation(input, false, 'Complete date required');
+        return false;
+    }
+    
+    const validation = DateValidator.getValidationMessage(value);
+    showDateValidation(input, validation.isValid, validation.message);
+    
+    return validation.isValid;
+}
+
+function validateDateRangeIfBothPresent() {
+    const dateInputs = document.querySelectorAll('.date-input');
+    if (dateInputs.length < 2) return;
+    
+    const startDate = dateInputs[0].value;
+    const endDate = dateInputs[1].value;
+    
+    if (startDate.length === 10 && endDate.length === 10) {
+        const rangeValidation = DateValidator.isValidDateRange(startDate, endDate);
+        
+        if (!rangeValidation.isValid) {
+            showDateValidation(dateInputs[1], false, rangeValidation.message);
+            return false;
+        } else {
+            // Both dates are valid individually and as a range
+            showDateValidation(dateInputs[0], true, 'Valid start date');
+            showDateValidation(dateInputs[1], true, 'Valid date range');
+            return true;
+        }
+    }
+    
+    return true;
+}
+
+function validateAllDates() {
+    // Get current system date for validation
+    const currentSystemDate = DateValidator.getCurrentDate();
+    
+    const dateInputs = document.querySelectorAll('.date-input');
+    let allValid = true;
+    let systemDateChanged = false;
+    
+    dateInputs.forEach((input, index) => {
+        if (input.value) {
+            const inputDate = DateValidator.parseDate(input.value);
+            
+            if (inputDate) {
+                // Check if date is valid against current system date
+                const wasValid = !input.classList.contains('date-invalid');
+                const isNowValid = DateValidator.isDateValidAgainstSystem(inputDate, currentSystemDate);
+                
+                // If validation status changed due to system date
+                if (wasValid !== isNowValid) {
+                    systemDateChanged = true;
+                }
+                
+                // Mark input state for future reference
+                if (isNowValid) {
+                    input.classList.remove('date-invalid');
+                } else {
+                    input.classList.add('date-invalid');
+                    allValid = false;
+                }
+            }
+            
+            const isValid = performComprehensiveValidation(input);
+            if (!isValid) allValid = false;
+        }
+    });
+    
+    // Validate range if both dates are present
+    if (allValid) {
+        const rangeValid = validateDateRangeIfBothPresent();
+        if (!rangeValid) allValid = false;
+    }
+    
+    // Update map functionality based on date validation
+    updateMapFunctionality(allValid);
+    
+    // If system date caused validation changes, silently update filters
+    if (systemDateChanged && allValid) {
+        setTimeout(() => {
+            updateCurrentFilters();
+            updateDashboardData();
+        }, 100);
+    }
+    
+    return allValid;
+}
+
+function areAllDatesValid() {
+    const dateInputs = document.querySelectorAll('.date-input');
+    
+    for (let input of dateInputs) {
+        if (input.value) {
+            const validation = DateValidator.getValidationMessage(input.value);
+            if (!validation.isValid) return false;
+        }
+    }
+    
+    // Check range validation
+    if (dateInputs.length >= 2 && dateInputs[0].value && dateInputs[1].value) {
+        const rangeValidation = DateValidator.isValidDateRange(dateInputs[0].value, dateInputs[1].value);
+        return rangeValidation.isValid;
+    }
+    
+    return true;
+}
+
+// ==============================================
+// MAP FUNCTIONALITY BASED ON DATE VALIDATION
+// ==============================================
+
+function updateMapFunctionality(datesAreValid) {
+    const mapContainer = document.querySelector('.map-container');
+    const mapActions = document.querySelectorAll('.share-report-btn, .export-pdf-btn');
+    
+    if (!mapContainer) return;
+    
+    if (datesAreValid) {
+        // Enable map functionality silently
+        mapContainer.classList.remove('map-disabled');
+        mapContainer.style.opacity = '1';
+        mapContainer.style.pointerEvents = 'auto';
+        
+        // Enable action buttons
+        mapActions.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        });
+        
+    } else {
+        // Disable map functionality silently
+        mapContainer.classList.add('map-disabled');
+        mapContainer.style.opacity = '0.6';
+        mapContainer.style.pointerEvents = 'none';
+        
+        // Disable action buttons
+        mapActions.forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        });
+    }
+}
+
+// ==============================================
+// VISUAL FEEDBACK FUNCTIONS
+// ==============================================
+
+function showDateValidation(input, isValid, message) {
+    clearDateValidation(input);
+    
+    const validationDiv = document.createElement('div');
+    validationDiv.className = 'date-validation';
+    
+    if (isValid) {
+        validationDiv.style.color = '#10B981';
+        validationDiv.innerHTML = `<span class="validation-icon">✓</span> ${message}`;
+        input.style.borderColor = '#10B981';
+        input.style.backgroundColor = '#F0FDF4';
+    } else {
+        validationDiv.style.color = '#EF4444';
+        validationDiv.innerHTML = `<span class="validation-icon">✗</span> ${message}`;
+        input.style.borderColor = '#EF4444';
+        input.style.backgroundColor = '#FEF2F2';
+    }
+    
+    input.parentNode.appendChild(validationDiv);
+}
+
+function clearDateValidation(input) {
+    const existingValidation = input.parentNode.querySelector('.date-validation');
+    if (existingValidation) {
+        existingValidation.remove();
+    }
+    
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+}
+
+function showDateHelper(input) {
+    // Helper disabled - no date information shown
+    return;
+}
+
+function hideDateHelper(input) {
+    const helper = input.parentNode.querySelector('.date-helper');
+    if (helper) {
+        helper.remove();
+    }
+}
+
+// ==============================================
+// MOBILE MENU FUNCTIONALITY
+// ==============================================
+
+function initializeMobileMenu() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mobileNav = document.querySelector('.mobile-nav');
+    
+    if (mobileMenuBtn && mobileNav) {
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        
+        // Close mobile menu when clicking on nav items
+        const navItems = mobileNav.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', closeMobileMenu);
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!mobileMenuBtn.contains(event.target) && !mobileNav.contains(event.target)) {
+                closeMobileMenu();
+            }
+        });
+    }
+}
+
+function toggleMobileMenu() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mobileNav = document.querySelector('.mobile-nav');
+    
+    if (mobileMenuBtn && mobileNav) {
+        const isActive = mobileNav.classList.contains('active');
+        
+        if (isActive) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+    }
+}
+
+function openMobileMenu() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mobileNav = document.querySelector('.mobile-nav');
+    
+    mobileMenuBtn.classList.add('active');
+    mobileNav.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Show menu and animate
+    mobileNav.style.display = 'block';
+    setTimeout(() => {
+        mobileNav.style.transform = 'translateY(0)';
+    }, 10);
+}
+
+function closeMobileMenu() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mobileNav = document.querySelector('.mobile-nav');
+    
+    if (mobileMenuBtn && mobileNav) {
+        mobileMenuBtn.classList.remove('active');
+        mobileNav.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        // Animate out
+        mobileNav.style.transform = 'translateY(-100%)';
+        setTimeout(() => {
+            if (!mobileNav.classList.contains('active')) {
+                mobileNav.style.display = 'none';
+            }
+        }, 300);
+    }
+}
+
+// ==============================================
+// FILTER SYSTEM
+// ==============================================
+
+function initializeFilters() {
+    const districtSelect = document.querySelector('.district-select');
+    const checkboxes = document.querySelectorAll('input[name="issue-type"]');
+    
+    // Add event listeners for real-time filtering
+    if (districtSelect) {
+        districtSelect.addEventListener('change', handleFilterChange);
+    }
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', handleFilterChange);
+    });
+    
+    // Initialize with default values
+    updateDashboardData();
+}
+
+function handleFilterChange() {
+    // Only proceed if dates are valid
+    if (!areAllDatesValid()) {
+        showNotification('Please fix date validation errors before applying filters', 'warning');
+        return;
+    }
+    
+    clearTimeout(window.filterTimeout);
+    window.filterTimeout = setTimeout(() => {
+        updateCurrentFilters();
+        updateDashboardData();
+        showNotification('Filters updated successfully', 'success');
+    }, 300);
+}
+
+function updateCurrentFilters() {
+    const dateInputs = document.querySelectorAll('.date-input');
+    const districtSelect = document.querySelector('.district-select');
+    const checkedBoxes = document.querySelectorAll('input[name="issue-type"]:checked');
+    
+    currentFilters.startDate = dateInputs[0]?.value || '';
+    currentFilters.endDate = dateInputs[1]?.value || '';
+    currentFilters.district = districtSelect?.value || '';
+    currentFilters.issueTypes = Array.from(checkedBoxes).map(cb => cb.value);
+}
+
+function updateDashboardData() {
+    updateStatsCards();
+    updateMapStats();
+    updateIssueCardsVisibility();
+}
+
+function updateStatsCards() {
+    let totalReports = 0;
+    let resolvedIssues = 0;
+    let inProgress = 0;
+    
+    if (currentFilters.district && cityData.districts[currentFilters.district]) {
+        const districtData = cityData.districts[currentFilters.district];
+        totalReports = districtData.reports;
+        resolvedIssues = districtData.resolved;
+    } else {
+        currentFilters.issueTypes.forEach(issueType => {
+            if (cityData.issueTypes[issueType]) {
+                totalReports += cityData.issueTypes[issueType].count;
+                resolvedIssues += cityData.issueTypes[issueType].resolved;
+            }
+        });
+    }
+    
+    inProgress = totalReports - resolvedIssues;
+    
+    animateCounter(document.querySelector('.stat-card:nth-child(1) .stat-number'), totalReports);
+    animateCounter(document.querySelector('.stat-card:nth-child(2) .stat-number'), resolvedIssues);
+    animateCounter(document.querySelector('.stat-card:nth-child(3) .stat-number'), inProgress);
+}
+
+function updateMapStats() {
+    const mapStatCards = document.querySelectorAll('.map-stat-card');
+    
+    if (mapStatCards.length >= 3) {
+        let activeDistrict = 'Downtown';
+        if (currentFilters.district && cityData.districts[currentFilters.district]) {
+            activeDistrict = cityData.districts[currentFilters.district].name;
+        }
+        
+        let topIssue = 'Potholes';
+        let maxCount = 0;
+        currentFilters.issueTypes.forEach(issueType => {
+            if (cityData.issueTypes[issueType] && cityData.issueTypes[issueType].count > maxCount) {
+                maxCount = cityData.issueTypes[issueType].count;
+                topIssue = cityData.issueTypes[issueType].name;
+            }
+        });
+        
+        // Update map statistics based on current filters and date validation
+        if (areAllDatesValid()) {
+            updateMapStatContent(mapStatCards, activeDistrict, topIssue);
+        }
+    }
+}
+
+function updateMapStatContent(mapStatCards, activeDistrict, topIssue) {
+    if (mapStatCards[0]) {
+        const content = mapStatCards[0].querySelector('.map-stat-content');
+        if (content) {
+            content.innerHTML = `<div class="resolution-percentage">${activeDistrict}</div>`;
+        }
+    }
+    
+    if (mapStatCards[1]) {
+        const content = mapStatCards[1].querySelector('.map-stat-content');
+        if (content) {
+            content.innerHTML = `<div class="resolution-percentage">${topIssue}</div>`;
+        }
+    }
+    
+    if (mapStatCards[2]) {
+        const content = mapStatCards[2].querySelector('.map-stat-content');
+        if (content) {
+            content.innerHTML = '<div class="resolution-percentage">84%</div>';
+        }
+    }
+    
+    if (mapStatCards[3]) {
+        const content = mapStatCards[3].querySelector('.map-stat-content');
+        if (content) {
+            content.innerHTML = '<div class="resolution-percentage">↗️ +12%</div>';
+        }
+    }
+}
+
+function updateIssueCardsVisibility() {
     const issueCards = document.querySelectorAll('.issue-card');
-    if (issueCards.length > 0) {
-        setupIssueCards();
+    
+    issueCards.forEach(card => {
+        const cardClass = card.classList[1];
+        let issueType = '';
+        
+        if (cardClass === 'pothole-card') issueType = 'potholes';
+        else if (cardClass === 'lighting-card') issueType = 'lighting';
+        else if (cardClass === 'drainage-card') issueType = 'drainage';
+        
+        if (issueType && currentFilters.issueTypes.includes(issueType)) {
+            card.style.display = 'block';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        } else if (issueType) {
+            card.style.opacity = '0.5';
+            card.style.transform = 'translateY(10px)';
+        }
+    });
+}
+
+// ==============================================
+// MAP AND EXPORT FUNCTIONALITY
+// ==============================================
+
+function initializeMapActions() {
+    const shareBtn = document.querySelector('.share-report-btn');
+    const exportBtn = document.querySelector('.export-pdf-btn');
+    
+    if (shareBtn) {
+        shareBtn.addEventListener('click', handleShareReport);
     }
-
-    // Re-initialize counters
-    const statNumbers = document.querySelectorAll('.stat-number');
-    if (statNumbers.length > 0) {
-        animateCounters();
+    
+    if (exportBtn) {
+        exportBtn.addEventListener('click', handleExportPDF);
     }
 }
 
-// ==============================================
-// HELPER FUNCTIONS FOR CONTENT GENERATION
-// ==============================================
-
-function generateSampleReports() {
-    const reports = [
-        { id: 'R001', type: 'Pothole', location: 'Main St & 5th Ave', status: 'Open', date: '2025-01-25', priority: 'high' },
-        { id: 'R002', type: 'Lighting', location: 'Park Avenue', status: 'In Progress', date: '2025-01-24', priority: 'medium' },
-        { id: 'R003', type: 'Drainage', location: 'Oak Street', status: 'Resolved', date: '2025-01-23', priority: 'low' },
-        { id: 'R004', type: 'Traffic', location: '1st Street', status: 'Open', date: '2025-01-22', priority: 'critical' }
-    ];
-
-    return reports.map(report => `
-        <div class="report-card" data-status="${report.status.toLowerCase().replace(' ', '-')}">
-            <div class="report-header">
-                <span class="report-id">#${report.id}</span>
-                <span class="report-status status-${report.status.toLowerCase().replace(' ', '-')}">${report.status}</span>
-            </div>
-            <div class="report-content">
-                <h4 class="report-type">${report.type}</h4>
-                <p class="report-location">📍 ${report.location}</p>
-                <p class="report-date">📅 ${report.date}</p>
-                <span class="priority-badge priority-${report.priority}">${report.priority.toUpperCase()}</span>
-            </div>
-            <div class="report-actions">
-                <button class="btn-view" onclick="viewReportDetails('${report.id}')">View Details</button>
-                <button class="btn-follow" onclick="followReport('${report.id}')">Follow</button>
-            </div>
-        </div>
-    `).join('');
+function handleShareReport() {
+    if (!areAllDatesValid()) {
+        showNotification('Please fix date validation errors before sharing', 'error');
+        return;
+    }
+    showShareModal();
 }
 
-function generateReportsTable() {
-    const reports = [
-        { id: 'R001', type: 'Pothole', location: 'Main St & 5th Ave', status: 'Open', date: '2025-01-25' },
-        { id: 'R002', type: 'Lighting', location: 'Park Avenue', status: 'In Progress', date: '2025-01-24' },
-        { id: 'R003', type: 'Drainage', location: 'Oak Street', status: 'Resolved', date: '2025-01-23' }
-    ];
-
-    return reports.map(report => `
-        <div class="table-row">
-            <div class="table-cell">#${report.id}</div>
-            <div class="table-cell">${report.type}</div>
-            <div class="table-cell">${report.location}</div>
-            <div class="table-cell">
-                <span class="status-badge status-${report.status.toLowerCase().replace(' ', '-')}">${report.status}</span>
-            </div>
-            <div class="table-cell">${report.date}</div>
-            <div class="table-cell">
-                <button class="btn-sm" onclick="editReport('${report.id}')">Edit</button>
-                <button class="btn-sm btn-danger" onclick="deleteReport('${report.id}')">Delete</button>
-            </div>
-        </div>
-    `).join('');
+function handleExportPDF() {
+    if (!areAllDatesValid()) {
+        showNotification('Please fix date validation errors before exporting', 'error');
+        return;
+    }
+    
+    const exportBtn = document.querySelector('.export-pdf-btn');
+    if (exportBtn) {
+        const originalContent = exportBtn.innerHTML;
+        exportBtn.innerHTML = '<div class="loading-spinner export-loading"></div>Exporting...';
+        exportBtn.disabled = true;
+        exportBtn.classList.add('export-loading');
+        
+        showNotification('Preparing PDF export...', 'info');
+        
+        setTimeout(() => {
+            generateMockPDF();
+            
+            exportBtn.innerHTML = originalContent;
+            exportBtn.disabled = false;
+            exportBtn.classList.remove('export-loading');
+            
+            showNotification('Report exported successfully!', 'success');
+        }, 3000);
+    }
 }
 
-function generateUserActivity() {
-    const activities = [
-        { type: 'report', action: 'Submitted pothole report', location: 'Main Street', time: '2 hours ago' },
-        { type: 'update', action: 'Report #R001 was updated', location: 'Downtown', time: '1 day ago' },
-        { type: 'resolved', action: 'Your lighting report was resolved', location: 'Park Ave', time: '3 days ago' }
-    ];
+function showShareModal() {
+    let modal = document.getElementById('shareModal');
+    if (!modal) {
+        modal = createShareModal();
+        document.body.appendChild(modal);
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
 
-    return activities.map(activity => `
-        <div class="activity-item">
-            <div class="activity-icon ${activity.type}">
-                ${activity.type === 'report' ? '📝' : activity.type === 'update' ? '🔄' : '✅'}
-            </div>
-            <div class="activity-content">
-                <p class="activity-action">${activity.action}</p>
-                <p class="activity-location">📍 ${activity.location}</p>
-                <span class="activity-time">${activity.time}</span>
-            </div>
+function createShareModal() {
+    const modal = document.createElement('div');
+    modal.id = 'shareModal';
+    modal.className = 'modal-overlay';
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h3 class="modal-title">Share Report</h3>
+            <button class="modal-close-btn" onclick="closeShareModal()">×</button>
         </div>
-    `).join('');
+        <div class="share-buttons">
+            <button class="share-btn" onclick="shareVia('twitter')">
+                <span class="share-icon twitter">🐦</span>
+                <span>Share on Twitter</span>
+            </button>
+            <button class="share-btn" onclick="shareVia('facebook')">
+                <span class="share-icon facebook">📘</span>
+                <span>Share on Facebook</span>
+            </button>
+            <button class="share-btn" onclick="shareVia('linkedin')">
+                <span class="share-icon linkedin">💼</span>
+                <span>Share on LinkedIn</span>
+            </button>
+            <button class="share-btn" onclick="copyReportLink()">
+                <span class="share-icon copy">🔗</span>
+                <span>Copy Link</span>
+            </button>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeShareModal();
+        }
+    });
+    
+    return modal;
+}
+
+function closeShareModal() {
+    const modal = document.getElementById('shareModal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            document.body.style.overflow = '';
+        }, 300);
+    }
+}
+
+function shareVia(platform) {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('Check out this CityFix community report - helping make our city better!');
+    
+    let shareUrl = '';
+    
+    switch (platform) {
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            break;
+        case 'linkedin':
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+            break;
+    }
+    
+    if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400,scrollbars=yes,resizable=yes');
+        closeShareModal();
+        showNotification(`Shared on ${platform.charAt(0).toUpperCase() + platform.slice(1)}!`, 'success');
+    }
+}
+
+function copyReportLink() {
+    const url = window.location.href;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(() => {
+            closeShareModal();
+            showNotification('Link copied to clipboard!', 'success');
+        }).catch(() => {
+            fallbackCopyTextToClipboard(url);
+        });
+    } else {
+        fallbackCopyTextToClipboard(url);
+    }
+}
+
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        closeShareModal();
+        showNotification('Link copied to clipboard!', 'success');
+    } catch (err) {
+        showNotification('Failed to copy link', 'error');
+    } finally {
+        document.body.removeChild(textArea);
+    }
+}
+
+// Generate real PDF file using jsPDF library
+function generateMockPDF() {
+    // Check if jsPDF is available, if not load it
+    if (typeof window.jsPDF === 'undefined') {
+        // Load jsPDF library
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = function() {
+            createPDFDocument();
+        };
+        document.head.appendChild(script);
+    } else {
+        createPDFDocument();
+    }
+}
+
+function createPDFDocument() {
+    const reportData = {
+        date: new Date().toLocaleDateString(),
+        district: currentFilters.district || 'All Districts',
+        issueTypes: currentFilters.issueTypes.join(', '),
+        totalReports: document.querySelector('.stat-card:nth-child(1) .stat-number')?.textContent || '15,234',
+        resolved: document.querySelector('.stat-card:nth-child(2) .stat-number')?.textContent || '12,847',
+        inProgress: document.querySelector('.stat-card:nth-child(3) .stat-number')?.textContent || '2,387'
+    };
+
+    // Create new PDF document
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Set font
+    doc.setFont('helvetica');
+    
+    // Header
+    doc.setFontSize(24);
+    doc.setTextColor(37, 99, 235); // Blue color
+    doc.text('CityFix Community Report', 20, 30);
+    
+    // Date
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on ${reportData.date}`, 20, 45);
+    
+    // Line separator
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 55, 190, 55);
+    
+    // Report Summary Section
+    doc.setFontSize(16);
+    doc.setTextColor(50, 50, 50);
+    doc.text('Report Summary', 20, 70);
+    
+    doc.setFontSize(12);
+    doc.text(`District: ${reportData.district}`, 30, 85);
+    doc.text(`Issue Types: ${reportData.issueTypes}`, 30, 95);
+    doc.text(`Date Range: ${currentFilters.startDate || 'All Time'} - ${currentFilters.endDate || 'Present'}`, 30, 105);
+    
+    // Statistics Section
+    doc.setFontSize(16);
+    doc.setTextColor(50, 50, 50);
+    doc.text('Statistics Overview', 20, 125);
+    
+    // Statistics boxes
+    doc.setFillColor(240, 248, 255); // Light blue background
+    doc.rect(20, 135, 50, 30, 'F');
+    doc.rect(75, 135, 50, 30, 'F');
+    doc.rect(130, 135, 50, 30, 'F');
+    
+    // Statistics text
+    doc.setFontSize(18);
+    doc.setTextColor(37, 99, 235);
+    doc.text(reportData.totalReports, 45 - (doc.getTextWidth(reportData.totalReports) / 2), 150);
+    doc.text(reportData.resolved, 100 - (doc.getTextWidth(reportData.resolved) / 2), 150);
+    doc.text(reportData.inProgress, 155 - (doc.getTextWidth(reportData.inProgress) / 2), 150);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Total Reports', 45 - (doc.getTextWidth('Total Reports') / 2), 160);
+    doc.text('Issues Resolved', 100 - (doc.getTextWidth('Issues Resolved') / 2), 160);
+    doc.text('In Progress', 155 - (doc.getTextWidth('In Progress') / 2), 160);
+    
+    // Key Insights Section
+    doc.setFontSize(16);
+    doc.setTextColor(50, 50, 50);
+    doc.text('Key Insights', 20, 185);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(70, 70, 70);
+    const insights = [
+        'Resolution Rate: 84% of reported issues have been addressed',
+        'Most Active District: Downtown with highest report volume',
+        'Top Issue Type: Potholes requiring immediate attention',
+        'Trend: +12% improvement in response time this week'
+    ];
+    
+    insights.forEach((insight, index) => {
+        doc.text(`• ${insight}`, 30, 200 + (index * 10));
+    });
+    
+    // Footer
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 250, 190, 250);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(120, 120, 120);
+    doc.text('This report was generated by CityFix Community Platform', 20, 260);
+    doc.text('Helping make our city better, one report at a time', 20, 270);
+    
+    // Save the PDF
+    const fileName = `CityFix-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    
+    console.log(`PDF saved as: ${fileName}`);
 }
 
 // ==============================================
-// FORM HANDLERS
+// ISSUE CARDS INTERACTIVITY
 // ==============================================
+
+function initializeIssueCards() {
+    const issueCards = document.querySelectorAll('.issue-card');
+    
+    issueCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const cardType = this.classList[1];
+            let issueType = '';
+            
+            if (cardType === 'pothole-card') issueType = 'potholes';
+            else if (cardType === 'lighting-card') issueType = 'lighting';
+            else if (cardType === 'drainage-card') issueType = 'drainage';
+            
+            if (issueType) {
+                handleReportIssue(issueType);
+            }
+        });
+        
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px)';
+            this.style.boxShadow = '0px 12px 24px rgba(0, 0, 0, 0.15)';
+            this.style.cursor = 'pointer';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            if (!currentFilters.issueTypes.includes(getIssueTypeFromCard(this))) {
+                this.style.transform = 'translateY(10px)';
+            } else {
+                this.style.transform = 'translateY(0)';
+            }
+            this.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.08)';
+        });
+    });
+}
+
+function getIssueTypeFromCard(card) {
+    const cardClass = card.classList[1];
+    if (cardClass === 'pothole-card') return 'potholes';
+    if (cardClass === 'lighting-card') return 'lighting';
+    if (cardClass === 'drainage-card') return 'drainage';
+    return '';
+}
+
+function handleReportIssue(issueType) {
+    const issueName = cityData.issueTypes[issueType]?.name || issueType;
+    showReportModal(issueType, issueName);
+}
+
+function showReportModal(issueType, issueName) {
+    let modal = document.getElementById('reportModal');
+    if (!modal) {
+        modal = createReportModal();
+        document.body.appendChild(modal);
+    }
+    
+    const issueTitle = modal.querySelector('#modal-issue-type');
+    if (issueTitle) {
+        issueTitle.textContent = `Report ${issueName}`;
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function createReportModal() {
+    const modal = document.createElement('div');
+    modal.id = 'reportModal';
+    modal.className = 'modal-overlay report-modal';
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h3 id="modal-issue-type" class="modal-title">Report Issue</h3>
+            <button class="modal-close-btn" onclick="closeReportModal()">×</button>
+        </div>
+        <form id="reportForm" class="report-form">
+            <div class="form-group">
+                <label class="form-label">Location *</label>
+                <input type="text" id="location" class="form-input" required placeholder="Enter street address or landmark">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea id="description" class="form-textarea" required placeholder="Please describe the issue in detail..." rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Urgency Level</label>
+                <select id="urgency" class="form-select">
+                    <option value="low">Low - Not urgent</option>
+                    <option value="medium" selected>Medium - Needs attention</option>
+                    <option value="high">High - Safety concern</option>
+                    <option value="critical">Critical - Immediate danger</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeReportModal()">Cancel</button>
+                <button type="submit" class="btn-primary">Submit Report</button>
+            </div>
+        </form>
+    `;
+    
+    modal.appendChild(modalContent);
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeReportModal();
+        }
+    });
+    
+    const form = modalContent.querySelector('#reportForm');
+    form.addEventListener('submit', handleReportSubmission);
+    
+    return modal;
+}
+
+function closeReportModal() {
+    const modal = document.getElementById('reportModal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            document.body.style.overflow = '';
+        }, 300);
+    }
+}
 
 function handleReportSubmission(event) {
     event.preventDefault();
     
-    const formData = {
-        address: document.getElementById('reportAddress').value,
-        district: document.getElementById('reportDistrict').value,
-        issueType: document.getElementById('reportIssueType').value,
-        priority: document.getElementById('reportPriority').value,
-        description: document.getElementById('reportDescription').value
-    };
+    const location = document.getElementById('location').value;
+    const description = document.getElementById('description').value;
     
-    if (!formData.address || !formData.issueType || !formData.description) {
+    if (!location || !description) {
         showNotification('Please fill in all required fields', 'error');
         return;
     }
     
     const submitBtn = event.target.querySelector('button[type="submit"]');
-    const originalContent = submitBtn.innerHTML;
+    const originalText = submitBtn.textContent;
     submitBtn.innerHTML = '<div class="loading-spinner"></div>Submitting...';
     submitBtn.disabled = true;
     
     setTimeout(() => {
-        // Simulate successful submission
-        CityFixApp.user.reports++;
+        const totalReportsEl = document.querySelector('.stat-card:nth-child(1) .stat-number');
+        const inProgressEl = document.querySelector('.stat-card:nth-child(3) .stat-number');
+        
+        if (totalReportsEl && inProgressEl) {
+            const currentTotal = parseInt(totalReportsEl.textContent.replace(/[^\d]/g, ''));
+            const currentInProgress = parseInt(inProgressEl.textContent.replace(/[^\d]/g, ''));
+            
+            animateCounter(totalReportsEl, currentTotal + 1);
+            animateCounter(inProgressEl, currentInProgress + 1);
+        }
+        
+        event.target.reset();
+        closeReportModal();
         
         showNotification('Report submitted successfully! Thank you for helping improve our community.', 'success');
         
-        // Reset form
-        event.target.reset();
-        
-        // Navigate to reports page
-        setTimeout(() => {
-            navigateTo('reports');
-        }, 2000);
-        
-        submitBtn.innerHTML = originalContent;
-        submitBtn.disabled = false;
-    }, 2000);
-}
-
-function handleLogin(event) {
-    event.preventDefault();
-    
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    
-    if (!email || !password) {
-        showNotification('Please fill in all fields', 'error');
-        return;
-    }
-    
-    const submitBtn = event.target.querySelector('button[type="submit"]');
-    const originalContent = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<div class="loading-spinner"></div>Signing In...';
-    submitBtn.disabled = true;
-    
-    setTimeout(() => {
-        // Simulate successful login
-        CityFixApp.user.isLoggedIn = true;
-        CityFixApp.user.username = email.split('@')[0];
-        CityFixApp.user.email = email;
-        
-        showNotification('Welcome back! Login successful.', 'success');
-        
-        // Navigate to dashboard
-        setTimeout(() => {
-            navigateTo('dashboard');
-            updateAuthUI();
-        }, 1000);
-        
-        submitBtn.innerHTML = originalContent;
-        submitBtn.disabled = false;
-    }, 2000);
-}
-
-function handleSignup(event) {
-    event.preventDefault();
-    
-    const name = document.getElementById('signupName').value;
-    const email = document.getElementById('signupEmail').value;
-    const password = document.getElementById('signupPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (!name || !email || !password || !confirmPassword) {
-        showNotification('Please fill in all fields', 'error');
-        return;
-    }
-    
-    if (password !== confirmPassword) {
-        showNotification('Passwords do not match', 'error');
-        return;
-    }
-    
-    const submitBtn = event.target.querySelector('button[type="submit"]');
-    const originalContent = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<div class="loading-spinner"></div>Creating Account...';
-    submitBtn.disabled = true;
-    
-    setTimeout(() => {
-        // Simulate successful signup
-        CityFixApp.user.isLoggedIn = true;
-        CityFixApp.user.username = name;
-        CityFixApp.user.email = email;
-        
-        showNotification('Account created successfully! Welcome to CityFix.', 'success');
-        
-        // Navigate to dashboard
-        setTimeout(() => {
-            navigateTo('dashboard');
-            updateAuthUI();
-        }, 1000);
-        
-        submitBtn.innerHTML = originalContent;
+        submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     }, 2000);
 }
 
 // ==============================================
-// UI UPDATE FUNCTIONS
+// ANIMATIONS AND VISUAL EFFECTS
 // ==============================================
 
-function updateAuthUI() {
-    const authSection = document.querySelector('.auth-section');
-    if (!authSection) return;
+function initializeCounterAnimations() {
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -50px 0px'
+    };
     
-    if (CityFixApp.user.isLoggedIn) {
-        authSection.innerHTML = `
-            <div class="user-menu">
-                <span class="user-name">👋 ${CityFixApp.user.username}</span>
-                <button class="btn-secondary" onclick="logout()">Logout</button>
-            </div>
-        `;
-    } else {
-        authSection.innerHTML = `
-            <a href="#" class="login-btn" onclick="navigateTo('login')">Login</a>
-            <a href="#" class="signup-btn" onclick="navigateTo('signup')">Sign Up</a>
-        `;
-    }
-}
-
-function logout() {
-    CityFixApp.user.isLoggedIn = false;
-    CityFixApp.user.username = '';
-    CityFixApp.user.email = '';
-    
-    showNotification('Logged out successfully', 'success');
-    navigateTo('home');
-    updateAuthUI();
-}
-
-// ==============================================
-// ADDITIONAL FUNCTIONALITY
-// ==============================================
-
-function setupDateValidation() {
-    const dateInputs = document.querySelectorAll('.date-input');
-    dateInputs.forEach((input, index) => {
-        input.addEventListener('input', function() {
-            formatDateInput(this);
-            validateDateInput(this);
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const element = entry.target;
+                const finalValue = parseInt(element.textContent.replace(/[^\d]/g, ''));
+                animateCounter(element, finalValue);
+                observer.unobserve(element);
+            }
         });
+    }, observerOptions);
+    
+    const statNumbers = document.querySelectorAll('.stat-number, .resolution-percentage');
+    statNumbers.forEach(element => {
+        if (element.textContent.match(/\d/)) {
+            observer.observe(element);
+        }
     });
 }
 
-function setupFilters() {
-    const filterElements = document.querySelectorAll('.district-select, input[name="issue-type"]');
-    filterElements.forEach(element => {
-        element.addEventListener('change', applyFilters);
-    });
-}
-
-function setupIssueCards() {
-    const issueCards = document.querySelectorAll('.issue-card');
-    issueCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const issueType = this.classList[1].replace('-card', '');
-            navigateTo('submit');
-            // Pre-fill the form with the selected issue type
-            setTimeout(() => {
-                const issueTypeSelect = document.getElementById('reportIssueType');
-                if (issueTypeSelect) {
-                    issueTypeSelect.value = issueType;
-                }
-            }, 200);
-        });
-    });
-}
-
-function animateCounters() {
-    const counters = document.querySelectorAll('.stat-number');
-    counters.forEach(counter => {
-        const target = parseInt(counter.textContent.replace(/[^\d]/g, ''));
-        animateCounter(counter, target);
-    });
-}
-
-function animateCounter(element, target) {
-    let current = 0;
-    const increment = target / 100;
+function animateCounter(element, targetValue, duration = 2000) {
+    if (!element) return;
+    
+    const startValue = 0;
+    const increment = targetValue / (duration / 16);
+    let currentValue = startValue;
+    
     const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-            current = target;
+        currentValue += increment;
+        if (currentValue >= targetValue) {
+            currentValue = targetValue;
             clearInterval(timer);
         }
-        element.textContent = Math.floor(current).toLocaleString();
-    }, 20);
+        
+        const formattedValue = Math.floor(currentValue).toLocaleString();
+        
+        if (element.classList.contains('resolution-percentage') || element.textContent.includes('%')) {
+            element.textContent = Math.floor(currentValue) + '%';
+        } else {
+            element.textContent = formattedValue;
+        }
+    }, 16);
+}
+
+function initializeTooltips() {
+    const elementsWithTooltips = [
+        { selector: '.share-report-btn', text: 'Share this report on social media' },
+        { selector: '.export-pdf-btn', text: 'Download report as PDF' },
+        { selector: '.mobile-menu-btn', text: 'Open navigation menu' }
+    ];
+    
+    elementsWithTooltips.forEach(({ selector, text }) => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+            element.title = text;
+            element.setAttribute('aria-label', text);
+        });
+    });
 }
 
 // ==============================================
-// UTILITY FUNCTIONS
+// NOTIFICATION SYSTEM
 // ==============================================
 
 function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existing = document.querySelector('.notification-toast');
-    if (existing) existing.remove();
+    const existingNotification = document.querySelector('.notification-toast');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
     
     const notification = document.createElement('div');
     notification.className = `notification-toast ${type}`;
@@ -1159,173 +1660,110 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    setTimeout(() => notification.classList.add('show'), 100);
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+    
     setTimeout(() => {
         if (notification.parentElement) {
             notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
         }
     }, 5000);
 }
 
-function addToNotifyList() {
-    const email = document.getElementById('notifyEmail').value;
-    if (!email) {
-        showNotification('Please enter your email address', 'error');
-        return;
-    }
-    
-    if (!isValidEmail(email)) {
-        showNotification('Please enter a valid email address', 'error');
-        return;
-    }
-    
-    showNotification('Great! We\'ll notify you when City Insights becomes available.', 'success');
-    document.getElementById('notifyEmail').value = '';
-}
-
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
 // ==============================================
-// MOBILE MENU FUNCTIONS
+// EVENT LISTENERS SETUP
 // ==============================================
 
-function closeMobileMenu() {
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    const mobileNav = document.querySelector('.mobile-nav');
-    
-    if (mobileMenuBtn && mobileNav) {
-        mobileMenuBtn.classList.remove('active');
-        mobileNav.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-// ==============================================
-// INITIALIZATION AND EVENT LISTENERS
-// ==============================================
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 CityFix Homepage System Initializing...');
-    
-    // Initialize navigation system
-    setupNavigation();
-    
-    // Load initial page based on URL hash
-    const hash = window.location.hash.slice(1);
-    const initialPage = hash && PageTemplates[hash] ? hash : 'home';
-    navigateTo(initialPage, false);
-    
-    // Setup global event listeners
-    setupGlobalEventListeners();
-    
-    // Initialize mobile menu
-    initializeMobileMenuSystem();
-    
-    console.log('✅ CityFix Homepage System Ready!');
-});
-
-function setupNavigation() {
-    // Setup desktop navigation
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const href = this.getAttribute('href');
-            if (href && href.startsWith('#')) {
-                const pageName = href.slice(1);
-                if (PageTemplates[pageName]) {
-                    navigateTo(pageName);
-                }
-            }
-        });
-    });
-    
-    // Setup mobile navigation
-    const mobileNavItems = document.querySelectorAll('.mobile-nav .nav-item');
-    mobileNavItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const href = this.getAttribute('href');
-            if (href && href.startsWith('#')) {
-                const pageName = href.slice(1);
-                if (PageTemplates[pageName]) {
-                    navigateTo(pageName);
-                }
-            }
-        });
-    });
-}
-
-function setupGlobalEventListeners() {
-    // Handle browser back/forward buttons
-    window.addEventListener('popstate', function(event) {
-        if (event.state && event.state.page) {
-            navigateTo(event.state.page, false);
-        }
-    });
-    
-    // Handle keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey || e.metaKey) {
-            switch (e.key) {
-                case 'h':
-                    e.preventDefault();
-                    navigateTo('home');
-                    break;
-                case 'n':
-                    e.preventDefault();
-                    navigateTo('submit');
-                    break;
-                case 'b':
-                    e.preventDefault();
-                    navigateTo('browse');
-                    break;
-            }
+function setupEventListeners() {
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeShareModal();
+            closeReportModal();
+            closeMobileMenu();
         }
         
-        if (e.key === 'Escape') {
-            closeMobileMenu();
-            // Close any open modals
-            const modals = document.querySelectorAll('.modal-overlay');
-            modals.forEach(modal => modal.classList.remove('active'));
+        if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+            event.preventDefault();
+            const firstFilter = document.querySelector('.date-input, .district-select');
+            if (firstFilter) {
+                firstFilter.focus();
+                showNotification('Filter focused - use Tab to navigate', 'info');
+            }
         }
+    });
+    
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (window.innerWidth > 768) {
+                closeMobileMenu();
+            }
+            updateDashboardData();
+        }, 250);
+    });
+    
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.classList.add('enhanced-input');
     });
 }
 
-function initializeMobileMenuSystem() {
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    const mobileNav = document.querySelector('.mobile-nav');
-    
-    if (mobileMenuBtn && mobileNav) {
-        mobileMenuBtn.addEventListener('click', function() {
-            this.classList.toggle('active');
-            mobileNav.classList.toggle('active');
-            
-            if (mobileNav.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        });
-    }
-}
+// ==============================================
+// ERROR HANDLING
+// ==============================================
+
+window.addEventListener('error', function(event) {
+    console.error('CityFix Error:', event.error);
+    showNotification('Something went wrong. Please refresh the page if issues persist.', 'error');
+});
+
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled Promise Rejection:', event.reason);
+    showNotification('An unexpected error occurred.', 'error');
+});
 
 // ==============================================
 // EXPORT GLOBAL FUNCTIONS
 // ==============================================
 
-// Make functions globally accessible
-window.navigateTo = navigateTo;
-window.goBack = goBack;
-window.showNotification = showNotification;
-window.addToNotifyList = addToNotifyList;
-window.CityFixApp = CityFixApp;
+window.shareVia = shareVia;
+window.copyReportLink = copyReportLink;
+window.closeShareModal = closeShareModal;
+window.closeReportModal = closeReportModal;
+window.toggleMobileMenu = toggleMobileMenu;
 
-console.log('🎯 CityFix Homepage JavaScript Loaded Successfully!');
-console.log('📱 Responsive navigation system active');
-console.log('🔄 Page routing system ready');
-console.log('⚡ All functionality initialized');
+window.CityFix = {
+    init: initializeApp,
+    showNotification: showNotification,
+    updateFilters: updateDashboardData,
+    exportPDF: handleExportPDF,
+    shareReport: handleShareReport,
+    DateValidator: DateValidator,
+    validateAllDates: validateAllDates,
+    areAllDatesValid: areAllDatesValid
+};
+
+console.log('🚀 CityFix Enhanced JavaScript Loaded - Date Validation System Active!');
+console.log('📅 System loaded and monitoring real computer date');
+console.log('🔍 Check console for date debug information');
+console.log('⚡ Ready for user input validation');
