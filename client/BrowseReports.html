@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CityFix - Submit Report</title>
+    <title>CityFix - Browse Reports</title>
     
     <!-- Favicon -->
     <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS Stylesheets -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/BrowseReports.css">
 </head>
 <body>
@@ -28,20 +28,19 @@
             
             <nav class="nav-section">
                 <a href="index.html" class="nav-item">Home</a>
-                <a href="#" class="nav-item">Reports</a>
-                <a href="SubmitReport.html" class="nav-item active">Submit Report</a>
+                <a href="BrowseReports.html" class="nav-item active">Reports</a>
+                <a href="SubmitReport.html" class="nav-item">Submit Report</a>
                 <a href="#" class="nav-item">City Insights</a>
                 <a href="#" class="nav-item">My Impact</a>
                 <a href="#" class="nav-item">Contact</a>
             </nav>
-            
+
             <div class="auth-section">
                 <div class="notification-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
+                    </svg>                </div>
                 <div class="profile-icon">
                     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="16" cy="16" r="15" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
@@ -60,6 +59,143 @@
         </div>
     </header>
 
+    <!-- Main Content -->
+    <main class="reports-container">
+        <div class="page-header">
+            <h1>Browse Reports</h1>
+            <p class="subtitle">View and track community reported issues</p>
+        </div>
+        
+        <div class="filters-section">
+            <div class="filter-group">
+                <div class="filter-dropdown" id="typeFilter">
+                    <button class="filter-btn" type="button">
+                        <span>All Types</span>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="dropdown-content">
+                        <button class="dropdown-item" data-value="all">All Types</button>
+                        <button class="dropdown-item" data-value="lighting">Street Lighting</button>
+                        <button class="dropdown-item" data-value="roads">Road Issues</button>
+                        <button class="dropdown-item" data-value="drainage">Drainage</button>
+                        <button class="dropdown-item" data-value="waste">Waste Management</button>
+                    </div>
+                </div>
+                
+                <div class="filter-dropdown" id="districtFilter">
+                    <button class="filter-btn" type="button">
+                        <span>All Districts</span>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="dropdown-content">
+                        <button class="dropdown-item" data-value="all">All Districts</button>
+                        <button class="dropdown-item" data-value="downtown">Downtown</button>
+                        <button class="dropdown-item" data-value="west-end">West End</button>
+                        <button class="dropdown-item" data-value="north-side">North Side</button>
+                        <button class="dropdown-item" data-value="east-side">East Side</button>
+                    </div>
+                </div>
+                
+                <div class="search-group">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search reports..." class="search-input">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="11" cy="11" r="8" stroke="#9CA3AF" stroke-width="2"/>
+                            <path d="m21 21-4.35-4.35" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sort-buttons">
+                <button class="sort-btn active" data-sort="newest">Newest</button>
+                <button class="sort-btn" data-sort="most-reported">Most Reported</button>
+                <button class="sort-btn" data-sort="resolved-first">Resolved First</button>
+            </div>
+        </div>
+        
+        <div class="reports-list" id="reportsList">
+            <div class="report-card" data-type="lighting" data-district="downtown" data-status="in-progress">
+                <div class="report-image">
+                    <div class="report-icon">
+                        <img src="assets/Broken Light.svg" alt="Broken Light" width="27" height="36">
+                    </div>
+                </div>
+                <div class="report-content">
+                    <div class="report-header">
+                        <h3>Broken Light in Downtown</h3>
+                        <div class="report-priority">In Progress</div>
+                    </div>
+                    <p class="location">Main Street, near Central Park</p>
+                    <div class="status-section">
+                        <p class="time">Reported 2 days ago</p>
+                        <span class="similar-count">3 similar reports</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="report-card" data-type="roads" data-district="west-end" data-status="resolved">
+                <div class="report-image">
+                    <div class="report-icon">
+                        <img src="assets/Large Pothole.svg" alt="Large Pothole" width="27" height="36">
+                    </div>
+                </div>
+                <div class="report-content">
+                    <div class="report-header">
+                        <h3>Large Pothole</h3>
+                        <div class="report-priority">Resolved</div>
+                    </div>
+                    <p class="location">Oak Street, West End</p>
+                    <div class="status-section">
+                        <p class="time">Reported 5 days ago</p>
+                        <span class="similar-count">7 similar reports</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="report-card" data-type="drainage" data-district="north-side" data-status="pending">
+                <div class="report-image">
+                    <div class="report-icon">
+                        <img src="assets/Drainage Issue.svg" alt="Drainage Issue" width="27" height="36">
+                    </div>
+                </div>
+                <div class="report-content">
+                    <div class="report-header">
+                        <h3>Drainage Issue</h3>
+                        <div class="report-priority">Pending</div>
+                    </div>
+                    <p class="location">Pine Avenue, North Side</p>
+                    <div class="status-section">
+                        <p class="time">Reported 1 day ago</p>
+                        <span class="similar-count">2 similar reports</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pagination">
+            <button class="page-link" id="prevPage" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Previous
+            </button>
+            <button class="page-link active" data-page="1">1</button>
+            <button class="page-link" data-page="2">2</button>
+            <button class="page-link" data-page="3">3</button>
+            <button class="page-link" id="nextPage">
+                Next
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </main>
+
     <!-- Footer -->
     <footer class="main-footer">
         <div class="footer-container">
@@ -75,7 +211,7 @@
                 <div class="footer-column">
                     <h4>Quick Links</h4>
                     <a href="index.html">Home</a>
-                    <a href="reports.html">Reports</a>
+                    <a href="BrowseReports.html">Reports</a>
                     <a href="SubmitReport.html">Submit Report</a>
                 </div>
 
@@ -109,7 +245,7 @@
         </div>
     </footer>
 
-    <script src="js/submit-report.js"></script>
+    <script src="js/BrowseReports.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
