@@ -387,11 +387,34 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding: 0;
+    margin-bottom: 0px;
+    padding: 20px;
     background: transparent;
     color: #374151;
     width: 100%;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.content-wrapper {
+    max-width: none;
+    margin: 0;
+    padding: 20px; 
+    background: #F5F5F5; 
+    border-radius: 0;
+    box-shadow: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    margin-left: 256px;
+    min-height: 100vh;
+    padding: 0;
+    transition: all 0.3s ease;
+    background: #F5F5F5;
+    display: flex;
+    flex-direction: column;
 }
 
 .header-left {
@@ -2424,4 +2447,115 @@ Reports Details.css styles
 }
 
 
+ /* 
+    =====================================================
+ 
+    Coming Soon Styles 
+    =====================================================
+ 
+ */
 
+.coming-soon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.coming-soon-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    animation: pulse 2s infinite;
+}
+
+.coming-soon-icon svg {
+    width: 60px;
+    height: 60px;
+    fill: white;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.coming-soon-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 16px;
+}
+
+.coming-soon-subtitle {
+    font-size: 20px;
+    color: #6B7280;
+    margin-bottom: 24px;
+}
+
+.coming-soon-description {
+    font-size: 16px;
+    color: #9CA3AF;
+    max-width: 600px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.back-to-dashboard {
+    background: #3B82F6;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.back-to-dashboard:hover {
+    background: #2563EB;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .coming-soon-container {
+        padding: 20px;
+        min-height: 50vh;
+    }
+    
+    .coming-soon-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 24px;
+    }
+    
+    .coming-soon-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .coming-soon-title {
+        font-size: 24px;
+    }
+    
+    .coming-soon-subtitle {
+        font-size: 18px;
+    }
+    
+    .coming-soon-description {
+        font-size: 14px;
+    }
+}
