@@ -1,0 +1,224 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityFix -  Reports Details</title>
+   
+    <!-- Favicon -->
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
+   
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-logo">
+            <div class="logo-icon-mobile"></div>
+            <div class="logo-text-mobile">CityFix Admin</div>
+        </div>
+        <div class="hamburger-btn" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo-section">
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <div class="logo-text-container">
+                    <div class="logo-text">CityFix Admin</div>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item" data-icon="dashboard">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+           
+            <a href="reports.html" class="nav-item active" data-icon="reports">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Reports</span>
+            </a>
+           
+            <a href="analytics.html" class="nav-item" data-icon="analytics">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Analytics</span>
+            </a>
+           
+            <a href="team.html" class="nav-item" data-icon="team">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Team</span>
+            </a>
+           
+            <a href="notifications.html" class="nav-item" data-icon="notifications">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Notifications</span>
+            </a>
+           
+            <a href="settings.html" class="nav-item" data-icon="settings">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Reports Details</h1>
+                    <p>#12345 Broken Streetlight</p>
+                </div>
+                <div class="header-right">
+                    <div class="notification-container">
+                        <span class="notification-icon"></span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar"></div>
+                        <span class="user-name">John Doe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <a href="reports.html" class="back-btn">
+                <div class="back-icon">←</div>
+                Back to Reports
+            </a>
+
+            <!-- Report Details Header -->
+            <div class="report-details-header">
+                <div class="report-details-title">
+                    <div>
+                        <h2>123 Main St</h2>
+                        <p class="report-id">Jan 16, 2025</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Details Content -->
+            <div class="report-details-content">
+                <!-- Left Column -->
+                <div class="report-main-content">
+                    <!-- Map Section -->
+                    <div class="report-map-section">
+                        <div class="map-container">
+                            Interactive Map View
+                        </div>
+                    </div>
+
+                    <!-- Description Section -->
+                    <div class="report-description-section">
+                        <h2 class="description-title">Description</h2>
+                        <p class="description-text">
+                            Streetlight is not working, causing the area to be very dark at night. This poses a safety risk for pedestrians and drivers. The light appears to be completely out, not flickering. Located at the intersection of Main Street and Oak Avenue. Multiple residents have reported this issue. The light post appears to be in good physical condition, suggesting an electrical issue.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Right Column -->
+                <div class="report-sidebar">
+                    <div class="status-notes-container">
+                        <!-- Status Section -->
+                        <div class="status-section">
+                            <h3 class="status-title">Status</h3>
+                            <select class="status-dropdown">
+                                <option value="new">New</option>
+                                <option value="progress" selected>In Progress</option>
+                                <option value="pending">Pending</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+
+                        <!-- Notes Section -->
+                        <div class="notes-section">
+                            <h3 class="notes-title">Notes</h3>
+                            <textarea class="notes-textarea" placeholder="Add a note..."></textarea>
+                            <button class="save-btn">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <a href="dashboard.html" class="footer-logo">
+                    <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                    <span class="brand-name">CityFix</span>
+                </a>
+                <p class="footer-description">Making our city better together.</p>
+            </div>
+            
+            <div class="footer-section links">
+                <h4>Quick Links</h4>
+                <div class="footer-links">
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="reports.html">Reports</a>
+                    <a href="analytics.html">Analytics</a>
+                </div>
+            </div>
+            
+            <div class="footer-section tools">
+                <h4>Admin Tools</h4>
+                <div class="footer-links">
+                    <a href="team.html">Team Management</a>
+                    <a href="notifications.html">Notifications</a>
+                    <a href="settings.html">Settings</a>
+                </div>
+            </div>
+            
+            <div class="footer-section support">
+                <h4>Support</h4>
+                <div class="footer-links">
+                    <a href="#contact">Contact IT</a>
+                    <a href="#privacy">Privacy Policy</a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                    </a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2025 CityFix. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <script>
+    </script>
+</body>
+</html>
