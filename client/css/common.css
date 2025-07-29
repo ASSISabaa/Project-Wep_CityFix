@@ -1,0 +1,631 @@
+/* ========================================
+   CITYFIX COMMON STYLES 
+======================================== */
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: #F5F7FB;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.page-content {
+    flex: 1;
+    padding-top: 0;
+}
+
+/* ========================================
+   HEADER STYLES
+======================================== */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 80px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-height: 70px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* Logo Section */
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.logo-section:hover {
+    opacity: 0.8;
+}
+
+.logo-image {
+    width: 37.5px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.logo-text {
+    width: 71px;
+    height: 28px;
+    flex-shrink: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+}
+
+/* Navigation Section */
+.nav-section {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-left: 64px;
+    flex: 1;
+}
+
+.nav-item {
+    color: #4B5563;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+}
+
+.nav-item:hover {
+    color: #2563EB;
+}
+
+.nav-item.active {
+    color: #2563EB;
+    font-weight: 500;
+}
+
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #2563EB;
+    border-radius: 1px;
+}
+
+/* Auth Section */
+.auth-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: 243px;
+}
+
+.login-btn {
+    color: #2563EB;
+    text-decoration: none;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    padding: 8px 16px;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+}
+
+.login-btn:hover {
+    color: #1d4ed8;
+}
+
+.signup-btn {
+    background-color: #2563EB;
+    color: white;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+}
+
+.signup-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.notification-icon,
+.profile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.notification-icon:hover,
+.profile-icon:hover {
+    opacity: 0.7;
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    position: relative;
+    z-index: 1001;
+    border-radius: 6px;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.mobile-menu-btn span {
+    width: 24px;
+    height: 3px;
+    background-color: #333;
+    margin: 2.5px 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+    display: block;
+}
+
+/* Burger Animation */
+.mobile-menu-btn.active span:nth-child(1) {
+    transform: rotate(-45deg) translate(-5px, 6px);
+}
+
+.mobile-menu-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-btn.active span:nth-child(3) {
+    transform: rotate(45deg) translate(-5px, -6px);
+}
+
+/* Mobile Menu Overlay */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #e2e8f0 60%, #cbd5e1 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 999;
+    padding: 20px 15px 30px;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-nav.active {
+    display: block;
+    transform: translateX(0);
+}
+
+/* Mobile Nav Items */
+.mobile-nav .nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 0;
+    color: #1e293b;
+    text-decoration: none;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    min-height: 60px;
+    border-radius: 16px;
+    margin: 8px 0;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.mobile-nav .nav-item:hover {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(148, 163, 184, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   FOOTER STYLES - CENTERED
+======================================== */
+
+.main-footer {
+    background-color: #111827;
+    color: #d1d5db;
+    padding: 48px 80px 137px 80px;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin-top: 90px;
+    text-align: center;
+}
+
+.footer-container {
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 80px;
+    text-align: center;
+}
+
+.footer-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 160px;
+    text-align: center;
+    align-items: center;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    justify-content: center;
+}
+
+.footer-logo-img {
+    filter: brightness(0) invert(1);
+    width: 37.5px;
+    height: 30px;
+}
+
+.brand-name {
+    color: #FFF;
+    font-family: Poppins;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+}
+
+.footer-description {
+    color: #9CA3AF;
+    font-family: Poppins;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: center;
+}
+
+.footer-column h4 {
+    color: #FFF;
+    font-family: Poppins;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+}
+
+.footer-column a {
+    color: #9CA3AF;
+    font-family: Poppins;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.footer-column a:hover {
+    color: #60a5fa;
+}
+
+.social-icons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.social-icon:hover {
+    filter: invert(56%) sepia(74%) saturate(3434%) hue-rotate(192deg) brightness(102%) contrast(96%);
+    transform: scale(1.2);
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 48px;
+    color: #9CA3AF;
+    font-size: 16px;
+}
+
+.footer-bottom hr {
+    border: none;
+    border-top: 1px solid #374151;
+    margin-bottom: 16px;
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+======================================== */
+
+@media screen and (min-width: 1600px) {
+    .header {
+        padding: 18px 100px;
+    }
+    
+    .nav-section {
+        gap: 36px;
+        margin-left: 80px;
+    }
+    
+    .auth-section {
+        margin-left: 280px;
+    }
+    
+    .nav-item {
+        font-size: 17px;
+    }
+    
+    .login-btn, .signup-btn {
+        font-size: 17px;
+        padding: 11px 22px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .nav-section,
+    .auth-section {
+        display: none !important;
+    }
+    
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+    
+    .header {
+        padding: 8px 5px !important;
+        min-height: 50px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .logo-section {
+        margin: 0 !important;
+        padding: 0 !important;
+        order: 1;
+    }
+    
+    .mobile-menu-btn {
+        margin: 0 !important;
+        order: 2;
+        position: static;
+    }
+    
+    .logo-image {
+        width: 30px;
+        height: 24px;
+    }
+    
+    .logo-text {
+        font-size: 15px;
+        width: 55px;
+        height: 22px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .main-footer {
+        padding: 32px 20px;
+        text-align: center;
+    }
+    
+    .footer-container {
+        padding: 0;
+        text-align: center;
+    }
+    
+    .footer-top {
+        gap: 40px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .footer-column {
+        width: 100%;
+        max-width: 300px;
+        align-items: center;
+        text-align: center;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .main-footer {
+        padding: 24px 16px;
+    }
+    
+    .footer-top {
+        gap: 24px;
+    }
+    
+    .footer-column {
+        max-width: 250px;
+    }
+    
+    .footer-column h4 {
+        font-size: 16px;
+    }
+    
+    .footer-column a,
+    .footer-description {
+        font-size: 14px;
+    }
+    
+    .brand-name {
+        font-size: 18px;
+    }
+}
+
+/* Focus Styles for Accessibility */
+.nav-item:focus,
+.login-btn:focus,
+.signup-btn:focus,
+.mobile-menu-btn:focus {
+    outline: 2px solid #2563EB;
+    outline-offset: 2px;
+}
+
+/* Remove text decorations */
+a,
+.nav-links a,
+.nav-links a:hover,
+.nav-links a:focus,
+.login,
+.login:hover,
+.login:focus,
+.mobile-menu a,
+.mobile-menu a:hover,
+.mobile-menu a:focus {
+    text-decoration: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+/* Mobile Menu Lock Body */
+body.mobile-menu-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Spinner Animation for Loading States */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-select,
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #374151;
+    background: white;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-select:focus,
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #2563EB;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.form-label {
+    display: block;
+    color: #1E3A8A;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin-bottom: 4px;
+    padding-bottom: 0;
+}
