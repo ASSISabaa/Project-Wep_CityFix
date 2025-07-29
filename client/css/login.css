@@ -268,7 +268,17 @@ body {
   }
 }
 
-
+/* Main Content */
+.main-content {
+  flex: 1; 
+  margin-top: 0; /* Since header is sticky, no need for margin */
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: #f8fafc;
+  position: relative;
+  z-index: 1;
+}
 
 /* Footer Styles - Height: 333px */
 .main-footer {
@@ -459,4 +469,432 @@ a,
   text-decoration: none !important;
   border-bottom: none !important;
   box-shadow: none !important;
+}
+
+/* Split Layout inside main content */
+.split-container {
+  display: flex;
+  width: 100%;
+  flex: 1; /* Take remaining space and grow */
+  position: relative;
+  min-height: 1100px; /* Ensure enough height for image (270px top + 624px height + margin) */
+}
+
+.left-container {
+  width: 50%;
+  min-height: 100%; /* Full height of the split container */
+  background-color: #EFF6FF;
+  opacity: 1;
+  position: relative;
+  padding: 0 0 50px 0; /* Add bottom padding to ensure space for image */
+  overflow: visible; /* Allow image to be positioned precisely */
+}
+
+.right-container {
+  width: 50%;
+  min-height: 100%; /* Full height of the split container */
+  background-color: white;
+  opacity: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 50px 0; /* Add bottom padding to match left container */
+  position: relative; /* Allow absolute positioning of children */
+}
+
+.right-content {
+  width: 448px;
+  height: 548px;
+  opacity: 1;
+  position: absolute;
+  top: 446px; /* Logo starts 446px from top of screen for 1440px screen */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%) rotate(0deg); /* Center the container horizontally */
+  background-color: white; /* You can adjust this as needed */
+  border-radius: 12px; /* Optional styling */
+}
+
+.login-logo {
+  width: 60px;
+  height: 48px;
+  opacity: 1;
+  position: absolute;
+  top: 0px; /* Start at the top of the container */
+  left: 50%; /* Center horizontally in container */
+  transform: translateX(-50%) rotate(0deg); /* Center the logo horizontally */
+}
+
+.welcome-title {
+  width: 297px;
+  height: 43px;
+  opacity: 1;
+  position: absolute;
+  top: 44px;
+  left: 50%; /* Center horizontally in container */
+  transform: translateX(-50%) rotate(0deg); /* Center the title horizontally */
+  color: #111827;
+  font-family: Poppins;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 30px;
+  line-height: 30px;
+  letter-spacing: 0%;
+  text-align: center;
+  margin: 0;
+  white-space: nowrap; /* Ensures text stays in one line */
+  overflow: hidden; /* Hide any overflow */
+}
+
+.welcome-subtitle {
+  width: 294px;
+  height: 23px;
+  position: absolute;
+  top: 96px;
+  left: 50%; /* Center horizontally in container */
+  transform: translateX(-50%) rotate(0deg); /* Center the subtitle horizontally */
+  opacity: 1;
+  font-family: Poppins;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 16px;
+  letter-spacing: 0%;
+  text-align: center;
+  color: #4B5563;
+  margin: 0;
+}
+
+/* Login Form Container */
+.login-form-container {
+  width: 448px;
+  height: 344px;
+  position: absolute;
+  top: 152px;
+  left: 0;
+  opacity: 1;
+  transform: rotate(0deg);
+  
+}
+
+.email-label {
+  width: 100px;
+  height: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 1;
+  font-family: Poppins;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #374151;
+  margin: 0;
+}
+
+.email-input-container {
+  width: 448px;
+  height: 50px;
+  position: absolute;
+  top: 24px;
+  left: 0;
+  opacity: 1;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  background: white;
+  transform: rotate(0deg);
+}
+
+.email-input {
+  width: calc(448px - 32px);
+  height: 50px;
+  position: absolute;
+  left: 16px;
+  top: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: Poppins;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: #ADAEBC;
+  vertical-align: middle;
+  padding: 0;
+}
+
+.email-input::placeholder {
+  color: #ADAEBC;
+}
+
+.password-label {
+  width: 69px;
+  height: 20px;
+  position: absolute;
+  top: 90px;
+  left: 0;
+  opacity: 1;
+  font-family: Poppins;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #374151;
+  margin: 0;
+}
+
+.password-input-container {
+  width: 448px;
+  height: 50px;
+  position: absolute;
+  top: 114px;
+  left: 0;
+  opacity: 1;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  background: white;
+  transform: rotate(0deg);
+}
+
+.password-input {
+  width: calc(448px - 32px);
+  height: 50px;
+  position: absolute;
+  left: 16px;
+  top: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: Poppins;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: #ADAEBC;
+  vertical-align: middle;
+  padding: 0;
+}
+
+.password-input::placeholder {
+  color: #ADAEBC;
+}
+
+/* Don't have an account text */
+.signup-prompt {
+  width: 223px;
+  height: 20px;
+  position: absolute;
+  top: 528px;
+  left: 114.28px;
+  opacity: 1;
+  font-family: Poppins;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: 0%;
+  text-align: center;
+  color: #4B5563;
+  transform: rotate(0deg);
+}
+
+.signup-prompt .signup-link {
+  font-family: Poppins;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: 0%;
+  color: #2563EB;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.signup-prompt .signup-link:hover {
+  text-decoration: underline;
+}
+
+/* Buttons Container */
+.buttons-container {
+  width: 448px;
+  height: 112px;
+  position: absolute;
+  top: calc(152px + 232px); /* 152px (login form top) + 232px (offset from login form) = 384px from right-content top */
+  left: 0;
+  opacity: 1;
+  transform: rotate(0deg);
+  z-index: 10; /* Ensure it appears above other elements */
+}
+
+.admin-login-btn {
+  width: 448px;
+  height: 50px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 1;
+  border-radius: 8px;
+  background-color: #2563EB;
+  border: 1px solid #000000;
+  box-shadow: 0px 1px 2px 0px #0000000D;
+  cursor: pointer;
+  transform: rotate(0deg);
+}
+
+.admin-icon {
+  width: 14px;
+  height: 24px;
+  position: absolute;
+  top: 13px;
+  left: 151.14px;
+  opacity: 1;
+  background: #000000;
+  border: 1px solid #E5E7EB;
+  transform: rotate(0deg);
+}
+
+.admin-btn-text {
+  width: 123px;
+  height: 23px;
+  position: absolute;
+  top: 13px;
+  left: 173.14px;
+  opacity: 1;
+  font-family: Poppins;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-align: center;
+  color: #FFFFFF;
+  transform: rotate(0deg);
+}
+
+.user-login-btn {
+  width: 448px;
+  height: 50px;
+  position: absolute;
+  top: 62px;
+  left: 0;
+  opacity: 1;
+  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid #2563EB;
+  box-shadow: 0px 1px 2px 0px #0000000D;
+  cursor: pointer;
+  transform: rotate(0deg);
+}
+
+.user-icon {
+  width: 14px;
+  height: 24px;
+  position: absolute;
+  top: 13px;
+  left: 159.95px;
+  opacity: 1;
+  background: #000000;
+  transform: rotate(0deg);
+}
+
+.user-btn-text {
+  width: 105px;
+  height: 23px;
+  position: absolute;
+  top: 13px;
+  left: 181.95px;
+  opacity: 1;
+  font-family: Poppins;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-align: center;
+  color: #2563EB;
+  transform: rotate(0deg);
+}
+
+.login-image {
+  width: 624px;
+  height: 624px;
+  border-radius: 16px;
+  opacity: 1;
+  position: absolute;
+  top: 408px; /* Image starts 408px from top of screen for 1440px screen */
+  left: 50%; /* Center horizontally in left container */
+  transform: translateX(-50%) rotate(0deg); /* Center the image horizontally */
+  border: 1px solid #E5E7EB;
+  box-shadow: 0px 25px 50px 0px #00000040;
+  z-index: 5; /* Lower z-index to stay below footer */
+}
+
+/* Rectangle overlay on the image */
+.image-overlay {
+  width: 289.078125px;
+  height: 96px;
+  border-radius: 12px;
+  opacity: 1;
+  position: absolute;
+  top: calc(408px + 512px); /* Image top (408px) plus 512px offset = 920px from screen top */
+  left: calc(50% - 312px + 16px); /* Center minus half image width plus 16px offset */
+  background: #FFFFFFE5;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0px 10px 15px 0px #0000001A, 0px 4px 6px 0px #0000001A;
+  z-index: 6; /* Above the image */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px;
+}
+
+.overlay-title {
+  width: 85px;
+  height: 33px;
+  font-family: Poppins;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #1E3A8A;
+  margin: 0;
+  margin-top: -1px;
+}
+
+.overlay-subtitle {
+  width: 254px;
+  height: 23px;
+  font-family: Poppins;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #4B5563;
+  margin: 0;
+  margin-top: 8px;
+}
+
+
+.login-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 40px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h1 {
+  text-align: center;
+  color: #1f2937;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
 }
