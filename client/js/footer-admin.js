@@ -16,7 +16,7 @@ let footerAdminSystem = {
 function initializeFooterAdmin() {
     if (footerAdminSystem.isInitialized) return;
     
-    console.log('👣 Initializing footer admin system...');
+    console.log(' Initializing footer admin system...');
     
     setupAdminFooterLinks();
     setupAdminSocialLinks();
@@ -607,6 +607,6 @@ window.FooterAdminSystem = {
 window.closeAdminFooterModal = closeAdminFooterModal;
 window.openAdminSocialLink = openAdminSocialLink;
 
-console.log('👣 Footer Admin system module loaded');
+console.log(' Footer Admin system module loaded');
 
-console.log('👣 Footer system module loaded');
+console.log(' Footer system module loaded');
