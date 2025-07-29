@@ -55,8 +55,7 @@ body {
 
 /* Page Header */
 .page-header {
-    margin-top: 40px; 
-    margin-bottom: 32px; 
+    margin-bottom: clamp(32px, 8vw, 106px);
     text-align: left;
 }
 
@@ -123,7 +122,7 @@ body {
 
 .filter-btn {
     display: flex;
-    padding: 0 8px 0 12px;
+    padding: 0 12px 0 12px;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -140,6 +139,8 @@ body {
     cursor: pointer;
     transition: var(--transition);
     text-align: left;
+    white-space: nowrap;
+    gap: 8px;
 }
 
 .filter-btn:hover {
@@ -153,15 +154,21 @@ body {
 }
 
 .filter-btn svg {
-    width: clamp(20px, 5vw, 30px);
-    height: clamp(20px, 5vw, 30px);
+    width: clamp(20px, 5vw, 24px);
+    height: clamp(20px, 5vw, 24px);
     transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+.filter-btn {
+    gap: 8px; 
+}
+
+.filter-btn svg {
     flex-shrink: 0;
 }
 
-#districtFilter .filter-btn {
-    gap: 253.328px;
-}
 
 .filter-dropdown.active .filter-btn svg {
     transform: rotate(180deg);
