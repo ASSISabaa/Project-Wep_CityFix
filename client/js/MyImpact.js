@@ -461,7 +461,7 @@ function setupHoverEffects() {
 
 /**
  * ===================================
- * NOTIFICATION SYSTEM
+ * NOTIFICATION SYSTEM - FIXED
  * ===================================
  */
 
@@ -512,7 +512,7 @@ function showNotification(message, type = 'info', duration = null) {
         <div style="display: flex; align-items: center; gap: 0.75rem;">
             <div style="font-size: 1.25rem; flex-shrink: 0;">${getNotificationIcon(type)}</div>
             <div style="flex: 1; font-size: 0.875rem; color: #374151;">${message}</div>
-            <button onclick="closeNotification('${id}')" 
+            <button class="close-notification-btn" data-id="${id}"
                     style="background: none; border: none; font-size: 1.25rem; color: #9ca3af; cursor: pointer; padding: 0; width: 24px; height: 24px;">
                 &times;
             </button>
@@ -521,6 +521,15 @@ function showNotification(message, type = 'info', duration = null) {
     
     // Add to container
     container.appendChild(notification);
+    
+    // Add event listener to close button
+    const closeBtn = notification.querySelector('.close-notification-btn');
+    closeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const notificationId = this.getAttribute('data-id');
+        closeNotification(notificationId);
+    });
     
     // Animate in
     requestAnimationFrame(() => {
@@ -578,7 +587,6 @@ function getNotificationColor(type) {
 
 function loadInitialData() {
     MyImpactApp.state.isLoading = true;
-    showLoadingState();
     
     Promise.all([
         loadStatsData(),
@@ -587,7 +595,6 @@ function loadInitialData() {
     ]).then(() => {
         MyImpactApp.state.isLoading = false;
         MyImpactApp.state.lastUpdated = new Date();
-        hideLoadingState();
         
         // Dispatch custom event
         document.dispatchEvent(new CustomEvent('dataUpdated', {
@@ -597,7 +604,6 @@ function loadInitialData() {
     }).catch(error => {
         console.error('Error loading data:', error);
         MyImpactApp.state.isLoading = false;
-        hideLoadingState();
         showNotification('Failed to load data. Please refresh the page.', 'error');
     });
 }
@@ -767,9 +773,12 @@ function trackEvent(eventName, properties = {}) {
 
 /**
  * ===================================
- * MODAL SYSTEM
+ * MODAL SYSTEM - COMPLETELY REWRITTEN
  * ===================================
  */
+
+// Global modal reference
+let currentModal = null;
 
 function createModal(options) {
     const modal = document.createElement('div');
@@ -786,21 +795,30 @@ function createModal(options) {
         transition: all 0.3s ease;
     `;
     
+    const modalId = 'modal-' + Date.now();
+    
     modal.innerHTML = `
-        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5);" onclick="closeModal()"></div>
+        <div class="modal-backdrop" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); cursor: pointer;" onclick="window.closeCurrentModal()"></div>
         <div style="position: relative; background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; margin: 5vh auto; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); transform: scale(0.9) translateY(20px); transition: all 0.3s ease;">
             <div style="padding: 1.5rem; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between;">
                 <h2 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #111827;">${options.title}</h2>
-                <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; color: #9ca3af; cursor: pointer; width: 32px; height: 32px;">&times;</button>
+                <button onclick="window.closeCurrentModal()" style="background: none; border: none; font-size: 1.5rem; color: #9ca3af; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; line-height: 1;">&times;</button>
             </div>
             <div style="padding: 1.5rem; max-height: 60vh; overflow-y: auto;">${options.content}</div>
         </div>
     `;
     
+    modal.id = modalId;
     return modal;
 }
 
 function showModal(modal) {
+    // Close any existing modal first
+    if (currentModal) {
+        closeCurrentModal();
+    }
+    
+    currentModal = modal;
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     
@@ -813,72 +831,46 @@ function showModal(modal) {
             container.style.transform = 'scale(1) translateY(0)';
         }
     });
+    
+    // ESC key handler
+    const escHandler = function(e) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeCurrentModal();
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+    modal._escHandler = escHandler;
 }
 
-function closeModal() {
-    const modal = document.querySelector('.modal');
-    if (modal) {
-        modal.style.opacity = '0';
-        modal.style.visibility = 'hidden';
+// Global function to close modal
+window.closeCurrentModal = function() {
+    if (currentModal) {
+        // Remove ESC handler
+        if (currentModal._escHandler) {
+            document.removeEventListener('keydown', currentModal._escHandler);
+        }
+        
+        currentModal.style.opacity = '0';
+        currentModal.style.visibility = 'hidden';
+        const container = currentModal.querySelector('div:last-child');
+        if (container) {
+            container.style.transform = 'scale(0.9) translateY(20px)';
+        }
+        
         setTimeout(() => {
-            if (modal.parentNode) {
-                document.body.removeChild(modal);
+            if (currentModal && currentModal.parentNode) {
+                document.body.removeChild(currentModal);
                 document.body.style.overflow = '';
+                currentModal = null;
             }
         }, 300);
     }
-}
+};
 
-/**
- * ===================================
- * LOADING STATES
- * ===================================
- */
-
-function showLoadingState() {
-    if (document.getElementById('page-loader')) return;
-    
-    const loader = document.createElement('div');
-    loader.id = 'page-loader';
-    loader.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        backdrop-filter: blur(5px);
-    `;
-    
-    loader.innerHTML = `
-        <div style="text-align: center;">
-            <div style="width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top: 4px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
-            <p style="color: #6b7280;">Loading your impact data...</p>
-        </div>
-    `;
-    
-    // Add spin animation
-    const style = document.createElement('style');
-    style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
-    document.head.appendChild(style);
-    
-    document.body.appendChild(loader);
-}
-
-function hideLoadingState() {
-    const loader = document.getElementById('page-loader');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            if (loader.parentNode) {
-                document.body.removeChild(loader);
-            }
-        }, 300);
-    }
+// Keep the old function for compatibility
+function closeModal() {
+    window.closeCurrentModal();
 }
 
 /**
@@ -1032,6 +1024,7 @@ window.shareBadge = function(badgeName) {
     }
 };
 
+// Make closeNotification available globally but properly
 window.closeNotification = closeNotification;
 
 // Export for testing
