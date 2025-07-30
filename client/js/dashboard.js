@@ -1,437 +1,713 @@
-// CityFix Interactive Frontend - Works with existing CSS
+// CityFix Dashboard - Backend Ready Frontend
 
-document.addEventListener('DOMContentLoaded', function() {
-    initInteractiveFeatures();
-});
+// 🔧 API Configuration
+const API_CONFIG = {
+    BASE_URL: 'http://localhost:3000/api', // Change to your server URL
+    ENDPOINTS: {
+        DASHBOARD_STATS: '/dashboard/stats',
+        RECENT_REPORTS: '/reports/recent',
+        REPORTS: '/reports',
+        REPORT_BY_ID: '/reports/:id',
+        UPDATE_REPORT: '/reports/:id',
+        DELETE_REPORT: '/reports/:id',
+        DISTRICTS: '/districts',
+        REPORT_TYPES: '/report-types',
+        ANALYTICS: '/analytics',
+        USERS: '/users',
+        NOTIFICATIONS: '/notifications'
+    }
+};
 
-function initInteractiveFeatures() {
-    addStatsInteractions();
-    addReportsInteractions();
-    addNavigationInteractions();
-    addMapInteractions();
-    addGeneralInteractions();
-}
+// 🌍 Global State Management
+const AppState = {
+    currentUser: null,
+    dashboardStats: null,
+    recentReports: [],
+    isLoading: false,
+    notifications: [],
+    lastUpdate: null
+};
 
-// ===========================
-// Report Details Modal
-// ===========================
-function showReportDetails(reportElement) {
-    const title = reportElement.querySelector('h4')?.textContent || 'Unknown Report';
-    const location = reportElement.querySelector('p')?.textContent || 'Unknown Location';
-    const time = reportElement.querySelector('.report-time')?.textContent || 'Unknown Time';
-    const status = reportElement.querySelector('.report-status')?.textContent || 'Unknown';
-    
-    // Generate detailed information
-    const reportData = generateReportData(title, location, time, status);
-    
-    // Create modal overlay
-    const modal = document.createElement('div');
-    modal.className = 'report-details-modal';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    `;
-    
-    modal.innerHTML = `
-        <div class="modal-content" style="
-            background: white;
-            border-radius: 12px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-        ">
-            <div class="modal-header" style="
-                padding: 25px;
-                border-bottom: 1px solid #e5e7eb;
-                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-                color: white;
-                border-radius: 12px 12px 0 0;
-                position: relative;
-            ">
-                <button class="close-btn" style="
-                    position: absolute;
-                    top: 15px;
-                    right: 20px;
-                    background: rgba(255, 255, 255, 0.2);
-                    border: none;
-                    color: white;
-                    font-size: 24px;
-                    cursor: pointer;
-                    width: 35px;
-                    height: 35px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: background 0.2s ease;
-                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-                   onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
-                
-                <h2 style="margin: 0 40px 8px 0; font-size: 24px; font-weight: 600;">${title}</h2>
-                <div style="display: flex; align-items: center; gap: 12px; margin-top: 12px;">
-                    <span class="status-badge" style="
-                        padding: 6px 12px;
-                        background: rgba(255, 255, 255, 0.2);
-                        border-radius: 20px;
-                        font-size: 12px;
-                        font-weight: 500;
-                        text-transform: uppercase;
-                    ">${status}</span>
-                    <span style="opacity: 0.9; font-size: 14px;">📍 ${location}</span>
-                </div>
-            </div>
-            
-            <div class="modal-body" style="padding: 25px;">
-                <div class="detail-grid" style="display: grid; gap: 20px;">
-                    
-                    <!-- Location Details -->
-                    <div class="detail-section">
-                        <h3 style="
-                            color: #1f2937;
-                            margin: 0 0 12px 0;
-                            font-size: 16px;
-                            font-weight: 600;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                        ">
-                            📍 Location Information
-                        </h3>
-                        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Address:</strong> ${location}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Coordinates:</strong> ${reportData.coordinates}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>District:</strong> ${reportData.district}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Nearby:</strong> ${reportData.nearby}</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Report Details -->
-                    <div class="detail-section">
-                        <h3 style="
-                            color: #1f2937;
-                            margin: 0 0 12px 0;
-                            font-size: 16px;
-                            font-weight: 600;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                        ">
-                            📋 Report Details
-                        </h3>
-                        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Report ID:</strong> ${reportData.id}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Reported:</strong> ${time}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Priority:</strong> ${reportData.priority}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Category:</strong> ${reportData.category}</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Description -->
-                    <div class="detail-section">
-                        <h3 style="
-                            color: #1f2937;
-                            margin: 0 0 12px 0;
-                            font-size: 16px;
-                            font-weight: 600;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                        ">
-                            📝 Description
-                        </h3>
-                        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                            <p style="margin: 0; color: #4b5563; line-height: 1.6;">${reportData.description}</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Assignment Info -->
-                    <div class="detail-section">
-                        <h3 style="
-                            color: #1f2937;
-                            margin: 0 0 12px 0;
-                            font-size: 16px;
-                            font-weight: 600;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                        ">
-                            👥 Assignment
-                        </h3>
-                        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Assigned Team:</strong> ${reportData.assignedTeam}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Supervisor:</strong> ${reportData.supervisor}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Contact:</strong> ${reportData.contact}</p>
-                            <p style="margin: 5px 0; color: #4b5563;"><strong>Expected Resolution:</strong> ${reportData.expectedResolution}</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Progress Timeline -->
-                    <div class="detail-section">
-                        <h3 style="
-                            color: #1f2937;
-                            margin: 0 0 12px 0;
-                            font-size: 16px;
-                            font-weight: 600;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                        ">
-                            ⏱️ Progress Timeline
-                        </h3>
-                        <div style="background: #f9fafb; padding: 15px; border-radius: 8px;">
-                            ${generateTimeline(reportData.timeline)}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-footer" style="
-                padding: 20px 25px;
-                border-top: 1px solid #e5e7eb;
-                background: #f9fafb;
-                border-radius: 0 0 12px 12px;
-                display: flex;
-                gap: 12px;
-                justify-content: flex-end;
-            ">
-                <button class="btn-secondary" style="
-                    padding: 10px 20px;
-                    border: 1px solid #d1d5db;
-                    background: white;
-                    color: #374151;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: 500;
-                    transition: all 0.2s ease;
-                " onmouseover="this.style.background='#f3f4f6'" 
-                   onmouseout="this.style.background='white'">
-                    📍 View on Map
-                </button>
-                <button class="btn-primary" style="
-                    padding: 10px 20px;
-                    border: none;
-                    background: #3b82f6;
-                    color: white;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: 500;
-                    transition: all 0.2s ease;
-                " onmouseover="this.style.background='#2563eb'" 
-                   onmouseout="this.style.background='#3b82f6'">
-                    🔄 Update Status
-                </button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Animate modal in
-    setTimeout(() => {
-        modal.style.opacity = '1';
-        const content = modal.querySelector('.modal-content');
-        content.style.transform = 'scale(1)';
-    }, 10);
-    
-    // Close modal functionality
-    setupModalClosing(modal);
-    setupModalButtons(modal, reportData);
-}
+// 🔄 API Service Class
+class ApiService {
+    constructor() {
+        this.baseUrl = API_CONFIG.BASE_URL;
+    }
 
-function generateReportData(title, location, time, status) {
-    const reportTypes = {
-        'Broken Streetlight': {
-            category: 'Street Lighting',
-            priority: 'Medium',
-            teams: ['Street Lighting Division', 'Electrical Maintenance', 'Public Safety'],
-            supervisors: ['Ahmad Al-Zahra', 'Sarah Johnson', 'Mike Rodriguez'],
-            descriptions: [
-                'Multiple streetlights are non-functional along this major thoroughfare, creating safety concerns for both pedestrians and drivers during nighttime hours.',
-                'LED streetlight system failure detected through smart city sensors. The issue appears to be related to power supply infrastructure.',
-                'Vandalism damage to streetlight fixture requiring complete unit replacement and security assessment of the area.'
-            ]
-        },
-        'Pothole Repair': {
-            category: 'Road Maintenance',
-            priority: 'High',
-            teams: ['Road Maintenance Crew', 'Public Works', 'Traffic Management'],
-            supervisors: ['Lisa Chen', 'David Wilson', 'Omar Hassan'],
-            descriptions: [
-                'Large pothole formation causing vehicle damage and creating hazardous driving conditions. Immediate repair required.',
-                'Road surface deterioration due to recent weather conditions and heavy traffic load. Requires asphalt patching.',
-                'Multiple potholes reported along this section requiring comprehensive road resurfacing evaluation.'
-            ]
-        },
-        'Graffiti Removal': {
-            category: 'Public Cleanliness',
-            priority: 'Low',
-            teams: ['Cleaning Services', 'Parks & Recreation', 'Community Services'],
-            supervisors: ['Jennifer Smith', 'Khalil Ibrahim', 'Robert Kim'],
-            descriptions: [
-                'Vandalism graffiti on public property requires professional cleaning and possible protective coating application.',
-                'Multiple graffiti tags reported in high-visibility public area. Community complaint received.',
-                'Recurring graffiti problem requiring both cleaning and enhanced security monitoring of the location.'
-            ]
-        }
-    };
-    
-    const districts = ['Downtown District', 'North Quarter', 'South Ward', 'East Side', 'West End', 'Central Business District'];
-    const nearbyLandmarks = ['City Hall', 'Central Park', 'Shopping Center', 'Metro Station', 'Hospital', 'School', 'Library'];
-    
-    const reportType = reportTypes[title] || reportTypes['Broken Streetlight'];
-    
-    return {
-        id: 'RPT-' + (10000 + Math.floor(Math.random() * 90000)),
-        coordinates: `${(31.234 + Math.random() * 0.1).toFixed(6)}, ${(34.567 + Math.random() * 0.1).toFixed(6)}`,
-        district: districts[Math.floor(Math.random() * districts.length)],
-        nearby: nearbyLandmarks[Math.floor(Math.random() * nearbyLandmarks.length)],
-        category: reportType.category,
-        priority: reportType.priority,
-        assignedTeam: reportType.teams[Math.floor(Math.random() * reportType.teams.length)],
-        supervisor: reportType.supervisors[Math.floor(Math.random() * reportType.supervisors.length)],
-        contact: '+972-' + Math.floor(Math.random() * 10) + '-' + Math.floor(Math.random() * 10000000).toString().padStart(7, '0'),
-        expectedResolution: getExpectedResolution(status),
-        description: reportType.descriptions[Math.floor(Math.random() * reportType.descriptions.length)],
-        timeline: generateTimelineData(status)
-    };
-}
-
-function getExpectedResolution(status) {
-    const resolutions = {
-        'New': ['2-4 hours', '1-2 business days', 'Within 24 hours'],
-        'In Progress': ['1-2 hours', '4-6 hours', 'Later today'],
-        'Pending': ['Pending approval', 'Waiting for materials', 'Next business day'],
-        'Resolved': ['Completed', 'Fixed and verified', 'Successfully resolved']
-    };
-    
-    const options = resolutions[status] || resolutions['New'];
-    return options[Math.floor(Math.random() * options.length)];
-}
-
-function generateTimelineData(status) {
-    const baseTimeline = [
-        { step: 'Report Received', time: '2 hours ago', completed: true, description: 'Initial report submitted and logged in system' },
-        { step: 'Initial Assessment', time: '1.5 hours ago', completed: status !== 'New', description: 'Field assessment team dispatched' },
-        { step: 'Work Assignment', time: '1 hour ago', completed: status === 'In Progress' || status === 'Resolved', description: 'Assigned to appropriate department team' },
-        { step: 'Resolution Complete', time: '30 minutes ago', completed: status === 'Resolved', description: 'Work completed and verified' }
-    ];
-    
-    return baseTimeline;
-}
-
-function generateTimeline(timeline) {
-    return timeline.map(item => `
-        <div style="
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-left: 3px solid ${item.completed ? '#10b981' : '#d1d5db'};
-            padding-left: 15px;
-            position: relative;
-        ">
-            <div style="
-                position: absolute;
-                left: -8px;
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                background: ${item.completed ? '#10b981' : '#d1d5db'};
-                border: 3px solid white;
-                box-shadow: 0 0 0 2px ${item.completed ? '#10b981' : '#d1d5db'};
-            "></div>
-            <div style="flex: 1;">
-                <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">${item.step}</div>
-                <div style="font-size: 14px; color: #6b7280; margin-bottom: 2px;">${item.description}</div>
-                <div style="font-size: 12px; color: #9ca3af;">${item.time}</div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function setupModalClosing(modal) {
-    const closeBtn = modal.querySelector('.close-btn');
-    
-    const closeModal = () => {
-        modal.style.opacity = '0';
-        const content = modal.querySelector('.modal-content');
-        content.style.transform = 'scale(0.9)';
-        setTimeout(() => {
-            if (modal.parentNode) {
-                modal.parentNode.removeChild(modal);
+    async request(endpoint, options = {}) {
+        const url = `${this.baseUrl}${endpoint}`;
+        
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                // Add Authentication token if required
+                // 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
-        }, 300);
-    };
-    
-    closeBtn.addEventListener('click', closeModal);
-    
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
+        };
+
+        const config = { ...defaultOptions, ...options };
+
+        try {
+            console.log(`🔄 API Request: ${config.method || 'GET'} ${url}`);
+            
+            const response = await fetch(url, config);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('✅ API Response:', data);
+            
+            return data;
+        } catch (error) {
+            console.error('❌ API Error:', error);
+            this.handleApiError(error);
+            throw error;
         }
-    });
-    
-    // ESC key to close
-    const handleEsc = (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-            document.removeEventListener('keydown', handleEsc);
+    }
+
+    handleApiError(error) {
+        let message = 'An unexpected error occurred';
+        
+        if (error.message.includes('Failed to fetch')) {
+            message = 'Failed to connect to server. Make sure the server is running.';
+        } else if (error.message.includes('404')) {
+            message = 'Requested resource not found.';
+        } else if (error.message.includes('401')) {
+            message = 'Unauthorized access. Please login again.';
+        } else if (error.message.includes('500')) {
+            message = 'Server error. Please try again later.';
         }
-    };
-    document.addEventListener('keydown', handleEsc);
+        
+        showNotification(message, 'error');
+    }
+
+    // Dashboard Stats
+    async getDashboardStats() {
+        return await this.request(API_CONFIG.ENDPOINTS.DASHBOARD_STATS);
+    }
+
+    // Recent Reports
+    async getRecentReports(limit = 5) {
+        return await this.request(`${API_CONFIG.ENDPOINTS.RECENT_REPORTS}?limit=${limit}`);
+    }
+
+    // All Reports with filters
+    async getReports(filters = {}) {
+        const queryParams = new URLSearchParams();
+        Object.keys(filters).forEach(key => {
+            if (filters[key]) queryParams.append(key, filters[key]);
+        });
+        return await this.request(`${API_CONFIG.ENDPOINTS.REPORTS}?${queryParams.toString()}`);
+    }
+
+    // Single Report
+    async getReportById(id) {
+        const endpoint = API_CONFIG.ENDPOINTS.REPORT_BY_ID.replace(':id', id);
+        return await this.request(endpoint);
+    }
+
+    // Update Report
+    async updateReport(id, data) {
+        const endpoint = API_CONFIG.ENDPOINTS.UPDATE_REPORT.replace(':id', id);
+        return await this.request(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    // Delete Report
+    async deleteReport(id) {
+        const endpoint = API_CONFIG.ENDPOINTS.DELETE_REPORT.replace(':id', id);
+        return await this.request(endpoint, { method: 'DELETE' });
+    }
+
+    // Notifications
+    async getNotifications() {
+        return await this.request(API_CONFIG.ENDPOINTS.NOTIFICATIONS);
+    }
+
+    // Analytics
+    async getAnalytics(timeRange = '7d') {
+        return await this.request(`${API_CONFIG.ENDPOINTS.ANALYTICS}?range=${timeRange}`);
+    }
 }
 
-function setupModalButtons(modal, reportData) {
-    const mapBtn = modal.querySelector('.btn-secondary');
-    const statusBtn = modal.querySelector('.btn-primary');
-    
-    mapBtn.addEventListener('click', () => {
-        showNotification('🗺️ Opening map view for: ' + reportData.id, 'info');
-    });
-    
-    statusBtn.addEventListener('click', () => {
-        showStatusUpdateOptions(reportData);
-    });
+// Initialize API service
+const apiService = new ApiService();
+
+// 🎛️ Dashboard Controller
+class DashboardController {
+    constructor() {
+        this.isInitialized = false;
+        this.refreshInterval = null;
+    }
+
+    async initialize() {
+        console.log('🚀 Initializing CityFix Dashboard');
+        
+        try {
+            showLoading();
+            
+            // Load initial data
+            await this.loadDashboardData();
+            
+            // Setup UI interactions
+            this.setupInteractions();
+            
+            // Setup auto-refresh
+            this.setupAutoRefresh();
+            
+            // Setup real-time updates (if WebSocket available)
+            this.setupRealTimeUpdates();
+            
+            this.isInitialized = true;
+            console.log('✅ Dashboard initialized successfully');
+            
+        } catch (error) {
+            console.error('❌ Dashboard initialization failed:', error);
+            showErrorState('Failed to connect to backend server');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async loadDashboardData() {
+        console.log('📊 Loading dashboard data from backend...');
+        
+        // Load data in parallel for better performance
+        const [statsResponse, reportsResponse] = await Promise.all([
+            this.loadStats(),
+            this.loadRecentReports()
+        ]);
+
+        AppState.lastUpdate = new Date();
+        console.log('✅ Dashboard data loaded successfully from backend');
+    }
+
+    async loadStats() {
+        try {
+            const stats = await apiService.getDashboardStats();
+            AppState.dashboardStats = stats.data || stats;
+            this.renderStats();
+            return stats;
+        } catch (error) {
+            console.error('❌ Error loading stats:', error);
+            showErrorState('Failed to load dashboard statistics');
+            throw error;
+        }
+    }
+
+    async loadRecentReports() {
+        try {
+            const reports = await apiService.getRecentReports();
+            AppState.recentReports = reports.data || reports;
+            this.renderRecentReports();
+            return reports;
+        } catch (error) {
+            console.error('❌ Error loading recent reports:', error);
+            showErrorState('Failed to load recent reports');
+            throw error;
+        }
+    }
+
+    renderStats() {
+        const stats = AppState.dashboardStats;
+        if (!stats) return;
+
+        // Update stat cards
+        this.updateStatCard('total-reports', stats.totalReports || 0, '+15% from last month');
+        this.updateStatCard('in-progress', stats.inProgress || 0, 'Active cases');
+        this.updateStatCard('resolved', stats.resolved || 0, `${stats.resolutionRate || 0}% resolution rate`);
+        this.updateStatCard('avg-response', stats.avgResponseTime || '0h', `${stats.responseImprovement || 0}min from target`);
+    }
+
+    renderRecentReports() {
+        const reports = AppState.recentReports;
+        if (!reports || !reports.length) return;
+
+        const container = document.querySelector('.reports-list') || 
+                         document.querySelector('[data-recent-reports]');
+        
+        if (!container) {
+            console.warn('Recent reports container not found');
+            return;
+        }
+
+        container.innerHTML = reports.map(report => this.createReportItem(report)).join('');
+        
+        // Add interactions to new items
+        this.addReportInteractions();
+    }
+
+    createReportItem(report) {
+        const timeAgo = this.formatTimeAgo(report.createdAt || report.date);
+        const statusClass = this.getStatusClass(report.status);
+        
+        return `
+            <div class="report-item" data-report-id="${report.id}" data-clickable="true">
+                <div class="report-info">
+                    <h4>${report.title}</h4>
+                    <p>${report.location || report.address}</p>
+                    <div class="report-time">${timeAgo}</div>
+                </div>
+                <span class="report-status ${statusClass}">${this.formatStatus(report.status)}</span>
+            </div>
+        `;
+    }
+
+    updateStatCard(cardId, value, subtitle) {
+        // Try multiple selectors to find the stat card
+        const selectors = [
+            `[data-stat="${cardId}"]`,
+            `#${cardId}`,
+            `.stat-card:nth-child(${this.getCardIndex(cardId)})`
+        ];
+        
+        let card = null;
+        for (const selector of selectors) {
+            card = document.querySelector(selector);
+            if (card) break;
+        }
+        
+        if (!card) {
+            console.warn(`Stat card not found: ${cardId}`);
+            return;
+        }
+
+        const numberElement = card.querySelector('.stat-number');
+        const trendElement = card.querySelector('.stat-trend');
+
+        if (numberElement) {
+            this.animateNumber(numberElement, value);
+        }
+        
+        if (trendElement && subtitle) {
+            trendElement.textContent = subtitle;
+        }
+    }
+
+    getCardIndex(cardId) {
+        const cardMapping = {
+            'total-reports': 1,
+            'in-progress': 2,
+            'resolved': 3,
+            'avg-response': 4
+        };
+        return cardMapping[cardId] || 1;
+    }
+
+    animateNumber(element, targetValue) {
+        const currentValue = parseFloat(element.textContent.replace(/[^\d.]/g, '')) || 0;
+        const isNumeric = !isNaN(targetValue);
+        
+        if (!isNumeric) {
+            element.textContent = targetValue;
+            return;
+        }
+
+        const suffix = element.textContent.replace(/[\d.,]/g, '');
+        const duration = 1000;
+        const steps = 20;
+        const increment = (targetValue - currentValue) / steps;
+        let current = currentValue;
+        let step = 0;
+
+        const animate = () => {
+            if (step < steps) {
+                current += increment;
+                element.textContent = Math.floor(current).toLocaleString() + suffix;
+                step++;
+                setTimeout(animate, duration / steps);
+            } else {
+                element.textContent = targetValue.toLocaleString() + suffix;
+            }
+        };
+
+        animate();
+    }
+
+    // 🎭 Interactions
+    setupInteractions() {
+        this.addStatsInteractions();
+        this.addReportInteractions();
+        this.addNavigationInteractions();
+        this.addGeneralInteractions();
+    }
+
+    addStatsInteractions() {
+        const statCards = document.querySelectorAll('.stat-card');
+        
+        statCards.forEach((card, index) => {
+            // Add data attribute for identification
+            if (!card.dataset.stat) {
+                const cardTypes = ['total-reports', 'in-progress', 'resolved', 'avg-response'];
+                card.dataset.stat = cardTypes[index] || 'general';
+            }
+
+            // Entrance animation
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+            
+            // Hover effects
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px) scale(1.02)';
+                card.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+                card.style.boxShadow = '';
+            });
+            
+            // Click for detailed view
+            card.addEventListener('click', () => {
+                this.showStatDetails(card);
+            });
+        });
+    }
+
+    addReportInteractions() {
+        const reportItems = document.querySelectorAll('.report-item');
+        
+        reportItems.forEach((item, index) => {
+            // Entrance animation
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                item.style.transition = 'all 0.4s ease';
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
+            }, 300 + (index * 100));
+            
+            // Hover effects
+            item.addEventListener('mouseenter', () => {
+                item.style.backgroundColor = '#f8fafc';
+                item.style.transform = 'translateX(5px)';
+                item.style.cursor = 'pointer';
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                item.style.backgroundColor = '';
+                item.style.transform = 'translateX(0)';
+            });
+            
+            // Click to view details
+            item.addEventListener('click', () => {
+                const reportId = item.dataset.reportId;
+                if (reportId) {
+                    this.viewReport(reportId);
+                }
+            });
+        });
+    }
+
+    addNavigationInteractions() {
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = item.dataset.icon || 
+                            item.getAttribute('href')?.replace('.html', '') ||
+                            item.textContent.toLowerCase().trim();
+                
+                this.handleNavigation(page, item);
+            });
+        });
+    }
+
+    addGeneralInteractions() {
+        // Smooth scrolling
+        document.documentElement.style.scrollBehavior = 'smooth';
+        
+        // Button animations
+        const buttons = document.querySelectorAll('button, .btn, [onclick]');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+        
+        // Add entrance animation for main content
+        const mainContent = document.querySelector('.content-wrapper, .main-content');
+        if (mainContent) {
+            mainContent.style.opacity = '0';
+            mainContent.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                mainContent.style.transition = 'all 0.6s ease';
+                mainContent.style.opacity = '1';
+                mainContent.style.transform = 'translateY(0)';
+            }, 100);
+        }
+    }
+
+    // 🚀 Actions
+    async viewReport(reportId) {
+        try {
+            console.log(`🔍 Viewing report: ${reportId}`);
+            
+            // Navigate to report details page
+            window.location.href = `ReportsDetails.html?id=${reportId}`;
+            
+        } catch (error) {
+            console.error('Error viewing report:', error);
+            showNotification('Error loading report details', 'error');
+        }
+    }
+
+    async editReport(reportId) {
+        try {
+            console.log(`✏️ Editing report: ${reportId}`);
+            
+            // Navigate to edit page or show modal
+            window.location.href = `ReportsDetails.html?id=${reportId}&mode=edit`;
+            
+        } catch (error) {
+            console.error('Error editing report:', error);
+            showNotification('Error opening report editor', 'error');
+        }
+    }
+
+    async showStatDetails(card) {
+        const statType = card.dataset.stat || 'general';
+        
+        try {
+            // Load detailed analytics for this stat
+            const analytics = await apiService.getAnalytics();
+            console.log(`📊 Loading detailed ${statType} analytics:`, analytics);
+            
+            // Navigate to analytics page with filter
+            window.location.href = `analytics.html?filter=${statType}`;
+            
+        } catch (error) {
+            console.error('Error loading stat details:', error);
+            showNotification('Error loading detailed analytics', 'error');
+        }
+    }
+
+    handleNavigation(page, navItem) {
+        // Update active navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        navItem.classList.add('active');
+
+        // Navigate based on page
+        const pageUrls = {
+            'dashboard': 'dashboard.html',
+            'reports': 'Reports.html',
+            'analytics': 'analytics.html',
+            'team': 'team.html',
+            'notifications': 'notifications.html',
+            'settings': 'settings.html'
+        };
+
+        const url = pageUrls[page];
+        if (url) {
+            window.location.href = url;
+        } else {
+            showNotification(`${page} section coming soon!`, 'info');
+        }
+    }
+
+    // 🔄 Auto Refresh
+    setupAutoRefresh() {
+        // Refresh dashboard data every 30 seconds
+        this.refreshInterval = setInterval(async () => {
+            try {
+                await this.loadDashboardData();
+                console.log('🔄 Dashboard data refreshed');
+            } catch (error) {
+                console.error('Error refreshing dashboard:', error);
+            }
+        }, 30000);
+    }
+
+    // 📡 Real-time Updates (WebSocket)
+    setupRealTimeUpdates() {
+        // WebSocket connection for real-time updates
+        try {
+            const wsUrl = API_CONFIG.BASE_URL.replace('http', 'ws') + '/ws';
+            const ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                console.log('📡 WebSocket connected');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                this.handleRealTimeUpdate(data);
+            };
+            
+            ws.onerror = () => {
+                console.warn('⚠️ WebSocket connection failed - using polling instead');
+            };
+            
+        } catch (error) {
+            console.warn('⚠️ WebSocket not available - using polling instead');
+        }
+    }
+
+    handleRealTimeUpdate(data) {
+        switch (data.type) {
+            case 'new_report':
+                this.addNewReport(data.report);
+                break;
+            case 'report_updated':
+                this.updateReport(data.report);
+                break;
+            case 'stats_updated':
+                this.updateStats(data.stats);
+                break;
+        }
+    }
+
+    addNewReport(report) {
+        const container = document.querySelector('.reports-list');
+        if (!container) return;
+        
+        const reportHTML = this.createReportItem(report);
+        container.insertAdjacentHTML('afterbegin', reportHTML);
+        
+        // Add interactions to new item
+        const newItem = container.firstElementChild;
+        this.addReportInteractions();
+        
+        // Show notification
+        showNotification('New report received!', 'info');
+    }
+
+    // 🔧 Utility Functions
+    formatTimeAgo(date) {
+        const now = new Date();
+        const reportDate = new Date(date);
+        const diffMs = now - reportDate;
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} minutes ago`;
+        
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        
+        const diffDays = Math.floor(diffHours / 24);
+        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    }
+
+    getStatusClass(status) {
+        const statusClasses = {
+            'new': 'new',
+            'in-progress': 'progress', 
+            'pending': 'pending',
+            'resolved': 'resolved',
+            'closed': 'closed'
+        };
+        return statusClasses[status] || 'new';
+    }
+
+    formatStatus(status) {
+        const statusNames = {
+            'new': 'New',
+            'in-progress': 'In Progress',
+            'pending': 'Pending', 
+            'resolved': 'Resolved',
+            'closed': 'Closed'
+        };
+        return statusNames[status] || 'New';
+    }
+
+    // 🧹 Cleanup
+    destroy() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
+    }
 }
 
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
+// 🔧 UI Helper Functions
+function showLoading() {
+    const loader = document.createElement('div');
+    loader.className = 'dashboard-loading';
+    loader.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                    background: rgba(255,255,255,0.9); display: flex; 
+                    align-items: center; justify-content: center; z-index: 2000;">
+            <div style="text-align: center;">
+                <div class="spinner"></div>
+                <div style="margin-top: 15px; color: #666;">Loading dashboard...</div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(loader);
+}
+
+function hideLoading() {
+    const loader = document.querySelector('.dashboard-loading');
+    if (loader) {
+        loader.remove();
+    }
+}
+
+function showErrorState(message) {
+    const mainContent = document.querySelector('.content-wrapper, .main-content');
+    if (!mainContent) return;
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-state';
+    errorDiv.innerHTML = `
+        <div style="text-align: center; padding: 50px; color: #666;">
+            <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+            <h3 style="color: #dc2626; margin-bottom: 10px;">Backend Connection Error</h3>
+            <p style="margin-bottom: 20px;">${message}</p>
+            <div style="margin-bottom: 20px; padding: 15px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; text-align: left;">
+                <h4 style="color: #991b1b; margin-bottom: 10px;">Required Backend Endpoints:</h4>
+                <ul style="color: #7f1d1d; font-family: monospace; font-size: 14px;">
+                    <li>GET ${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DASHBOARD_STATS}</li>
+                    <li>GET ${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RECENT_REPORTS}</li>
+                    <li>GET ${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REPORTS}</li>
+                </ul>
+            </div>
+            <button onclick="dashboard.initialize()" style="
+                margin-top: 20px; padding: 12px 24px; background: #dc2626; 
+                color: white; border: none; border-radius: 6px; cursor: pointer;
+                font-weight: 500; transition: all 0.2s ease;
+            " onmouseover="this.style.background='#b91c1c'" 
+               onmouseout="this.style.background='#dc2626'">🔄 Retry Connection</button>
+        </div>
+    `;
+    
+    // Clear existing content and show error
+    mainContent.innerHTML = '';
+    mainContent.appendChild(errorDiv);
+}
+
+function showNotification(message, type = 'info') {
     const colors = {
         success: '#10b981',
-        info: '#3b82f6',
+        info: '#3b82f6', 
         warning: '#f59e0b',
         error: '#ef4444'
     };
     
+    const notification = document.createElement('div');
     notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${colors[type]};
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        z-index: 10001;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.3s ease;
+        position: fixed; top: 20px; right: 20px; background: ${colors[type]};
+        color: white; padding: 15px 20px; border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); z-index: 10001;
+        opacity: 0; transform: translateX(100%); transition: all 0.3s ease;
         max-width: 350px;
     `;
     
@@ -446,433 +722,93 @@ function showNotification(message, type = 'success') {
     setTimeout(() => {
         notification.style.opacity = '0';
         notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
+        setTimeout(() => notification.remove(), 300);
     }, 4000);
 }
 
-function showStatusUpdateOptions(reportData) {
-    showNotification('🔄 Status update functionality coming soon!', 'info');
-}
-
-// ===========================
-// Stats Cards Interactions
-// ===========================
-function addStatsInteractions() {
-    const statCards = document.querySelectorAll('.stat-card');
-    
-    statCards.forEach((card, index) => {
-        // Entrance animation
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            card.style.transition = 'all 0.5s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-        
-        // Hover effects
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px) scale(1.02)';
-            this.style.zIndex = '10';
-            
-            // Animate number
-            animateNumber(this);
-            
-            // Add glow
-            const originalBoxShadow = getComputedStyle(this).boxShadow;
-            this.dataset.originalShadow = originalBoxShadow;
-            this.style.boxShadow = originalBoxShadow + ', 0 0 20px rgba(59, 130, 246, 0.3)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
-            this.style.zIndex = '';
-            this.style.boxShadow = this.dataset.originalShadow || '';
-        });
-        
-        // Click effect
-        card.addEventListener('click', function(e) {
-            createClickRipple(e, this);
-            this.style.transform = 'scale(0.98)';
-            setTimeout(() => {
-                this.style.transform = 'translateY(-5px) scale(1.02)';
-            }, 150);
-        });
-    });
-}
-
-function animateNumber(card) {
-    const numberElement = card.querySelector('.stat-number');
-    if (!numberElement) return;
-    
-    const text = numberElement.textContent;
-    const number = parseFloat(text.replace(/[^\d.]/g, ''));
-    if (isNaN(number)) return;
-    
-    const suffix = text.replace(/[\d.,]/g, '');
-    let current = 0;
-    const increment = number / 20;
-    
-    const animate = () => {
-        current += increment;
-        if (current < number) {
-            numberElement.textContent = Math.floor(current).toLocaleString() + suffix;
-            requestAnimationFrame(animate);
-        } else {
-            numberElement.textContent = text;
-        }
-    };
-    
-    animate();
-}
-
-// ===========================
-// Reports Interactions
-// ===========================
-function addReportsInteractions() {
-    const reportItems = document.querySelectorAll('.report-item');
-    
-    reportItems.forEach((item, index) => {
-        // Entrance animation
-        item.style.opacity = '0';
-        item.style.transform = 'translateX(-20px)';
-        
-        setTimeout(() => {
-            item.style.transition = 'all 0.4s ease';
-            item.style.opacity = '1';
-            item.style.transform = 'translateX(0)';
-        }, 300 + (index * 100));
-        
-        // Store original styles
-        const originalBg = getComputedStyle(item).backgroundColor;
-        const originalBorder = getComputedStyle(item).borderLeft;
-        
-        // Hover effects
-        item.addEventListener('mouseenter', function() {
-            this.style.backgroundColor = '#f8fafc';
-            this.style.borderLeft = '3px solid #3b82f6';
-            this.style.transform = 'translateX(5px)';
-            
-            // Animate status badge
-            const badge = this.querySelector('.report-status');
-            if (badge) {
-                badge.style.transition = 'transform 0.2s ease';
-                badge.style.transform = 'scale(1.05)';
-            }
-        });
-        
-        item.addEventListener('mouseleave', function() {
-            this.style.backgroundColor = originalBg;
-            this.style.borderLeft = originalBorder;
-            this.style.transform = 'translateX(0)';
-            
-            const badge = this.querySelector('.report-status');
-            if (badge) {
-                badge.style.transform = 'scale(1)';
-            }
-        });
-        
-        // Click effect
-        item.addEventListener('click', function(e) {
-            createClickRipple(e, this);
-            this.style.animation = 'reportClick 0.3s ease';
-            setTimeout(() => {
-                this.style.animation = '';
-            }, 300);
-            
-            // Show report details
-            showReportDetails(this);
-        });
-    });
-    
-    // Add time updates simulation
-    simulateTimeUpdates();
-}
-
-function simulateTimeUpdates() {
-    setInterval(() => {
-        const timeElements = document.querySelectorAll('.report-time');
-        if (timeElements.length === 0) return;
-        
-        const randomTime = timeElements[Math.floor(Math.random() * timeElements.length)];
-        if (Math.random() > 0.8) {
-            // Flash effect
-            randomTime.style.backgroundColor = '#fef3c7';
-            randomTime.style.padding = '2px 4px';
-            randomTime.style.borderRadius = '3px';
-            randomTime.style.transition = 'all 0.3s ease';
-            
-            setTimeout(() => {
-                randomTime.style.backgroundColor = '';
-                randomTime.style.padding = '';
-                randomTime.style.borderRadius = '';
-            }, 2000);
-        }
-    }, 8000);
-}
-
-// ===========================
-// Navigation Interactions
-// ===========================
-function addNavigationInteractions() {
-    const navItems = document.querySelectorAll('.nav-item');
-    
-    navItems.forEach(item => {
-        const originalBg = getComputedStyle(item).backgroundColor;
-        
-        item.addEventListener('mouseenter', function() {
-            if (!this.classList.contains('active')) {
-                this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                this.style.transform = 'translateX(5px)';
-            }
-        });
-        
-        item.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('active')) {
-                this.style.backgroundColor = originalBg;
-                this.style.transform = 'translateX(0)';
-            }
-        });
-        
-        item.addEventListener('click', function() {
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = this.classList.contains('active') ? 'translateX(0)' : 'translateX(5px)';
-            }, 100);
-        });
-    });
-}
-
-// ===========================
-// Map Interactions
-// ===========================
-function addMapInteractions() {
-    const mapContainer = document.querySelector('.map-container');
-    const mapPlaceholder = document.querySelector('.map-placeholder');
-    
-    if (!mapPlaceholder) return;
-    
-    // Make it more interactive
-    mapPlaceholder.style.cursor = 'pointer';
-    mapPlaceholder.style.transition = 'all 0.3s ease';
-    
-    // Add dots
-    addMapDots(mapPlaceholder);
-    
-    mapPlaceholder.addEventListener('mouseenter', function() {
-        this.style.transform = 'scale(1.02)';
-        this.style.filter = 'brightness(1.1)';
-    });
-    
-    mapPlaceholder.addEventListener('mouseleave', function() {
-        this.style.transform = 'scale(1)';
-        this.style.filter = 'brightness(1)';
-    });
-    
-    mapPlaceholder.addEventListener('click', function() {
-        showMapNotification();
-        this.style.animation = 'mapPulse 0.5s ease';
-        setTimeout(() => {
-            this.style.animation = '';
-        }, 500);
-    });
-}
-
-function addMapDots(container) {
-    for (let i = 0; i < 4; i++) {
-        const dot = document.createElement('div');
-        dot.style.cssText = `
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #ffffff;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-            animation: dotPulse ${1.5 + Math.random()}s ease-in-out infinite;
-            animation-delay: ${i * 0.3}s;
-        `;
-        
-        dot.style.left = 20 + Math.random() * 60 + '%';
-        dot.style.top = 30 + Math.random() * 40 + '%';
-        
-        container.appendChild(dot);
-    }
-}
-
-function showMapNotification() {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        z-index: 10000;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.3s ease;
-        max-width: 300px;
-    `;
-    
-    notification.innerHTML = `
-        <div style="font-weight: 600; margin-bottom: 5px;">🗺️ Interactive Map</div>
-        <div style="font-size: 14px; opacity: 0.9;">Coming soon with real-time tracking!</div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => notification.remove(), 300);
-    }, 3500);
-}
-
-// ===========================
-// General Interactions
-// ===========================
-function addGeneralInteractions() {
-    // Smooth transitions for all interactive elements
-    document.documentElement.style.scrollBehavior = 'smooth';
-    
-    // Add click effects to buttons
-    const buttons = document.querySelectorAll('button, .btn, [onclick]');
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 150);
-        });
-    });
-    
-    // Add CSS animations
-    addAnimationStyles();
-    
-    // Add entrance animation for main content
-    const mainContent = document.querySelector('.content-wrapper');
-    if (mainContent) {
-        mainContent.style.opacity = '0';
-        mainContent.style.transform = 'translateY(10px)';
-        
-        setTimeout(() => {
-            mainContent.style.transition = 'all 0.6s ease';
-            mainContent.style.opacity = '1';
-            mainContent.style.transform = 'translateY(0)';
-        }, 100);
-    }
-}
-
-// ===========================
-// Utility Functions
-// ===========================
-function createClickRipple(event, element) {
-    const ripple = document.createElement('div');
-    const rect = element.getBoundingClientRect();
-    const size = Math.max(rect.width, rect.height) * 0.8;
-    const x = event.clientX - rect.left - size / 2;
-    const y = event.clientY - rect.top - size / 2;
-    
-    ripple.style.cssText = `
-        position: absolute;
-        width: ${size}px;
-        height: ${size}px;
-        border-radius: 50%;
-        background: rgba(59, 130, 246, 0.2);
-        transform: scale(0);
-        left: ${x}px;
-        top: ${y}px;
-        pointer-events: none;
-        animation: rippleEffect 0.6s ease-out;
-    `;
-    
-    const originalPosition = getComputedStyle(element).position;
-    if (originalPosition === 'static') {
-        element.style.position = 'relative';
-    }
-    element.style.overflow = 'hidden';
-    
-    element.appendChild(ripple);
-    
-    setTimeout(() => {
-        if (ripple.parentNode) {
-            ripple.parentNode.removeChild(ripple);
-        }
-    }, 600);
-}
-
-function addAnimationStyles() {
-    if (document.getElementById('interactiveStyles')) return;
-    
+// 🎨 Add Dashboard Styles
+function addDashboardStyles() {
     const style = document.createElement('style');
-    style.id = 'interactiveStyles';
     style.textContent = `
-        @keyframes rippleEffect {
-            to {
-                transform: scale(2);
-                opacity: 0;
-            }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
-        @keyframes dotPulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0.7;
-            }
-        }
-        
-        @keyframes mapPulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.02);
-            }
-        }
-        
-        @keyframes reportClick {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.02);
-            }
-            100% {
-                transform: scale(1);
-            }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
         }
         
         .stat-card, .report-item, .nav-item {
             transition: all 0.3s ease;
         }
         
-        .report-status {
-            transition: transform 0.2s ease;
-        }
-        
         button, .btn {
             transition: transform 0.15s ease;
         }
+        
+        .report-item:hover {
+            cursor: pointer;
+        }
+        
+        .stat-card:hover {
+            cursor: pointer;
+        }
     `;
-    
     document.head.appendChild(style);
 }
 
-console.log('✨ CityFix Interactive Features Loaded!');
+// 🔧 Legacy Functions (for compatibility with existing HTML)
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+}
+
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    if (sidebar && overlay) {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+}
+
+function setActive(element) {
+    // Remove active class from all nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Add active class to clicked item
+    element.classList.add('active');
+}
+
+// 🚀 Initialize Dashboard
+const dashboard = new DashboardController();
+
+// Auto-initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    addDashboardStyles();
+    dashboard.initialize();
+});
+
+// Global access for debugging and HTML compatibility
+window.dashboard = dashboard;
+window.apiService = apiService;
+window.toggleSidebar = toggleSidebar;
+window.closeSidebar = closeSidebar;
+window.setActive = setActive;
+
+console.log('✨ CityFix Dashboard - Backend Ready Version Loaded!');
