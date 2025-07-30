@@ -460,20 +460,300 @@ Stats Section
     height: 18px;
 }
 
-/* Map Container */
+/* Map Container Styles */
 .map-container {
-    width: 852px;
+    width: 100%;
     height: 320px;
     border-radius: 12px;
     overflow: hidden;
     position: relative;
+    background: #f8f9fa;
 }
 
-.density-map {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 12px;
+/* Map Controls */
+.map-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.map-control-btn {
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.map-control-btn:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+/* Map Legend */
+.map-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+
+.legend-title {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 8px;
+}
+
+.legend-items {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Map Header with Controls */
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Issue Cards Stats */
+.issue-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e9ecef;
+    font-size: 14px;
+}
+
+.issue-count {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.issue-status {
+    color: #28a745;
+    font-weight: 600;
+}
+
+/* Date Validation */
+.date-validation {
+    margin-top: 4px;
+    font-size: 12px;
+    animation: fadeIn 0.3s ease;
+}
+
+.date-validation.error {
+    color: #dc3545;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 350px;
+}
+
+.notification.success {
+    background: #10b981;
+}
+
+.notification.error {
+    background: #ef4444;
+}
+
+.notification.info {
+    background: #3b82f6;
+}
+
+.notification.warning {
+    background: #f59e0b;
+}
+
+/* Animation Keyframes */
+@keyframes slideIn {
+    from { 
+        transform: translateX(100%); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateX(0); 
+        opacity: 1; 
+    }
+}
+
+@keyframes slideOut {
+    from { 
+        transform: translateX(0); 
+        opacity: 1; 
+    }
+    to { 
+        transform: translateX(100%); 
+        opacity: 0; 
+    }
+}
+
+/* Map Error Overlay */
+.map-error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Loading States */
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Backend Status Indicators */
+.backend-status {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    font-weight: 500;
+}
+
+.backend-status.online {
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
+}
+
+.backend-status.offline {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+}
+
+/* Enhanced Form Elements */
+.enhanced-input {
+    transition: all 0.3s ease;
+}
+
+.enhanced-input:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .map-legend {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .legend-items {
+        gap: 12px;
+    }
+
+    .map-controls {
+        gap: 4px;
+    }
+
+    .map-control-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .map-container {
+        height: 250px;
+    }
+
+    .notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .map-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .map-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .map-control-btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .legend-items {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .issue-stats {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
 }
 
 /* Statistics Cards Container */
