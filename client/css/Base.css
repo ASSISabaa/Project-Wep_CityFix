@@ -10,11 +10,21 @@ Base.css styles
     box-sizing: border-box;
 }
 
+/* Hide scrollbar completely */
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+    display: none;
 }
 
 body {
@@ -147,6 +157,14 @@ body {
     z-index: 1000;
     overflow-y: auto;
     transition: all 0.3s ease;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+    display: none;
 }
 
 /* Logo section */
@@ -278,6 +296,7 @@ body {
     background-size: contain;
     background-repeat: no-repeat;
     display: block;
+    filter: brightness(0) invert(1); /* Always white */
 }
 
 .nav-item[data-icon="analytics"] .nav-icon::after {
@@ -331,7 +350,7 @@ body {
 .nav-item:hover[data-icon="reports"] .nav-icon::after,
 .nav-item.active[data-icon="reports"] .nav-icon::after {
     background-image: url('../assets/reports-icon.svg');
-    filter: brightness(0) invert(1);
+    filter: brightness(0) invert(1); /* Keep white */
 }
 
 .nav-item:hover[data-icon="analytics"] .nav-icon::after,
@@ -366,55 +385,43 @@ body {
     background: #F5F5F5;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.main-content::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+    display: none;
 }
 
 .content-wrapper {
     max-width: none;
     margin: 0;
-    padding: 20px;
+    padding: 0 20px 20px 20px;
     background: #F5F5F5; 
     border-radius: 0;
     box-shadow: none;
-    flex: 1;
-    margin-bottom: 18px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-/* Dashboard Header */
+/* Dashboard Header - Fixed */
 .dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0px;
     padding: 20px;
-    background: transparent;
+    background: #F5F5F5;
+    position: sticky;
+    top: 0;
     color: #374151;
     width: 100%;
     border-bottom: 1px solid #E5E7EB;
-}
-
-.content-wrapper {
-    max-width: none;
-    margin: 0;
-    padding: 20px; 
-    background: #F5F5F5; 
-    border-radius: 0;
-    box-shadow: none;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.main-content {
-    margin-left: 256px;
-    min-height: 100vh;
-    padding: 0;
-    transition: all 0.3s ease;
-    background: #F5F5F5;
-    display: flex;
-    flex-direction: column;
+    z-index: 100;
 }
 
 .header-left {
@@ -713,9 +720,6 @@ body {
     }
 }
 
-/* Large Desktop */
-
-
 /* Empty Section Styles */
 .empty-section {
     display: flex;
@@ -944,7 +948,7 @@ body {
     }
 }
 
-/* Large Desktop */
+/* Large Desktop - FIXED */
 @media (min-width: 1025px) {
     .mobile-header {
         display: none;
@@ -976,12 +980,11 @@ body {
     }
 }
 
-
- /* 
-    =====================================================
-    Coming Soon Styles 
-    =====================================================
- */
+/* 
+====================================================
+Coming Soon Styles 
+====================================================
+*/
 
 .coming-soon-container {
     display: flex;
@@ -1087,4 +1090,3 @@ body {
         font-size: 14px;
     }
 }
-
