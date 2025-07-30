@@ -245,11 +245,9 @@ function setActive(clickedItem) {
     const section = clickedItem.getAttribute('data-icon');
     const url = pageUrls[section];
     
-    // قائمة الصفحات اللي مش جاهزة
     const comingSoonPages = ['analytics', 'team', 'notifications', 'settings'];
     
     if (comingSoonPages.includes(section)) {
-        // عرض Coming Soon للصفحات المؤجلة
         showComingSoonPage(section, clickedItem);
     } else if (url) {
         // Navigate to the actual page
@@ -481,7 +479,6 @@ function goToDashboard() {
     // Restore original dashboard content (you can customize this)
     const contentWrapper = document.querySelector('.content-wrapper');
     if (contentWrapper) {
-        // هنا بتحط المحتوى الأصلي للـ dashboard
-        location.reload(); // أو تعيد كتابة المحتوى الأصلي
+        location.reload();
     }
 }
