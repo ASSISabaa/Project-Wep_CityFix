@@ -55,7 +55,8 @@ body {
 
 /* Page Header */
 .page-header {
-    margin-bottom: clamp(32px, 8vw, 106px);
+    margin-top: 96px;
+    margin-bottom: 32px;
     text-align: left;
 }
 
@@ -529,8 +530,8 @@ body {
     justify-content: center;
     align-items: center;
     gap: clamp(4px, 2vw, 8px);
-    margin-top: clamp(32px, 8vw, 167px);
-    margin-bottom: clamp(32px, 8vw, 267px);
+    margin-top: 32px;
+    margin-bottom: 32px;
     flex-wrap: wrap;
 }
 
@@ -663,7 +664,8 @@ body {
     
     .page-header {
         text-align: center;
-        margin-bottom: 2rem;
+        margin-top: 64px;
+        margin-bottom: 24px;
     }
     
     .filters-section {
@@ -730,6 +732,11 @@ body {
     .reports-container {
         margin: 0.5rem auto;
         padding: 0 0.5rem;
+    }
+    
+    .page-header {
+        margin-top: 48px;
+        margin-bottom: 20px;
     }
     
     .page-header h1 {
