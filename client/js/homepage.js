@@ -1,4 +1,4 @@
-// CityFix Homepage - Backend Ready with Google Maps Integration
+// CityFix Homepage - Backend Only (No Fallback Data)
 
 // ==========================================
 // BACKEND DATA REQUIREMENTS DOCUMENTATION
@@ -99,11 +99,7 @@ const GOOGLE_MAPS_CONFIG = {
 // 🌍 Global State Management
 const AppState = {
     currentUser: null,
-    dashboardStats: {
-        totalReports: 15234,
-        resolved: 12847,
-        inProgress: 2387
-    },
+    dashboardStats: null,
     recentReports: [],
     mapMarkers: [],
     isLoading: false,
@@ -122,6 +118,26 @@ let currentFilters = {
     district: '',
     issueTypes: ['potholes', 'lighting', 'drainage']
 };
+
+// 📄 PDF Export Utilities
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+async function loadPDFLibrary() {
+    if (typeof window.jspdf === 'undefined') {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    }
+    if (typeof html2canvas === 'undefined') {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    }
+}
 
 // 🔄 API Service Class
 class ApiService {
@@ -163,123 +179,8 @@ class ApiService {
             console.error('❌ Backend connection failed:', error.message);
             this.backendAvailable = false;
             AppState.backendAvailable = false;
-            
-            // Don't return fallback data - let the caller handle the error
             throw error;
         }
-    }
-
-    getFallbackData(endpoint) {
-        console.log('📊 Using fallback data for:', endpoint);
-        
-        // Enhanced fallback data
-        const fallbackData = {
-            '/dashboard/stats': {
-                success: true,
-                data: {
-                    totalReports: 15234,
-                    resolved: 12847,
-                    inProgress: 2387,
-                    resolutionRate: 84,
-                    avgResponseTime: '4.2h',
-                    weeklyTrend: '+12%'
-                }
-            },
-            '/reports/markers': {
-                success: true,
-                data: [
-                    {
-                        id: 1,
-                        lat: 32.0853,
-                        lng: 34.7818,
-                        title: 'Broken Streetlight',
-                        description: 'Street light not working on main road',
-                        type: 'lighting',
-                        status: 'new',
-                        createdAt: '2025-01-15T10:30:00Z',
-                        address: 'Main St & 5th Ave'
-                    },
-                    {
-                        id: 2,
-                        lat: 32.0863,
-                        lng: 34.7828,
-                        title: 'Large Pothole',
-                        description: 'Dangerous pothole affecting traffic',
-                        type: 'potholes',
-                        status: 'in-progress',
-                        createdAt: '2025-01-15T09:15:00Z',
-                        address: 'West End Road'
-                    },
-                    {
-                        id: 3,
-                        lat: 32.0843,
-                        lng: 34.7808,
-                        title: 'Blocked Drain',
-                        description: 'Storm drain blocked causing flooding',
-                        type: 'drainage',
-                        status: 'resolved',
-                        createdAt: '2025-01-14T16:45:00Z',
-                        address: 'Central Park Area'
-                    },
-                    {
-                        id: 4,
-                        lat: 32.0833,
-                        lng: 34.7798,
-                        title: 'Traffic Light Issue',
-                        description: 'Traffic light stuck on red',
-                        type: 'lighting',
-                        status: 'new',
-                        createdAt: '2025-01-15T14:20:00Z',
-                        address: 'Downtown Junction'
-                    },
-                    {
-                        id: 5,
-                        lat: 32.0873,
-                        lng: 34.7838,
-                        title: 'Road Surface Damage',
-                        description: 'Multiple potholes in residential area',
-                        type: 'potholes',
-                        status: 'pending',
-                        createdAt: '2025-01-15T11:00:00Z',
-                        address: 'North District'
-                    }
-                ]
-            },
-            '/districts/stats': {
-                success: true,
-                data: {
-                    'downtown': { name: 'Downtown', reports: 4521, resolved: 3846, pending: 675 },
-                    'north': { name: 'North District', reports: 2834, resolved: 2456, pending: 378 },
-                    'south': { name: 'South District', reports: 3456, resolved: 2987, pending: 469 },
-                    'east': { name: 'East District', reports: 2187, resolved: 1834, pending: 353 },
-                    'west': { name: 'West District', reports: 2236, resolved: 1724, pending: 512 }
-                }
-            },
-            '/issues/stats': {
-                success: true,
-                data: {
-                    'potholes': { name: 'Potholes', count: 5423, resolved: 4230, pending: 1193 },
-                    'lighting': { name: 'Street Lighting', count: 3891, resolved: 3579, pending: 312 },
-                    'drainage': { name: 'Drainage Issues', count: 2156, resolved: 1833, pending: 323 },
-                    'traffic': { name: 'Traffic Signals', count: 1876, resolved: 1654, pending: 222 },
-                    'sidewalk': { name: 'Sidewalk Issues', count: 1888, resolved: 1551, pending: 337 }
-                }
-            }
-        };
-
-        // Check for exact matches first, then try to match patterns
-        if (fallbackData[endpoint]) {
-            return fallbackData[endpoint];
-        }
-
-        // Handle query parameters
-        const baseEndpoint = endpoint.split('?')[0];
-        if (fallbackData[baseEndpoint]) {
-            return fallbackData[baseEndpoint];
-        }
-
-        // Default empty response
-        return { success: false, data: {}, message: 'No fallback data available' };
     }
 
     // API Methods
@@ -387,7 +288,7 @@ class GoogleMapsController {
             AppState.googleMap = this.map;
             this.isInitialized = true;
 
-            // Load markers
+            // Load markers from backend only
             await this.loadMapMarkers();
 
             console.log('✅ Google Maps initialized successfully');
@@ -583,6 +484,37 @@ class GoogleMapsController {
         }
     }
 
+    showMapError() {
+        const mapContainer = document.querySelector('.map-container');
+        if (mapContainer) {
+            const errorOverlay = document.createElement('div');
+            errorOverlay.className = 'map-error-overlay';
+            errorOverlay.innerHTML = `
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                           background: rgba(220, 53, 69, 0.9); color: white; padding: 12px 20px;
+                           border-radius: 8px; text-align: center; z-index: 1000;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+                    <div>Failed to load markers from backend</div>
+                </div>
+            `;
+            
+            // Remove existing error overlay if any
+            const existingOverlay = mapContainer.querySelector('.map-error-overlay');
+            if (existingOverlay) {
+                existingOverlay.remove();
+            }
+            
+            mapContainer.appendChild(errorOverlay);
+            
+            // Remove overlay after 5 seconds
+            setTimeout(() => {
+                if (errorOverlay.parentNode) {
+                    errorOverlay.remove();
+                }
+            }, 5000);
+        }
+    }
+
     retryMapInitialization() {
         console.log('🔄 Retrying Google Maps initialization...');
         setTimeout(() => {
@@ -611,6 +543,13 @@ class HomepageController {
         console.log('🚀 Initializing CityFix Homepage');
         
         try {
+            // Load PDF library early
+            await loadPDFLibrary();
+            console.log('✅ PDF library loaded');
+            
+            // Clear all hardcoded values first
+            this.clearAllMapStats();
+            
             // Setup UI interactions first
             this.setupInteractions();
             
@@ -673,7 +612,7 @@ class HomepageController {
             
             // Only load data from backend - no fallback
             const statsResponse = await apiService.getDashboardStats();
-            if (statsResponse && statsResponse.data) {
+            if (statsResponse && statsResponse.success && statsResponse.data) {
                 AppState.dashboardStats = statsResponse.data;
                 this.updateStatsDisplay();
                 console.log('✅ Dashboard stats loaded from backend');
@@ -713,40 +652,6 @@ class HomepageController {
         });
     }
 
-    showMapError() {
-        if (!this.map) return;
-        
-        // Add error overlay to map
-        const mapContainer = document.querySelector('.map-container');
-        if (mapContainer) {
-            const errorOverlay = document.createElement('div');
-            errorOverlay.className = 'map-error-overlay';
-            errorOverlay.innerHTML = `
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                           background: rgba(220, 53, 69, 0.9); color: white; padding: 12px 20px;
-                           border-radius: 8px; text-align: center; z-index: 1000;">
-                    <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
-                    <div>Failed to load markers from backend</div>
-                </div>
-            `;
-            
-            // Remove existing error overlay if any
-            const existingOverlay = mapContainer.querySelector('.map-error-overlay');
-            if (existingOverlay) {
-                existingOverlay.remove();
-            }
-            
-            mapContainer.appendChild(errorOverlay);
-            
-            // Remove overlay after 5 seconds
-            setTimeout(() => {
-                if (errorOverlay.parentNode) {
-                    errorOverlay.remove();
-                }
-            }, 5000);
-        }
-    }
-
     updateStatsDisplay() {
         const stats = AppState.dashboardStats;
         
@@ -778,7 +683,8 @@ class HomepageController {
                 apiService.getIssueTypeStats()
             ]);
 
-            if (districtStats && districtStats.data && issueStats && issueStats.data) {
+            if (districtStats && districtStats.success && districtStats.data && 
+                issueStats && issueStats.success && issueStats.data) {
                 this.updateMapStatsDisplay(districtStats.data, issueStats.data);
                 console.log('✅ Map stats loaded from backend');
             } else {
@@ -841,16 +747,25 @@ class HomepageController {
         console.log('📊 Map stats updated with backend data');
     }
 
-    updateMapStats() {
-        // Default map stats update
-        const mapStatCards = document.querySelectorAll('.map-stat-card .map-stat-content');
+    // Clear all map stats on initialization to remove hardcoded values
+    clearAllMapStats() {
+        const mapStatCards = document.querySelectorAll('.map-stat-card .map-stat-content, .resolution-percentage');
+        mapStatCards.forEach(card => {
+            card.innerHTML = '--';
+            card.style.color = '#dc3545';
+        });
         
-        if (mapStatCards.length >= 4) {
-            mapStatCards[0].innerHTML = '<div class="resolution-percentage">Downtown</div>';
-            mapStatCards[1].innerHTML = '<div class="resolution-percentage">Potholes</div>';
-            mapStatCards[2].innerHTML = '<div class="resolution-percentage">84%</div>';
-            mapStatCards[3].innerHTML = '<div class="resolution-percentage">↗️ +12%</div>';
-        }
+        // Also clear any hardcoded text in HTML
+        const resolutionCards = document.querySelectorAll('.map-stat-card');
+        resolutionCards.forEach(card => {
+            const content = card.querySelector('.map-stat-content') || card.querySelector('.resolution-percentage');
+            if (content) {
+                content.innerHTML = '--';
+                content.style.color = '#dc3545';
+            }
+        });
+        
+        console.log('🗑️ Cleared all hardcoded map stats');
     }
 
     setupInteractions() {
@@ -1055,14 +970,265 @@ class HomepageController {
         }
     }
 
-    handleExportPDF() {
-        this.showNotification('Preparing PDF export...', 'info');
-        
-        // Simulate PDF generation
-        setTimeout(() => {
-            this.showNotification('PDF export completed!', 'success');
-            // In real implementation, trigger backend PDF generation
-        }, 2000);
+    // 📄 Backend-Only PDF Export Function
+    async handleExportPDF() {
+        try {
+            this.showNotification('Preparing PDF export...', 'info');
+            
+            // Check backend availability first
+            const backendHealthy = await apiService.checkBackendHealth();
+            if (!backendHealthy) {
+                throw new Error('Backend server is not available');
+            }
+            
+            // Ensure PDF library is loaded
+            await loadPDFLibrary();
+            
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            let yPosition = 20;
+            
+            // Add header
+            pdf.setFontSize(24);
+            pdf.setTextColor(79, 70, 229);
+            pdf.text('CityFix', 20, yPosition);
+            
+            pdf.setFontSize(16);
+            pdf.setTextColor(124, 58, 237);
+            pdf.text('Community Report Dashboard', 20, yPosition + 10);
+            
+            yPosition += 25;
+            
+            // Add report metadata
+            pdf.setFontSize(12);
+            pdf.setTextColor(100, 116, 139);
+            pdf.text(`Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 20, yPosition);
+            pdf.text(`Location: Rosh HaAyin, Central District, IL`, 20, yPosition + 6);
+            
+            yPosition += 20;
+            
+            // Get stats from backend ONLY
+            this.showNotification('Loading statistics from backend...', 'info');
+            const statsResponse = await apiService.getDashboardStats();
+            if (!statsResponse || !statsResponse.success || !statsResponse.data) {
+                throw new Error('Failed to load statistics from backend');
+            }
+            
+            const stats = statsResponse.data;
+            console.log('✅ PDF using backend statistics data');
+            
+            // Add main statistics section
+            pdf.setFontSize(18);
+            pdf.setTextColor(30, 41, 59);
+            pdf.text('Issue Statistics Overview', 20, yPosition);
+            yPosition += 15;
+            
+            pdf.setFontSize(12);
+            pdf.setTextColor(30, 41, 59);
+            
+            // Draw stats from backend data
+            const statData = [
+                ['Total Reports Filed:', stats.totalReports.toLocaleString()],
+                ['Issues Successfully Resolved:', stats.resolved.toLocaleString()],
+                ['Currently In Progress:', stats.inProgress.toLocaleString()],
+                ['Overall Resolution Rate:', `${stats.resolutionRate || Math.round((stats.resolved / stats.totalReports) * 100)}%`],
+                ['Average Response Time:', stats.avgResponseTime || 'N/A'],
+                ['Weekly Trend:', stats.weeklyTrend || 'N/A']
+            ];
+            
+            statData.forEach(([label, value]) => {
+                pdf.text(label, 25, yPosition);
+                pdf.setTextColor(79, 70, 229);
+                pdf.text(value, 120, yPosition);
+                pdf.setTextColor(30, 41, 59);
+                yPosition += 8;
+            });
+            
+            yPosition += 15;
+            
+            // Get issue types from backend ONLY
+            this.showNotification('Loading issue categories from backend...', 'info');
+            const issueResponse = await apiService.getIssueTypeStats();
+            if (!issueResponse || !issueResponse.success || !issueResponse.data) {
+                throw new Error('Failed to load issue categories from backend');
+            }
+            
+            const issueData = issueResponse.data;
+            console.log('✅ PDF using backend issue categories data');
+            
+            // Add issue types breakdown
+            pdf.setFontSize(18);
+            pdf.text('Issue Categories Breakdown', 20, yPosition);
+            yPosition += 15;
+            
+            const issueColors = {
+                'potholes': [255, 107, 53],
+                'lighting': [255, 210, 63],
+                'drainage': [77, 171, 247],
+                'traffic': [40, 167, 69],
+                'sidewalk': [111, 66, 193]
+            };
+            
+            pdf.setFontSize(12);
+            Object.keys(issueData).forEach(issueKey => {
+                const issue = issueData[issueKey];
+                const resolutionPercent = Math.round((issue.resolved / issue.count) * 100);
+                const color = issueColors[issueKey] || [128, 128, 128];
+                
+                // Color bullet point
+                pdf.setTextColor(...color);
+                pdf.text('●', 25, yPosition);
+                
+                // Issue details
+                pdf.setTextColor(30, 41, 59);
+                pdf.text(`${issue.name}:`, 32, yPosition);
+                pdf.text(`${issue.count.toLocaleString()} total`, 85, yPosition);
+                pdf.text(`(${resolutionPercent}% resolved)`, 120, yPosition);
+                
+                yPosition += 8;
+            });
+            
+            yPosition += 15;
+            
+            // Get district performance from backend ONLY
+            this.showNotification('Loading district performance from backend...', 'info');
+            const districtResponse = await apiService.getDistrictStats();
+            if (!districtResponse || !districtResponse.success || !districtResponse.data) {
+                throw new Error('Failed to load district performance from backend');
+            }
+            
+            const districtData = districtResponse.data;
+            console.log('✅ PDF using backend district performance data');
+            
+            // Add district performance
+            pdf.setFontSize(18);
+            pdf.text('District Performance', 20, yPosition);
+            yPosition += 15;
+            
+            pdf.setFontSize(12);
+            Object.keys(districtData).forEach(districtKey => {
+                const district = districtData[districtKey];
+                const resolutionRate = Math.round((district.resolved / district.reports) * 100);
+                pdf.text(`${district.name}:`, 25, yPosition);
+                pdf.text(`${district.reports.toLocaleString()} reports`, 70, yPosition);
+                pdf.text(`${resolutionRate}% resolved`, 120, yPosition);
+                yPosition += 8;
+            });
+            
+            // Add new page if needed
+            if (yPosition > 250) {
+                pdf.addPage();
+                yPosition = 20;
+            }
+            
+            // Add current filters information
+            yPosition += 10;
+            pdf.setFontSize(16);
+            pdf.setTextColor(30, 41, 59);
+            pdf.text('Current Filter Settings', 20, yPosition);
+            yPosition += 12;
+            
+            pdf.setFontSize(11);
+            pdf.setTextColor(100, 116, 139);
+            
+            if (currentFilters.startDate || currentFilters.endDate) {
+                pdf.text(`Date Range: ${currentFilters.startDate || 'All'} to ${currentFilters.endDate || 'All'}`, 25, yPosition);
+                yPosition += 7;
+            }
+            
+            if (currentFilters.district) {
+                pdf.text(`District: ${currentFilters.district}`, 25, yPosition);
+                yPosition += 7;
+            }
+            
+            if (currentFilters.issueTypes.length > 0) {
+                pdf.text(`Issue Types: ${currentFilters.issueTypes.join(', ')}`, 25, yPosition);
+                yPosition += 7;
+            }
+            
+            // Map section
+            if (yPosition > 200) {
+                pdf.addPage();
+                yPosition = 20;
+            }
+            
+            pdf.setFontSize(16);
+            pdf.setTextColor(30, 41, 59);
+            pdf.text('Issue Distribution Map', 20, yPosition);
+            yPosition += 15;
+            
+            // Try to capture map (this doesn't require backend data)
+            try {
+                const mapContainer = document.querySelector('.map-container');
+                if (mapContainer && typeof html2canvas !== 'undefined') {
+                    this.showNotification('Capturing map image...', 'info');
+                    
+                    const canvas = await html2canvas(mapContainer, {
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#f8fafc',
+                        scale: 1
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/png');
+                    const imgWidth = 170;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    
+                    if (imgHeight > 0 && imgHeight < 200) {
+                        pdf.addImage(imgData, 'PNG', 20, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    } else {
+                        pdf.setFontSize(12);
+                        pdf.setTextColor(156, 163, 175);
+                        pdf.text('Map image too large for PDF export', 25, yPosition);
+                        yPosition += 15;
+                    }
+                } else {
+                    pdf.setFontSize(12);
+                    pdf.setTextColor(156, 163, 175);
+                    pdf.text('Map visualization not available - Google Maps not loaded', 25, yPosition);
+                    yPosition += 15;
+                }
+            } catch (mapError) {
+                console.warn('Could not capture map for PDF:', mapError);
+                pdf.setFontSize(12);
+                pdf.setTextColor(156, 163, 175);
+                pdf.text('Map capture failed', 25, yPosition);
+                yPosition += 15;
+            }
+            
+            // Add footer
+            const footerY = 280;
+            pdf.setFontSize(10);
+            pdf.setTextColor(156, 163, 175);
+            pdf.text('Generated by CityFix Community Platform', 105, footerY, { align: 'center' });
+            pdf.text(`Report Date: ${new Date().toISOString().split('T')[0]}`, 105, footerY + 5, { align: 'center' });
+            
+            // Save the PDF
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const fileName = `CityFix_Community_Report_${timestamp}.pdf`;
+            
+            pdf.save(fileName);
+            
+            this.showNotification('PDF report downloaded successfully!', 'success');
+            console.log('✅ PDF generated successfully using backend data only');
+            
+        } catch (error) {
+            console.error('❌ PDF export failed:', error);
+            
+            // Show specific error messages
+            if (error.message.includes('Backend server is not available')) {
+                this.showNotification('❌ PDF Export Failed: Backend server is not running', 'error');
+            } else if (error.message.includes('Failed to load statistics')) {
+                this.showNotification('❌ PDF Export Failed: Could not load statistics from backend', 'error');
+            } else if (error.message.includes('Failed to load issue categories')) {
+                this.showNotification('❌ PDF Export Failed: Could not load issue categories from backend', 'error');
+            } else if (error.message.includes('Failed to load district performance')) {
+                this.showNotification('❌ PDF Export Failed: Could not load district performance from backend', 'error');
+            } else {
+                this.showNotification('❌ PDF Export Failed: Backend connection error', 'error');
+            }
+        }
     }
 
     initializeCounterAnimations() {
@@ -1075,14 +1241,14 @@ class HomepageController {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const element = entry.target;
-                    const finalValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
-                    if (finalValue === 0) {
-                        // Use fallback values for animation
-                        const fallbackValues = [15234, 12847, 2387];
+                    // Only animate if we have actual data from backend
+                    if (AppState.dashboardStats) {
+                        const stats = AppState.dashboardStats;
                         const cardIndex = Array.from(document.querySelectorAll('.stat-number')).indexOf(element);
-                        this.animateCounter(element, fallbackValues[cardIndex] || 1000);
-                    } else {
-                        this.animateCounter(element, finalValue);
+                        const values = [stats.totalReports, stats.resolved, stats.inProgress];
+                        if (values[cardIndex]) {
+                            this.animateCounter(element, values[cardIndex]);
+                        }
                     }
                     observer.unobserve(element);
                 }
@@ -1160,6 +1326,20 @@ class HomepageController {
             animation: slideIn 0.3s ease;
         `;
         
+        // Add slide animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
         document.body.appendChild(notification);
         
         setTimeout(() => {
@@ -1191,6 +1371,16 @@ window.initMap = function() {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 CityFix Homepage Loading...');
+    
+    // Load PDF library early
+    const pdfScript = document.createElement('script');
+    pdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    document.head.appendChild(pdfScript);
+    
+    const canvasScript = document.createElement('script');
+    canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    document.head.appendChild(canvasScript);
+    
     homepage.initialize();
 });
 
@@ -1204,4 +1394,4 @@ window.retryMapInitialization = function() {
     mapsController.retryMapInitialization();
 };
 
-console.log('✨ CityFix Homepage - Backend Ready with Google Maps!');
+console.log('✨ CityFix Homepage - Backend Only (No Fallback Data)!');
