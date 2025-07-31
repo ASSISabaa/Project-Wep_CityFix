@@ -1,0 +1,633 @@
+/* 
+==============================================
+reports.css styles
+==============================================
+*/
+
+.filters-section {
+    border-radius: 8px;
+    border: 0 solid #E5E7EB;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    height: 76px;
+    padding: 16px 231px 16px 16px;
+    align-items: center;
+    flex-shrink: 0;
+    margin-bottom: 24px;
+}
+
+.filters-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100%;
+}
+
+.filter-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.filter-dropdown {
+    background: #F9FAFB;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 0 6px 0 12px;
+    font-size: 16px;
+    color: #000;
+    appearance: none;
+    cursor: pointer;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    min-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 28px 28px;
+    gap: 56px;
+    width: 215px;
+}
+
+.filter-dropdown:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.date-input {
+    background: #F9FAFB;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 0 6px 0 12px;
+    font-size: 16px;
+    color: #000;
+    height: 44px;
+    min-width: 150px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 56px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    width: 215px;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    background: #F9FAFB;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 0 4px 0 40px;
+    font-size: 16px;
+    color: #000;
+    height: 44px;
+    min-width: 200px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 56px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    width: 215px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3e%3c/svg%3e");
+    background-size: contain;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   REPORTS PAGE - ACTION BUTTONS SECTION
+   ========================================================================== */
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-bottom: 18px;
+}
+
+.export-btn {
+    display: flex;
+    width: 107.25px;
+    height: 42px;
+    padding: 9px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    border: 0 solid #E5E7EB;
+    background: #262626;
+    color: white;
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.export-btn:hover {
+    background: #1F2937;
+}
+
+.filter-btn {
+    display: flex;
+    width: 107.25px;
+    height: 42px;
+    padding: 9px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    border: 1px solid #D1D5DB;
+    background: #F9FAFB;
+    color: #000;
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background: #F3F4F6;
+}
+
+.export-icon {
+    width: 18px;
+    height: 16px;
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'/%3e%3c/svg%3e");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.filter-icon {
+    width: 18px;
+    height: 16px;
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z'/%3e%3c/svg%3e");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* ==========================================================================
+   REPORTS PAGE - TABLE SECTION
+   ========================================================================== */
+
+.reports-table-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Inter, sans-serif;
+}
+
+.reports-table thead {
+    background: #F9FAFB;
+}
+
+.reports-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 14px;
+    color: #374151;
+    border-bottom: 1px solid #E5E7EB;
+    white-space: nowrap;
+}
+
+.reports-table td {
+    padding: 16px;
+    font-size: 14px;
+    color: #111827;
+    border-bottom: 1px solid #F3F4F6;
+    vertical-align: middle;
+}
+
+.reports-table tbody tr:hover {
+    background: #F9FAFB;
+}
+
+.report-id {
+    font-weight: 500;
+    color: #3B82F6;
+}
+
+.report-title {
+    font-weight: 500;
+    max-width: 200px;
+}
+
+.report-location,
+.report-type,
+.report-date {
+    color: #6B7280;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 400;
+    font-family: Inter;
+    font-style: normal;
+    line-height: normal;
+    text-transform: capitalize;
+    white-space: nowrap;
+    border-radius: 9999px;
+    border: 0 solid #E5E7EB;
+    height: 23px;
+    padding: 4px 8px;
+}
+
+.status-new,
+.status-progress,
+.status-pending,
+.status-resolved {
+    background: #E5E5E5;
+    color: #000;
+}
+.actions-cell {
+    text-align: center;
+}
+
+.action-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-menu-btn:hover {
+    background: #F3F4F6;
+}
+
+.dots-icon {
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23374151' viewBox='0 0 24 24'%3e%3cpath d='M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'/%3e%3c/svg%3e");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* ==========================================================================
+   REPORTS PAGE - PAGINATION SECTION
+   ========================================================================== */
+
+.pagination-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-top: 1px solid #E5E7EB;
+    background: #F9FAFB;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    border: 1px solid #D1D5DB;
+    background: white;
+    color: #374151;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover {
+    background: #F3F4F6;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-btn:disabled:hover {
+    background: white;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN - TABLET LANDSCAPE (1024px - 1199px)
+   ========================================================================== */
+
+@media (max-width: 1199px) and (min-width: 1024px) {
+    .filters-section {
+        height: auto;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .filters-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-dropdown,
+    .date-input,
+    .search-input {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN - TABLET PORTRAIT (768px - 1023px)
+   ========================================================================== */
+
+@media (max-width: 1023px) and (min-width: 768px) {
+    .filters-section {
+        height: auto;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .filters-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-dropdown,
+    .date-input,
+    .search-input {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN - MOBILE LARGE (481px - 767px)
+   ========================================================================== */
+
+@media (max-width: 767px) and (min-width: 481px) {
+    .filters-section {
+        height: auto;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .filters-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-dropdown,
+    .date-input,
+    .search-input {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+    
+    .reports-table th,
+    .reports-table td {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+    
+    .pagination-section {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN - MOBILE SMALL (320px - 480px)
+   ========================================================================== */
+
+@media (max-width: 480px) {
+    .filters-section {
+        height: auto;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .filters-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-dropdown,
+    .date-input,
+    .search-input {
+        width: 100%;
+        min-width: auto;
+        padding: 8px 12px;
+        font-size: 13px;
+        height: 36px;
+    }
+    
+    .search-input {
+        padding-left: 35px;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .export-btn,
+    .filter-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 12px;
+        font-size: 13px;
+        height: 36px;
+        width: auto;
+    }
+    
+    .reports-table th,
+    .reports-table td {
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+    
+    .reports-table th:first-child,
+    .reports-table td:first-child {
+        display: none;
+    }
+    
+    .report-title {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .status-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
+    .pagination-section {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+    }
+    
+    .pagination-info {
+        font-size: 12px;
+    }
+    
+    .pagination-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN - ULTRA SMALL SCREENS (less than 320px)
+   ========================================================================== */
+
+@media (max-width: 319px) {
+    .filters-section {
+        padding: 8px;
+    }
+    
+    .reports-table th,
+    .reports-table td {
+        padding: 6px 4px;
+        font-size: 11px;
+    }
+    
+    .reports-table th:nth-child(3),
+    .reports-table td:nth-child(3),
+    .reports-table th:nth-child(4),
+    .reports-table td:nth-child(4) {
+        display: none;
+    }
+    
+    .report-title {
+        max-width: 100px;
+    }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+    .filters-section,
+    .action-buttons,
+    .pagination-section {
+        display: none !important;
+    }
+    
+    .reports-table-section {
+        box-shadow: none !important;
+        border: 1px solid #E5E7EB !important;
+    }
+}

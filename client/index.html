@@ -14,7 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS Stylesheet -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/homePage.css">
+    <link rel="stylesheet" href="css/common.css">
 </head>
 <body>
     <!-- Header -->
@@ -26,16 +27,16 @@
         
         <nav class="nav-section">
             <a href="index.html" class="nav-item active">Home</a>
-            <a href="#" class="nav-item">Reports</a>
+            <a href="BrowseReports.html" class="nav-item">Reports</a>
             <a href="SubmitReport.html" class="nav-item">Submit Report</a>
             <a href="#" class="nav-item">City Insights</a>
-            <a href="#" class="nav-item">My Impact</a>
-            <a href="#" class="nav-item">Contact</a>
+            <a href="MyImpact.html" class="nav-item">My Impact</a>
+            <a href="#contact" class="nav-item">Contact</a>
         </nav>
         
         <div class="auth-section">
-            <a href="#" class="login-btn">Login</a>
-            <a href="#" class="signup-btn">Sign Up</a>
+            <a href="login.html" class="login-btn">Login</a>
+            <a href="signup.html" class="signup-btn">Sign Up</a>
         </div>
 
         <!-- Mobile Menu Button -->
@@ -49,14 +50,14 @@
     <!-- Mobile Navigation -->
     <div class="mobile-nav">
         <a href="index.html" class="nav-item active">Home</a>
-        <a href="#" class="nav-item">Reports</a>
+        <a href="Reports.html" class="nav-item">Reports</a>
         <a href="SubmitReport.html" class="nav-item">Submit Report</a>
-        <a href="#" class="nav-item">City Insights</a>
-        <a href="#" class="nav-item">My Impact</a>
-        <a href="#" class="nav-item">Contact</a>
+        <a href="BrowseReports.html" class="nav-item">City Insights</a>
+        <a href="MyImpact.html" class="nav-item">My Impact</a>
+        <a href="#contact" class="nav-item">Contact</a>
         <div class="auth-section">
-            <a href="#" class="login-btn">Login</a>
-            <a href="#" class="signup-btn">Sign Up</a>
+            <a href="login.html" class="login-btn">Login</a>
+            <a href="signup.html" class="signup-btn">Sign Up</a>
         </div>
     </div>
 
@@ -82,7 +83,7 @@
                     <img src="assets/total-reports.svg" alt="Total Reports" class="stat-icon-image">
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">15,234</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Total Reports</div>
                 </div>
             </div>
@@ -92,7 +93,7 @@
                     <img src="assets/issues-resolved.svg" alt="Issues Resolved" class="stat-icon-image">
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">12,847</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Issues Resolved</div>
                 </div>
             </div>
@@ -102,7 +103,7 @@
                     <img src="assets/in-progress.svg" alt="In Progress" class="stat-icon-image">
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">2,387</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">In Progress</div>
                 </div>
             </div>
@@ -123,15 +124,15 @@
             <div class="filter-group">
                 <label class="filter-label">Date Range</label>
                 <div class="date-inputs">
-                    <input type="text" class="date-input" placeholder="mm/dd/yyyy">
-                    <input type="text" class="date-input" placeholder="mm/dd/yyyy">
+                    <input type="text" class="date-input" placeholder="Start Date">
+                    <input type="text" class="date-input" placeholder="End Date">
                 </div>
             </div>
             
             <div class="filter-group">
                 <label class="filter-label">District</label>
                 <select class="district-select">
-                    <option value="">Select District</option>
+                    <option value="">All Districts</option>
                     <option value="downtown">Downtown</option>
                     <option value="north">North District</option>
                     <option value="south">South District</option>
@@ -176,13 +177,45 @@
                 <div class="map-header">
                     <h3 class="map-title">
                         <img src="assets/fire.svg" alt="Map Icon" class="map-icon">
-                        Issue Density Map
+                        Live Issue Map
                     </h3>
+                    <div class="map-controls">
+                        <button class="map-control-btn refresh-btn" title="Refresh Map" onclick="mapsController.updateMapWithFilters()">
+                            🔄
+                        </button>
+                        <button class="map-control-btn fullscreen-btn" title="Fullscreen" onclick="mapsController.map && mapsController.map.setZoom(mapsController.map.getZoom() + 1)">
+                            ⛶
+                        </button>
+                    </div>
                 </div>
                 
-                <!-- Map Container -->
-                <div class="map-container">
-                    <img src="assets/map-placeholder.webp" alt="Issue Density Map" class="density-map">
+                <!-- Map Container - Google Maps will replace this -->
+                <div class="map-container" id="google-map">
+                    <!-- This will be replaced by Google Maps -->
+                    <!-- Remove the placeholder image, let JavaScript handle it -->
+                </div>
+
+                <!-- Map Legend -->
+                <div class="map-legend">
+                    <div class="legend-title">Legend:</div>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ff6b35;"></span>
+                            <span>Potholes</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ffd23f;"></span>
+                            <span>Lighting</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #4dabf7;"></span>
+                            <span>Drainage</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #28a745;"></span>
+                            <span>Traffic</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -191,18 +224,20 @@
                 <div class="map-stat-card">
                     <div class="map-stat-header">
                         <img src="assets/chart.svg" alt="Reports Icon" class="map-stat-icon">
-                        <h4 class="map-stat-title">Reports by District</h4>
+                        <h4 class="map-stat-title">Active District</h4>
                     </div>
                     <div class="map-stat-content">
+                        <div class="resolution-percentage">Loading...</div>
                     </div>
                 </div>
                 
                 <div class="map-stat-card">
                     <div class="map-stat-header">
                         <img src="assets/check.svg" alt="Issues Icon" class="map-stat-icon">
-                        <h4 class="map-stat-title">Most Reported Issues</h4>
+                        <h4 class="map-stat-title">Top Issue Type</h4>
                     </div>
                     <div class="map-stat-content">
+                        <div class="resolution-percentage">Loading...</div>
                     </div>
                 </div>
                 
@@ -222,6 +257,7 @@
                         <h4 class="map-stat-title">Weekly Trends</h4>
                     </div>
                     <div class="map-stat-content">
+                        <div class="resolution-percentage">↗️ +12%</div>
                     </div>
                 </div>
             </div>
@@ -242,7 +278,7 @@
 
     <!-- Common Issues Section -->
     <section class="common-issues-section">
-        <h2 class="common-issues-title">Common Issues Reported</h2>
+        <h2 class="common-issues-title">Report Common Issues</h2>
         
         <div class="issues-container">
             <!-- Road Potholes Card -->
@@ -252,6 +288,10 @@
                 </div>
                 <h3 class="issue-title">Road Potholes</h3>
                 <p class="issue-description">Damaged or missing road surfaces causing danger for vehicles.</p>
+                <div class="issue-stats">
+                    <span class="issue-count">Loading...</span>
+                    <span class="issue-status">Loading...</span>
+                </div>
             </div>
             
             <!-- Street Lighting Card -->
@@ -261,6 +301,10 @@
                 </div>
                 <h3 class="issue-title">Street Lighting</h3>
                 <p class="issue-description">Broken or malfunctioning street lights affecting visibility at night.</p>
+                <div class="issue-stats">
+                    <span class="issue-count">Loading...</span>
+                    <span class="issue-status">Loading...</span>
+                </div>
             </div>
             
             <!-- Drainage Issues Card -->
@@ -270,6 +314,10 @@
                 </div>
                 <h3 class="issue-title">Drainage Issues</h3>
                 <p class="issue-description">Water accumulation or blocked drains causing flooding and hazards.</p>
+                <div class="issue-stats">
+                    <span class="issue-count">Loading...</span>
+                    <span class="issue-status">Loading...</span>
+                </div>
             </div>
         </div>
     </section>
@@ -289,15 +337,17 @@
                 <div class="footer-column">
                     <h4>Quick Links</h4>
                     <a href="index.html">Home</a>
-                    <a href="reports.html">Reports</a>
-                    <a href="submit.html">Submit Report</a>
+                    <a href="Reports.html">Reports</a>
+                    <a href="SubmitReport.html">Submit Report</a>
+                    <a href="BrowseReports.html">Browse Reports</a>
                 </div>
 
                 <div class="footer-column">
                     <h4>Connect</h4>
-                    <a href="about.html">About Us</a>
-                    <a href="contact.html">Contact</a>
-                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="#about">About Us</a>
+                    <a href="#contact">Contact</a>
+                    <a href="#privacy">Privacy Policy</a>
+                    <a href="dashboard.html">Admin Dashboard</a>
                 </div>
 
                 <div class="footer-column">
@@ -324,7 +374,13 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="js/script.js"></script>
     <script src="js/homepage.js"></script>
+    <script src="js/footer-user.js"></script>
+    <script src="js/script.js"></script>
+    
+    <!-- Google Maps API - Load with callback -->
+    <script async defer 
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6jZx_eYnWWpBMMGEIVdNwmlNgWbfDqtM&libraries=places&callback=initMap">
+    </script>
 </body>
 </html>
