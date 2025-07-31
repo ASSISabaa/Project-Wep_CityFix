@@ -245,3 +245,139 @@ function setupLoginForm() {
     }
 }
 
+function showError(message) {
+    // Create error message element
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.style.color = '#e53e3e';
+    errorElement.style.backgroundColor = '#fed7d7';
+    errorElement.style.padding = '10px';
+    errorElement.style.borderRadius = '8px';
+    errorElement.style.marginBottom = '16px';
+    errorElement.style.textAlign = 'center';
+    errorElement.textContent = message;
+    
+    // Find where to insert the error
+    const formContainer = document.querySelector('.signup-form-container') || 
+                          document.querySelector('.login-form-container');
+    
+    // Insert at the top of the form container
+    if (formContainer) {
+        // Remove any existing error messages
+        const existingError = formContainer.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        formContainer.insertBefore(errorElement, formContainer.firstChild);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            errorElement.remove();
+        }, 5000);
+    } else {
+        // Fallback if no form container found
+        alert(message);
+    }
+}
+
+// Function to check if user is logged in
+function isUserLoggedIn() {
+    const userData = localStorage.getItem('cityfix_user');
+    if (!userData) return false;
+    
+    try {
+        const user = JSON.parse(userData);
+        return user.isLoggedIn === true && user.token;
+    } catch (e) {
+        return false;
+    }
+}
+
+// Function to log out user
+function logoutUser() {
+    localStorage.removeItem('cityfix_user');
+    window.location.href = 'login.html';
+}
+
+// Update UI based on login state
+function updateUIForAuthState() {
+    const isLoggedIn = isUserLoggedIn();
+    
+    // Get elements that change based on auth state
+    const loginLinks = document.querySelectorAll('.login');
+    const signupButtons = document.querySelectorAll('.signup');
+    const authButtons = document.querySelector('.auth-buttons');
+    
+    if (isLoggedIn) {
+        // Get user data
+        const userData = JSON.parse(localStorage.getItem('cityfix_user'));
+        
+        // User is logged in, update UI
+        loginLinks.forEach(link => {
+            link.textContent = 'Logout';
+            link.href = '#';
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutUser();
+            });
+        });
+        
+        signupButtons.forEach(button => {
+            button.style.display = 'none';
+        });
+        
+        // Add user info display
+        if (authButtons) {
+            // Clear existing content
+            authButtons.innerHTML = '';
+            
+            // Create user profile element
+            const userProfile = document.createElement('div');
+            userProfile.className = 'user-profile';
+            userProfile.innerHTML = `
+                <span class="welcome-user">Welcome, ${userData.username || userData.email || 'User'}</span>
+                <button class="logout-btn">Logout</button>
+            `;
+            
+            authButtons.appendChild(userProfile);
+            
+            // Add event listener to logout button
+            const logoutBtn = userProfile.querySelector('.logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logoutUser);
+            }
+        }
+    } else {
+        // User is not logged in, ensure normal login/signup display
+        loginLinks.forEach(link => {
+            link.textContent = 'Login';
+            link.href = 'login.html';
+        });
+        
+        signupButtons.forEach(button => {
+            button.style.display = 'block';
+        });
+        
+        // Restore original auth buttons if needed
+        if (authButtons && !authButtons.querySelector('a.login')) {
+            authButtons.innerHTML = `
+                <a href="login.html" class="login">Login</a>
+                <button class="signup">Sign Up</button>
+            `;
+            
+            // Add click event for new signup button
+            const newSignupBtn = authButtons.querySelector('button.signup');
+            if (newSignupBtn) {
+                newSignupBtn.addEventListener('click', function() {
+                    window.location.href = 'signup.html';
+                });
+            }
+        }
+    }
+}
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateUIForAuthState();
+});
