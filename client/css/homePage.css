@@ -316,27 +316,6 @@ Stats Section
     color: #9CA3AF;
 }
 
-/* Date validation styles */
-.date-validation {
-    font-size: 12px;
-    margin-top: 4px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* District Select */
 .district-select {
     width: 208px;
@@ -357,63 +336,6 @@ Stats Section
     outline: none;
     border-color: #2563EB;
     color: #374151;
-}
-
-/* Checkbox Group */
-.checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.checkbox-item {
-    display: flex;
-    align-items: center;
-}
-
-.checkbox-item input[type="checkbox"] {
-    display: none;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    color: #374151;
-    user-select: none;
-}
-
-.checkbox-icon {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #2563EB;
-    border-radius: 3px;
-    background-color: #ffffff;
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-.checkbox-item input[type="checkbox"]:checked + .checkbox-label .checkbox-icon {
-    background-color: #2563EB;
-}
-
-.checkbox-item input[type="checkbox"]:checked + .checkbox-label .checkbox-icon::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #ffffff;
-    font-size: 10px;
-    font-weight: bold;
-}
-
-.checkbox-label:hover .checkbox-icon {
-    border-color: #1D4ED8;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 /* Map Section */
@@ -440,6 +362,9 @@ Stats Section
 /* Map Header */
 .map-header {
     margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .map-title {
@@ -470,299 +395,13 @@ Stats Section
     background: #f8f9fa;
 }
 
-/* Map Controls */
-.map-controls {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.map-control-btn {
-    padding: 8px 12px;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
-
-.map-control-btn:hover {
-    background: #f8f9fa;
-    border-color: #adb5bd;
-}
-
-/* Map Legend */
-.map-legend {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 12px 16px;
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-    font-size: 14px;
-    flex-wrap: wrap;
-}
-
-.legend-title {
-    font-weight: 600;
-    color: #495057;
-    margin-right: 8px;
-}
-
-.legend-items {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-}
-
-.legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-/* Map Header with Controls */
-.map-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-/* Issue Cards Stats */
-.issue-stats {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #e9ecef;
-    font-size: 14px;
-}
-
-.issue-count {
-    color: #6c757d;
-    font-weight: 500;
-}
-
-.issue-status {
-    color: #28a745;
-    font-weight: 600;
-}
-
-/* Date Validation */
-.date-validation {
-    margin-top: 4px;
-    font-size: 12px;
-    animation: fadeIn 0.3s ease;
-}
-
-.date-validation.error {
-    color: #dc3545;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Notifications */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    color: white;
-    font-weight: 500;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    max-width: 350px;
-}
-
-.notification.success {
-    background: #10b981;
-}
-
-.notification.error {
-    background: #ef4444;
-}
-
-.notification.info {
-    background: #3b82f6;
-}
-
-.notification.warning {
-    background: #f59e0b;
-}
-
-/* Animation Keyframes */
-@keyframes slideIn {
-    from { 
-        transform: translateX(100%); 
-        opacity: 0; 
-    }
-    to { 
-        transform: translateX(0); 
-        opacity: 1; 
-    }
-}
-
-@keyframes slideOut {
-    from { 
-        transform: translateX(0); 
-        opacity: 1; 
-    }
-    to { 
-        transform: translateX(100%); 
-        opacity: 0; 
-    }
-}
-
-/* Map Error Overlay */
-.map-error-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000;
-    pointer-events: none;
-}
-
-/* Loading States */
-.loading-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    display: inline-block;
-    margin-right: 8px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Backend Status Indicators */
-.backend-status {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    z-index: 1000;
-    font-weight: 500;
-}
-
-.backend-status.online {
-    background: rgba(16, 185, 129, 0.9);
-    color: white;
-}
-
-.backend-status.offline {
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-}
-
-/* Enhanced Form Elements */
-.enhanced-input {
-    transition: all 0.3s ease;
-}
-
-.enhanced-input:focus {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .map-legend {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .legend-items {
-        gap: 12px;
-    }
-
-    .map-controls {
-        gap: 4px;
-    }
-
-    .map-control-btn {
-        padding: 6px 10px;
-        font-size: 12px;
-    }
-
-    .map-container {
-        height: 250px;
-    }
-
-    .notification {
-        right: 10px;
-        left: 10px;
-        max-width: none;
-    }
-}
-
-@media (max-width: 480px) {
-    .map-header {
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-    }
-
-    .map-controls {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .map-control-btn {
-        flex: 1;
-        text-align: center;
-    }
-
-    .legend-items {
-        flex-direction: column;
-        gap: 8px;
-        width: 100%;
-    }
-
-    .issue-stats {
-        flex-direction: column;
-        gap: 8px;
-        text-align: center;
-    }
-}
-
 /* Statistics Cards Container */
 .map-stats-container {
     display: grid;
-    grid-template-columns: repeat(4, 200px);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     margin-bottom: 24px;
-    justify-content: space-between;
+    max-width: 100%;
 }
 
 /* Individual Stat Cards */
@@ -771,8 +410,7 @@ Stats Section
     border: 1px solid #E5E7EB;
     border-radius: 12px;
     padding: 20px 16px;
-    width: 200px;
-    height: 232px;
+    height: 140px;
     display: flex;
     flex-direction: column;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -788,12 +426,12 @@ Stats Section
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .map-stat-icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
 }
 
@@ -802,7 +440,7 @@ Stats Section
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-style: normal;
-    font-weight: 500;
+    font-weight: 600;
     line-height: normal;
     margin: 0;
 }
@@ -816,12 +454,13 @@ Stats Section
 }
 
 .resolution-percentage {
-    color: #15803D;
+    color: #155FA0;
     font-family: 'Inter', sans-serif;
-    font-size: 20px;
+    font-size: 24px;
     font-style: normal;
     font-weight: 700;
     line-height: 28px;
+    text-align: center;
 }
 
 /* Action Buttons */
@@ -986,334 +625,746 @@ Stats Section
     text-align: center;
 }
 
-/* ========== RESPONSIVE DESIGN - للشاشات الصغيرة فقط ========== */
+/* ========== RESPONSIVE DESIGN ========== */
 
-/* Tablet - 768px and below */
-@media (max-width: 768px) {
+/* Large Desktop - 1400px and above */
+@media (min-width: 1401px) {
     .hero-section {
-        padding: 28px 32px 40px 32px;
-        min-height: 300px;
+        padding: 48px 144px 80px 144px;
     }
     
-    .hero-container {
-        gap: 24px;
-        align-items: center;
-    }
-    
-    .hero-title {
-        font-size: 26px;
-        line-height: 32px;
-        margin-bottom: 16px;
-        width: 100%;
-    }
-    
-    .hero-description {
-        font-size: 14px;
-        line-height: 20px;
-        margin-bottom: 18px;
-    }
-    
-    .hero-button {
-        font-size: 14px;
-        padding: 10px 16px;
-        max-width: 140px;
-    }
-    
-    .hero-image-container {
-        max-width: 250px;
-        padding-right: 0;
-    }
-    
-    .hero-image {
-        height: 160px;
-        max-width: 250px;
-        width: 100%;
-    }
-
-    /* Stats Section for Tablet */
     .stats-section {
-        padding: 0px 32px 50px 32px;
-        margin-top: -35px;
+        padding: 0px 141px 40px 141px;
     }
     
     .stats-container {
-        gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 32px;
     }
     
     .stat-card {
-        width: 220px;
-        height: 90px;
-        padding: 16px 20px;
-        gap: 12px;
-        margin-top: -70px;
+        width: 380px;
+        height: 120px;
+    }
+}
+
+/* Medium Large Desktop - 1200px to 1400px  */
+@media (max-width: 1400px) and (min-width: 1201px) {
+    .hero-section {
+        padding: 48px 100px 80px 100px !important;
+    }
+    
+    .hero-title {
+        width: 100% !important;
+        max-width: 445px !important;
+    }
+    
+    .stats-section {
+        padding: 0px 100px 40px 100px !important;
+        margin-top: --80px !important;
+    }
+    
+    .stats-container {
+        justify-content: center !important;
+        gap: 24px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .stat-card {
+        width: 300px !important;
+        height: 110px !important;
+        padding: 24px 28px !important;
+        gap: 18px !important;
+        margin-top: -32px !important;
     }
     
     .stat-icon {
-        width: 40px;
-        height: 40px;
+        width: 50px !important;
+        height: 50px !important;
     }
     
     .stat-icon-image {
-        width: 24px;
-        height: 24px;
+        width: 30px !important;
+        height: 30px !important;
     }
     
     .stat-number {
-        font-size: 18px;
+        font-size: 24px !important;
     }
     
     .stat-label {
-        font-size: 12px;
+        font-size: 15px !important;
+    }
+    
+    .filters-section {
+        margin-left: 100px !important;
+        width: 240px !important;
+    }
+    
+    .map-section {
+        width: 650px !important;
+        margin-left: 32px !important;
+    }
+    
+    .common-issues-section {
+        margin-left: 100px !important;
+        margin-right: 100px !important;
+    }
+}
+
+/* Medium Desktop - 992px to 1200px  */
+@media (max-width: 1200px) and (min-width: 993px) {
+    .hero-section {
+        padding: 40px 80px 60px 80px !important;
+    }
+    
+    .hero-container {
+        gap: 40px !important;
+    }
+    
+    .hero-title {
+        font-size: 38px !important;
+        line-height: 42px !important;
+        width: 100% !important;
+        margin-bottom: 32px !important;
+    }
+    
+    .hero-image-container {
+        padding-right: 60px !important;
+    }
+    
+    .hero-image {
+        width: 320px !important;
+        height: 280px !important;
+    }
+    
+    .stats-section {
+        padding: 0px 80px 40px 80px !important;
+        margin-top: -60px !important;
+    }
+    
+    .stats-container {
+        justify-content: center !important;
+        gap: 20px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .stat-card {
+        width: 280px !important;
+        height: 100px !important;
+        padding: 20px 24px !important;
+        gap: 16px !important;
+        margin-top: -32px !important;
+    }
+    
+    .stat-icon {
+        width: 46px !important;
+        height: 46px !important;
+    }
+    
+    .stat-icon-image {
+        width: 26px !important;
+        height: 26px !important;
+    }
+    
+    .stat-number {
+        font-size: 22px !important;
+    }
+    
+    .stat-label {
+        font-size: 14px !important;
+    }
+    
+    .filters-section {
+        margin-left: 80px !important;
+        width: 240px !important;
+        height: auto !important;
+        padding: 20px !important;
+    }
+    
+    .date-input,
+    .district-select {
+        width: 180px !important;
+    }
+    
+    .map-section {
+        width: 600px !important;
+        margin-left: 24px !important;
+    }
+    
+    .map-stats-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
     }
 
-    /* Filters and Map Sections for Tablet */
+    .map-stat-card {
+        height: 120px !important;
+    }
+    
+    .common-issues-section {
+        margin-left: 80px !important;
+        margin-right: 80px !important;
+    }
+    
+    .issues-container {
+        gap: 32px !important;
+    }
+}
+
+/* Tablet Large - 900px to 992px */
+@media (max-width: 992px) and (min-width: 901px) {
+    .hero-section {
+        padding: 36px 60px 50px 60px !important;
+    }
+    
+    .hero-container {
+        gap: 32px !important;
+    }
+    
+    .hero-title {
+        font-size: 34px !important;
+        line-height: 38px !important;
+        margin-bottom: 28px !important;
+        width: 100% !important;
+    }
+    
+    .hero-description {
+        font-size: 16px !important;
+        line-height: 24px !important;
+    }
+    
+    .hero-image-container {
+        padding-right: 40px !important;
+    }
+    
+    .hero-image {
+        width: 280px !important;
+        height: 240px !important;
+    }
+    
+    .stats-section {
+        padding: 0px 60px 50px 60px !important;
+        margin-top: -50px !important;
+    }
+    
+    .stats-container {
+        justify-content: center !important;
+        gap: 18px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .stat-card {
+        width: 260px !important;
+        height: 95px !important;
+        padding: 18px 22px !important;
+        gap: 14px !important;
+        margin-top: -32px !important;
+    }
+    
+    .stat-icon {
+        width: 42px !important;
+        height: 42px !important;
+    }
+    
+    .stat-icon-image {
+        width: 24px !important;
+        height: 24px !important;
+    }
+    
+    .stat-number {
+        font-size: 20px !important;
+    }
+    
+    .stat-label {
+        font-size: 13px !important;
+    }
+    
     .filters-section,
     .map-section {
-        width: 100%;
-        margin-left: 0;
-        margin-right: 0;
-        display: block;
-        margin-top: 20px;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        display: block !important;
+        margin-top: 30px !important;
+    }
+    
+    .filters-section {
+        height: auto !important;
+        padding: 20px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .date-input,
+    .district-select {
+        width: 100% !important;
+    }
+    
+    .map-container {
+        height: 280px !important;
+    }
+    
+    .common-issues-section {
+        margin: 40px 60px !important;
+    }
+    
+    .issues-container {
+        grid-template-columns: 1fr !important;
+        gap: 28px !important;
+    }
+}
+
+/* Tablet Medium - 768px to 900px  */
+@media (max-width: 900px) and (min-width: 769px) {
+    .hero-section {
+        padding: 32px 50px 45px 50px !important;
+        min-height: 350px !important;
+    }
+    
+    .hero-container {
+        gap: 28px !important;
+        align-items: center !important;
+    }
+    
+    .hero-title {
+        font-size: 30px !important;
+        line-height: 34px !important;
+        margin-bottom: 24px !important;
+    }
+    
+    .hero-description {
+        font-size: 15px !important;
+        line-height: 22px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .hero-button {
+        font-size: 16px !important;
+        padding: 12px 20px !important;
+        max-width: 160px !important;
+    }
+    
+    .hero-image-container {
+        max-width: 260px !important;
+        padding-right: 20px !important;
+    }
+    
+    .hero-image {
+        width: 260px !important;
+        height: 220px !important;
+    }
+
+    .stats-section {
+        padding: 0px 50px 50px 50px !important;
+        margin-top: -45px !important;
+    }
+    
+    .stats-container {
+        justify-content: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .stat-card {
+        width: 240px !important;
+        height: 88px !important;
+        padding: 16px 20px !important;
+        gap: 12px !important;
+        margin-top: -32px !important;
+    }
+    
+    .stat-icon {
+        width: 38px !important;
+        height: 38px !important;
+    }
+    
+    .stat-icon-image {
+        width: 22px !important;
+        height: 22px !important;
+    }
+    
+    .stat-number {
+        font-size: 18px !important;
+    }
+    
+    .stat-label {
+        font-size: 12px !important;
+    }
+
+    .filters-section,
+    .map-section {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        display: block !important;
+        margin-top: 25px !important;
     }
 
     .filters-section {
-        height: auto;
-        padding: 20px;
+        height: auto !important;
+        padding: 18px !important;
+        margin-bottom: 18px !important;
     }
 
     .date-input,
     .district-select {
-        width: 100%;
+        width: 100% !important;
     }
 
     .map-container {
-        width: 100%;
-        height: 250px;
+        width: 100% !important;
+        height: 260px !important;
     }
 
-    .map-stats-container {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-
-    .map-stat-card {
-        width: 100%;
-        height: 180px;
-    }
-
-    /* Common Issues for Tablet */
     .common-issues-section {
-        margin: 32px 20px;
+        margin: 35px 50px !important;
     }
 
     .issues-container {
-        grid-template-columns: 1fr;
-        gap: 24px;
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+}
+
+/* Tablet - 768px and below */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 28px 32px 40px 32px !important;
+        min-height: 300px !important;
+    }
+    
+    .hero-container {
+        gap: 24px !important;
+        align-items: center !important;
+    }
+    
+    .hero-title {
+        font-size: 26px !important;
+        line-height: 32px !important;
+        margin-bottom: 16px !important;
+        width: 100% !important;
+    }
+    
+    .hero-description {
+        font-size: 14px !important;
+        line-height: 20px !important;
+        margin-bottom: 18px !important;
+    }
+    
+    .hero-button {
+        font-size: 14px !important;
+        padding: 10px 16px !important;
+        max-width: 140px !important;
+    }
+    
+    .hero-image-container {
+        max-width: 250px !important;
+        padding-right: 0 !important;
+    }
+    
+    .hero-image {
+        height: 160px !important;
+        max-width: 250px !important;
+        width: 100% !important;
+    }
+
+    .stats-section {
+        padding: 0px 32px 50px 32px !important;
+        margin-top: -35px !important;
+    }
+    
+    .stats-container {
+        gap: 20px !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .stat-card {
+        width: 220px !important;
+        height: 90px !important;
+        padding: 16px 20px !important;
+        gap: 12px !important;
+        margin-top: -70px !important;
+    }
+    
+    .stat-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .stat-icon-image {
+        width: 24px !important;
+        height: 24px !important;
+    }
+    
+    .stat-number {
+        font-size: 18px !important;
+    }
+    
+    .stat-label {
+        font-size: 12px !important;
+    }
+
+    .filters-section,
+    .map-section {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        display: block !important;
+        margin-top: 20px !important;
+    }
+
+    .filters-section {
+        height: auto !important;
+        padding: 20px !important;
+    }
+
+    .date-input,
+    .district-select {
+        width: 100% !important;
+    }
+
+    .map-container {
+        width: 100% !important;
+        height: 250px !important;
+    }
+
+    .common-issues-section {
+        margin: 32px 20px !important;
+    }
+
+    .issues-container {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
     }
 }
 
 /* Mobile - 600px and below */
 @media (max-width: 600px) {
     .hero-section {
-        padding: 24px 20px 32px 20px;
-        min-height: auto;
-        align-items: center;
+        padding: 24px 20px 32px 20px !important;
+        min-height: auto !important;
+        align-items: center !important;
     }
     
     .hero-container {
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 20px !important;
     }
     
     .hero-content {
-        order: 1;
-        max-width: 100%;
+        order: 1 !important;
+        max-width: 100% !important;
     }
     
     .hero-title {
-        font-size: 24px;
-        line-height: 30px;
-        margin-bottom: 16px;
-        width: 100%;
+        font-size: 24px !important;
+        line-height: 30px !important;
+        margin-bottom: 16px !important;
+        width: 100% !important;
     }
     
     .hero-description {
-        font-size: 14px;
-        line-height: 20px;
-        margin-bottom: 16px;
+        font-size: 14px !important;
+        line-height: 20px !important;
+        margin-bottom: 16px !important;
     }
     
     .hero-button {
-        font-size: 14px;
-        padding: 10px 16px;
-        max-width: 140px;
-        margin: 0 auto;
+        font-size: 14px !important;
+        padding: 10px 16px !important;
+        max-width: 140px !important;
+        margin: 0 auto !important;
     }
     
     .hero-image-container {
-        order: 2;
-        max-width: 100%;
-        padding-right: 0;
+        order: 2 !important;
+        max-width: 100% !important;
+        padding-right: 0 !important;
     }
     
     .hero-image {
-        width: 100%;
-        max-width: 280px;
-        height: 180px;
+        width: 100% !important;
+        max-width: 280px !important;
+        height: 180px !important;
     }
 
-    /* Stats Section for Mobile */
     .stats-section {
-        padding: 0px 20px 80px 20px;
-        margin-top: -10px;
+        padding: 0px 20px 80px 20px !important;
+        margin-top: -10px !important;
     }
     
     .stats-container {
-        flex-direction: column;
-        gap: 16px;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column !important;
+        gap: 16px !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
     .stat-card {
-        width: 100%;
-        max-width: 320px;
-        height: 80px;
-        padding: 16px 20px;
-        gap: 16px;
-        margin-top: 0px;
+        width: 100% !important;
+        max-width: 320px !important;
+        height: 80px !important;
+        padding: 16px 20px !important;
+        gap: 16px !important;
+        margin-top: 0px !important;
     }
     
     .stat-card:first-child {
-        margin-top: -20px;
+        margin-top: -20px !important;
     }
     
     .stat-icon {
-        width: 40px;
-        height: 40px;
+        width: 40px !important;
+        height: 40px !important;
     }
     
     .stat-icon-image {
-        width: 24px;
-        height: 24px;
+        width: 24px !important;
+        height: 24px !important;
     }
     
     .stat-number {
-        font-size: 20px;
+        font-size: 20px !important;
     }
     
     .stat-label {
-        font-size: 14px;
+        font-size: 14px !important;
     }
 
-    /* Map Stats for Mobile */
-    .map-stats-container {
-        grid-template-columns: 1fr;
-        gap: 12px;
+    .common-issues-section {
+        margin: 20px 16px !important;
     }
 
-    .map-stat-card {
-        width: 100%;
-        height: 120px;
-        padding: 16px;
+    .issue-card {
+        padding: 20px 16px !important;
     }
 
-    .map-actions {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .share-report-btn,
-    .export-pdf-btn {
-        width: 100%;
-        justify-content: center;
+    .issue-icon-container,
+    .issue-icon {
+        width: 60px !important;
+        height: 60px !important;
     }
 }
 
 /* Small Mobile - 320px and below */
 @media (max-width: 320px) {
     .hero-section {
-        padding: 20px 16px 28px 16px;
+        padding: 20px 16px 28px 16px !important;
     }
     
     .hero-title {
-        font-size: 20px;
-        line-height: 26px;
+        font-size: 20px !important;
+        line-height: 26px !important;
     }
     
     .hero-description {
-        font-size: 13px;
-        line-height: 18px;
+        font-size: 13px !important;
+        line-height: 18px !important;
     }
     
     .hero-button {
-        font-size: 13px;
-        padding: 8px 12px;
-        max-width: 120px;
+        font-size: 13px !important;
+        padding: 8px 12px !important;
+        max-width: 120px !important;
     }
     
     .hero-image {
-        max-width: 240px;
-        height: 150px;
+        max-width: 240px !important;
+        height: 150px !important;
     }
 
-    /* Stats for Small Mobile */
     .stats-section {
-        padding: 0px 16px 35px 16px;
-        margin-top: -70px;
+        padding: 0px 16px 35px 16px !important;
+        margin-top: -70px !important;
     }
     
     .stats-container {
-        gap: 16px;
+        gap: 16px !important;
     }
     
     .stat-card {
-        height: 70px;
-        padding: 12px 16px;
-        gap: 12px;
-        margin-top: -55px;
+        height: 70px !important;
+        padding: 12px 16px !important;
+        gap: 12px !important;
+        margin-top: -55px !important;
     }
     
     .stat-icon {
-        width: 36px;
-        height: 36px;
+        width: 36px !important;
+        height: 36px !important;
     }
     
     .stat-icon-image {
-        width: 20px;
-        height: 20px;
+        width: 20px !important;
+        height: 20px !important;
     }
     
     .stat-number {
-        font-size: 18px;
+        font-size: 18px !important;
     }
     
     .stat-label {
-        font-size: 12px;
+        font-size: 12px !important;
     }
 
     .filters-section {
-        padding: 16px;
+        padding: 16px !important;
     }
 
     .map-container {
-        height: 200px;
+        height: 200px !important;
     }
 
     .common-issues-section {
-        margin: 20px 16px;
+        margin: 20px 16px !important;
     }
 
     .issue-card {
-        padding: 20px 16px;
+        padding: 20px 16px !important;
     }
 
     .issue-icon-container,
     .issue-icon {
-        width: 60px;
-        height: 60px;
+        width: 60px !important;
+        height: 60px !important;
     }
+}
+/* Map Legend */
+.map-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+
+.legend-title {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 8px;
+}
+
+.legend-items {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }

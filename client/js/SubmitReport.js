@@ -490,12 +490,6 @@ function initializeForm() {
                             <span class="label">Submitted Date:</span>
                             <span class="value">${new Date().toLocaleString()}</span>
                         </div>
-                        
-                        <div class="info-item">
-                            <span class="label">Priority Level:</span>
-                            <span class="value priority-medium">Medium</span>
-                        </div>
-                        
                         <div class="info-item">
                             <span class="label">Estimated Completion:</span>
                             <span class="value">${getEstimatedDate()}</span>

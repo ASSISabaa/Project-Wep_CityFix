@@ -55,13 +55,28 @@ function initMap() {
     if (!mapContainer) {
         const mapPlaceholder = document.querySelector('.map-placeholder');
         if (mapPlaceholder) {
-            // Preserve original CSS dimensions
+            // Get the actual computed dimensions
             const computedStyle = window.getComputedStyle(mapPlaceholder);
             const width = computedStyle.width;
-            const height = computedStyle.height;
+            const height = computedStyle.height || '400px'; // Fallback height
             
-            mapPlaceholder.innerHTML = `<div id="impact-map" style="width: ${width}; height: ${height}; border-radius: 8px; border: 2px solid #e5e7eb;"></div>`;
-            mapContainer = document.getElementById('impact-map');
+            // Clear placeholder content and create map div
+            mapPlaceholder.innerHTML = '';
+            mapPlaceholder.style.position = 'relative';
+            mapPlaceholder.style.overflow = 'hidden';
+            
+            const mapDiv = document.createElement('div');
+            mapDiv.id = 'impact-map';
+            mapDiv.style.cssText = `
+                width: 100%;
+                height: 100%;
+                min-height: 400px;
+                border-radius: 8px;
+                position: relative;
+            `;
+            
+            mapPlaceholder.appendChild(mapDiv);
+            mapContainer = mapDiv;
         }
     }
     
@@ -69,6 +84,11 @@ function initMap() {
         console.error('❌ Map container not found');
         return;
     }
+    
+    // Ensure the container has proper dimensions
+    mapContainer.style.width = '100%';
+    mapContainer.style.height = '100%';
+    mapContainer.style.minHeight = '400px';
     
     try {
         // Create map with Google Maps
@@ -90,6 +110,12 @@ function initMap() {
 
         MyImpactApp.state.map = map;
         console.log('✅ Google Maps initialized successfully');
+
+        // Force resize after a short delay to ensure proper rendering
+        setTimeout(() => {
+            google.maps.event.trigger(map, 'resize');
+            map.setCenter({ lat: 32.0741, lng: 34.8066 });
+        }, 100);
 
         // Add user location marker
         addUserLocationMarker(map);
@@ -286,13 +312,28 @@ function showSimpleMapFallback() {
     const mapElement = document.querySelector('.map-placeholder') || document.getElementById('impact-map');
     if (!mapElement) return;
     
-    // Preserve original dimensions
-    const computedStyle = window.getComputedStyle(mapElement);
-    const width = computedStyle.width;
-    const height = computedStyle.height;
+    // Ensure full dimensions
+    mapElement.style.width = '100%';
+    mapElement.style.height = '100%';
+    mapElement.style.minHeight = '400px';
+    mapElement.style.position = 'relative';
     
     mapElement.innerHTML = `
-        <div style="width: ${width}; height: ${height}; border-radius: 8px; background: #f3f4f6; border: 2px dashed #d1d5db; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #6b7280;">
+        <div style="
+            width: 100%; 
+            height: 100%; 
+            min-height: 400px;
+            border-radius: 8px; 
+            background: #f3f4f6; 
+            border: 2px dashed #d1d5db; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            color: #6b7280;
+            position: relative;
+        ">
             <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
             <h3 style="margin: 0 0 8px 0; color: #374151;">Map Unavailable</h3>
             <p style="margin: 0 0 16px 0; font-size: 14px;">Google Maps could not be loaded</p>
@@ -1036,6 +1077,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set up callback for when Google Maps loads
             window.initMap = function() {
                 console.log('📍 Google Maps callback triggered');
+                initMap();
+            };
+            
+            // Change the callback name in HTML to match
+            window.initializeGoogleMap = function() {
+                console.log('📍 Google Maps callback (initializeGoogleMap) triggered');
                 initMap();
             };
             
