@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Signup - CityFix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        .radio-group input[type="radio"] {
+            margin-right: 8px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .test-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .test-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .test-btn:hover {
+            background: #218838;
+        }
+        
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 CityFix Signup Test</h1>
+        
+        <div id="messageBox"></div>
+        
+        <form id="signupForm">
+            <div class="form-group">
+                <label>Username *</label>
+                <input type="text" name="username" required placeholder="Enter username">
+            </div>
+            
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="email" name="user_email" required placeholder="Enter email">
+            </div>
+            
+            <div class="form-group">
+                <label>Password *</label>
+                <input type="password" name="password" required placeholder="Enter password">
+            </div>
+            
+            <div class="form-group">
+                <label>National ID (Admin only)</label>
+                <input type="text" name="user_id" placeholder="9 digits (optional)">
+            </div>
+            
+            <div class="form-group">
+                <label>Profile Photo (Optional)</label>
+                <input type="file" name="user_photo" accept="image/*">
+            </div>
+            
+            <div class="form-group">
+                <label>I am a:</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="userType" value="citizen" checked>
+                        Citizen
+                    </label>
+                    <label>
+                        <input type="radio" name="userType" value="admin">
+                        Admin
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">
+                <span id="btnText">Sign Up</span>
+            </button>
+        </form>
+        
+        <div class="test-section">
+            <h3>🔧 Test Server Connection</h3>
+            <button class="test-btn" onclick="testServer()">Test Server</button>
+            <button class="test-btn" onclick="testDatabase()">Test Database</button>
+            <button class="test-btn" onclick="clearData()">Clear Local Data</button>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        const messageBox = document.getElementById('messageBox');
+        const results = document.getElementById('results');
+        
+        // Show message
+        function showMessage(text, type = 'info') {
+            messageBox.innerHTML = `<div class="message ${type}">${text}</div>`;
+            console.log(`[${type.toUpperCase()}] ${text}`);
+        }
+        
+        // Test server connection
+        async function testServer() {
+            results.textContent = 'Testing server connection...\n';
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                results.textContent += '✅ Server is running!\n';
+                results.textContent += JSON.stringify(data, null, 2);
+                showMessage('Server is running!', 'success');
+            } catch (error) {
+                results.textContent += '❌ Server is NOT running!\n';
+                results.textContent += 'Error: ' + error.message + '\n';
+                results.textContent += '\nPlease run: node server.js';
+                showMessage('Server is not running!', 'error');
+            }
+        }
+        
+        // Test database
+        async function testDatabase() {
+            results.textContent = 'Testing database...\n';
+            try {
+                const response = await fetch(API_BASE + '/api/test');
+                const data = await response.json();
+                results.textContent += '✅ API endpoint works!\n';
+                results.textContent += JSON.stringify(data, null, 2);
+                showMessage('Database connected!', 'success');
+            } catch (error) {
+                results.textContent += '❌ Cannot reach API!\n';
+                results.textContent += 'Error: ' + error.message;
+                showMessage('API test failed!', 'error');
+            }
+        }
+        
+        // Clear local data
+        function clearData() {
+            localStorage.clear();
+            sessionStorage.clear();
+            results.textContent = '🗑️ Local storage cleared!\n';
+            results.textContent += 'You can try fresh signup now.';
+            showMessage('Data cleared!', 'info');
+        }
+        
+        // Form submission
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            
+            // Get form data
+            const formData = new FormData();
+            formData.append('username', form.username.value);
+            formData.append('user_email', form.user_email.value);
+            formData.append('password', form.password.value);
+            formData.append('userType', form.userType.value);
+            
+            if (form.user_id.value) {
+                formData.append('user_id', form.user_id.value);
+            }
+            
+            if (form.user_photo.files[0]) {
+                formData.append('user_photo', form.user_photo.files[0]);
+            }
+            
+            // Show what we're sending
+            results.textContent = '📤 Sending data:\n';
+            results.textContent += `Username: ${form.username.value}\n`;
+            results.textContent += `Email: ${form.user_email.value}\n`;
+            results.textContent += `Type: ${form.userType.value}\n`;
+            results.textContent += `Has photo: ${form.user_photo.files[0] ? 'Yes' : 'No'}\n\n`;
+            
+            // Disable button
+            submitBtn.disabled = true;
+            btnText.textContent = 'Sending...';
+            showMessage('Sending to server...', 'info');
+            
+            try {
+                // Send request
+                const response = await fetch(`${API_BASE}/api/auth/signup`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                results.textContent += '📥 Server response:\n';
+                results.textContent += JSON.stringify(result, null, 2);
+                
+                if (result.success) {
+                    // SUCCESS!
+                    showMessage(`✅ SUCCESS! Welcome ${result.data.user.username}!`, 'success');
+                    
+                    // Save data
+                    localStorage.setItem('token', result.data.token);
+                    localStorage.setItem('user', JSON.stringify(result.data.user));
+                    
+                    // Clear form
+                    form.reset();
+                    
+                    // Redirect info
+                    results.textContent += '\n\n🔄 Redirecting in 3 seconds...';
+                    const redirectUrl = result.data.user.userType === 'admin' ? 'dashboard.html' : 'index.html';
+                    results.textContent += `\nGoing to: ${redirectUrl}`;
+                    
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 3000);
+                    
+                } else {
+                    // ERROR
+                    showMessage(`❌ ERROR: ${result.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showMessage(`❌ Network Error: ${error.message}`, 'error');
+                results.textContent += '\n❌ Network Error:\n' + error.message;
+                results.textContent += '\n\nMake sure server is running!';
+            } finally {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Sign Up';
+            }
+        });
+        
+        // Auto test on load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, testing server...');
+            testServer();
+        });
+    </script>
+</body>
+</html>

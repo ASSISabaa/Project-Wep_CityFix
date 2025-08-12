@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityFix - Contact Us</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/contact.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo-section">
+            <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="logo-image">
+            <span class="logo-text">CityFix</span>
+        </a>
+        
+        <nav class="nav-section">
+            <a href="index.html" class="nav-item">Home</a>
+            <a href="BrowseReports.html" class="nav-item">Reports</a>
+            <a href="SubmitReport.html" class="nav-item">Submit Report</a>
+            <a href="#" class="nav-item">City Insights</a>
+            <a href="MyImpact.html" class="nav-item">My Impact</a>
+            <a href="contact.html" class="nav-item active">Contact</a>
+        </nav>
+
+        <div class="auth-section">
+            <a href="login.html" class="login-btn">Login</a>
+            <a href="signup.html" class="signup-btn">Sign Up</a>
+        </div>
+        
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="contact-main">
+        <div class="contact-container">
+            <!-- Page Header -->
+            <div class="contact-header">
+                <h1 class="contact-title">Get in Touch</h1>
+                <p class="contact-subtitle">We're here to help improve our city together</p>
+            </div>
+
+            <div class="contact-content">
+                <!-- Contact Form Section -->
+                <div class="contact-form-wrapper">
+                    <div class="form-header">
+                        <h2>Send us a Message</h2>
+                        <p>Fill out the form below and we'll get back to you as soon as possible</p>
+                    </div>
+
+                    <form id="contactForm" class="contact-form">
+                        <!-- Name Row -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name <span class="required">*</span></label>
+                                <input 
+                                    type="text" 
+                                    id="firstName" 
+                                    name="firstName" 
+                                    required 
+                                    placeholder="Enter your first name"
+                                >
+                                <span class="error-message" id="firstNameError"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lastName">Last Name <span class="required">*</span></label>
+                                <input 
+                                    type="text" 
+                                    id="lastName" 
+                                    name="lastName" 
+                                    required 
+                                    placeholder="Enter your last name"
+                                >
+                                <span class="error-message" id="lastNameError"></span>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="required">*</span></label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                required 
+                                placeholder="your.email@example.com"
+                            >
+                            <span class="error-message" id="emailError"></span>
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="form-group">
+                            <label for="subject">Subject <span class="required">*</span></label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="report-issue">Report an Issue</option>
+                                <option value="technical">Technical Support</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <span class="error-message" id="subjectError"></span>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="form-group">
+                            <label for="message">Message <span class="required">*</span></label>
+                            <textarea 
+                                id="message" 
+                                name="message" 
+                                rows="6" 
+                                required 
+                                placeholder="Tell us how we can help..."
+                                maxlength="1000"
+                            ></textarea>
+                            <div class="char-counter">
+                                <span id="charCount">0</span> / 1000
+                            </div>
+                            <span class="error-message" id="messageError"></span>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="submit-btn" id="submitBtn">
+                            <span class="btn-text">Send Message</span>
+                            <i class="fas fa-paper-plane btn-icon"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Contact Info Section -->
+                <div class="contact-info-wrapper">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <h2>Contact Information</h2>
+                            <p>Reach out to us through any of these channels</p>
+                        </div>
+
+                        <div class="info-items">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h3>Email</h3>
+                                    <p>support@cityfix.com</p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-headset"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h3>Support Hours</h3>
+                                    <p>Monday - Friday</p>
+                                    <p>9:00 AM - 6:00 PM</p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h3>Response Time</h3>
+                                    <p>We typically respond within 24 hours</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Section -->
+                        <div class="faq-section">
+                            <h3>Frequently Asked Questions</h3>
+                            <div class="faq-items">
+                                <div class="faq-item">
+                                    <h4>How do I report a city issue?</h4>
+                                    <p>Use our Submit Report feature to quickly report any city issues with photos and location details.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4>Can I track my submitted reports?</h4>
+                                    <p>Yes, you can track all your reports and their status in the My Impact section.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4>How long does it take to resolve an issue?</h4>
+                                    <p>Resolution time varies based on the type and severity of the issue. You'll receive updates on your report status.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-column">
+                    <a href="index.html" class="footer-logo">
+                        <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                        <span class="brand-name">CityFix</span>
+                    </a>
+                    <p class="footer-description">Making our city better together.</p>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="BrowseReports.html">Reports</a>
+                    <a href="SubmitReport.html">Submit Report</a>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Connect</h4>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contact</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                        </a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                        </a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <hr />
+                <p>© 2025 CityFix. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success/Error Toast -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <i class="toast-icon"></i>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/contact.js"></script>
+    <script src="js/script.js"></script>
+    
+</body>
+</html>
