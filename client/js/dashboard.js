@@ -1,814 +1,734 @@
-// CityFix Dashboard - Backend Ready Frontend
+/**
+ * CityFix Dashboard – Israel Map + Quick Status Updates (FIXED)
+ * v10.3.0
+ * - Correct Google Maps loading (async+defer with proper URL)
+ * - Fallback geocoding for Israeli cities/addresses
+ * - Robust report normalization (user + location)
+ * - Works even if HTML forgot the correct <script> tag
+ * - Optional Map ID, optional showing username next to avatar
+ */
 
-// 🔧 API Configuration
-const API_CONFIG = {
-    BASE_URL: 'http://localhost:3000/api', // Change to your server URL
-    ENDPOINTS: {
-        DASHBOARD_STATS: '/dashboard/stats',
-        RECENT_REPORTS: '/reports/recent',
-        REPORTS: '/reports',
-        REPORT_BY_ID: '/reports/:id',
-        UPDATE_REPORT: '/reports/:id',
-        DELETE_REPORT: '/reports/:id',
-        DISTRICTS: '/districts',
-        REPORT_TYPES: '/report-types',
-        ANALYTICS: '/analytics',
-        USERS: '/users',
-        NOTIFICATIONS: '/notifications'
-    }
+'use strict';
+
+// ==================== CONFIG ====================
+const CONFIG = {
+  API_BASE: 'http://localhost:5000',
+
+  // Google Maps
+  GMAPS_API_KEY: 'AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8', // your key
+  MAP_ID: '', // optional: put your vector Map ID here to remove mapId warnings
+  MAP_CENTER: { lat: 31.0461, lng: 34.8516 }, // Israel center
+  MAP_ZOOM: 7, // country zoom
+  SHOW_USERNAME_NEXT_TO_AVATAR: false,
+
+  // Notifications
+  AZURE_NOTIFICATION_URL: 'https://your-azure-function.azurewebsites.net/api/notify',
 };
 
-// 🌍 Global State Management
-const AppState = {
-    currentUser: null,
-    dashboardStats: null,
-    recentReports: [],
-    isLoading: false,
-    notifications: [],
-    lastUpdate: null
+// ==================== STATE ====================
+const DashboardState = {
+  user: null,
+  token: null,
+  reports: [],
+  map: null,
+  markers: [],
+  currentInfoWindow: null,
+  mapReady: false,
 };
 
-// 🔄 API Service Class
-class ApiService {
-    constructor() {
-        this.baseUrl = API_CONFIG.BASE_URL;
+// ==================== AUTH ====================
+async function initializeAuth() {
+  try {
+    const token =
+      localStorage.getItem('cityfix_token') ||
+      localStorage.getItem('cityfix_auth_token') ||
+      sessionStorage.getItem('cityfix_token');
+
+    const userStr =
+      localStorage.getItem('cityfix_user') || sessionStorage.getItem('cityfix_user');
+
+    if (!token || !userStr) {
+      alert('Please login first');
+      window.location.href = 'login.html';
+      return false;
     }
 
-    async request(endpoint, options = {}) {
-        const url = `${this.baseUrl}${endpoint}`;
-        
-        const defaultOptions = {
-            headers: {
-                'Content-Type': 'application/json',
-                // Add Authentication token if required
-                // 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            }
-        };
-
-        const config = { ...defaultOptions, ...options };
-
-        try {
-            console.log(`🔄 API Request: ${config.method || 'GET'} ${url}`);
-            
-            const response = await fetch(url, config);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            console.log('✅ API Response:', data);
-            
-            return data;
-        } catch (error) {
-            console.error('❌ API Error:', error);
-            this.handleApiError(error);
-            throw error;
-        }
+    const user = JSON.parse(userStr);
+    if (user.role !== 'admin') {
+      alert('Admin access only!');
+      window.location.href = 'index.html';
+      return false;
     }
 
-    handleApiError(error) {
-        let message = 'An unexpected error occurred';
-        
-        if (error.message.includes('Failed to fetch')) {
-            message = 'Failed to connect to server. Make sure the server is running.';
-        } else if (error.message.includes('404')) {
-            message = 'Requested resource not found.';
-        } else if (error.message.includes('401')) {
-            message = 'Unauthorized access. Please login again.';
-        } else if (error.message.includes('500')) {
-            message = 'Server error. Please try again later.';
-        }
-        
-        showNotification(message, 'error');
-    }
+    DashboardState.token = token;
+    DashboardState.user = user;
 
-    // Dashboard Stats
-    async getDashboardStats() {
-        return await this.request(API_CONFIG.ENDPOINTS.DASHBOARD_STATS);
-    }
+    // Header welcome
+    const welcomeEl = document.querySelector('.header-left p');
+    if (welcomeEl) welcomeEl.textContent = `Welcome back, ${user.username || 'Admin'}`;
 
-    // Recent Reports
-    async getRecentReports(limit = 5) {
-        return await this.request(`${API_CONFIG.ENDPOINTS.RECENT_REPORTS}?limit=${limit}`);
-    }
-
-    // All Reports with filters
-    async getReports(filters = {}) {
-        const queryParams = new URLSearchParams();
-        Object.keys(filters).forEach(key => {
-            if (filters[key]) queryParams.append(key, filters[key]);
-        });
-        return await this.request(`${API_CONFIG.ENDPOINTS.REPORTS}?${queryParams.toString()}`);
-    }
-
-    // Single Report
-    async getReportById(id) {
-        const endpoint = API_CONFIG.ENDPOINTS.REPORT_BY_ID.replace(':id', id);
-        return await this.request(endpoint);
-    }
-
-    // Update Report
-    async updateReport(id, data) {
-        const endpoint = API_CONFIG.ENDPOINTS.UPDATE_REPORT.replace(':id', id);
-        return await this.request(endpoint, {
-            method: 'PUT',
-            body: JSON.stringify(data)
-        });
-    }
-
-    // Delete Report
-    async deleteReport(id) {
-        const endpoint = API_CONFIG.ENDPOINTS.DELETE_REPORT.replace(':id', id);
-        return await this.request(endpoint, { method: 'DELETE' });
-    }
-
-    // Notifications
-    async getNotifications() {
-        return await this.request(API_CONFIG.ENDPOINTS.NOTIFICATIONS);
-    }
-
-    // Analytics
-    async getAnalytics(timeRange = '7d') {
-        return await this.request(`${API_CONFIG.ENDPOINTS.ANALYTICS}?range=${timeRange}`);
-    }
-}
-
-// Initialize API service
-const apiService = new ApiService();
-
-// 🎛️ Dashboard Controller
-class DashboardController {
-    constructor() {
-        this.isInitialized = false;
-        this.refreshInterval = null;
-    }
-
-    async initialize() {
-        console.log('🚀 Initializing CityFix Dashboard');
-        
-        try {
-            showLoading();
-            
-            // Load initial data
-            await this.loadDashboardData();
-            
-            // Setup UI interactions
-            this.setupInteractions();
-            
-            // Setup auto-refresh
-            this.setupAutoRefresh();
-            
-            // Setup real-time updates (if WebSocket available)
-            this.setupRealTimeUpdates();
-            
-            this.isInitialized = true;
-            console.log('✅ Dashboard initialized successfully');
-            
-        } catch (error) {
-            console.error('❌ Dashboard initialization failed:', error);
-            showErrorState('Failed to connect to backend server');
-        } finally {
-            hideLoading();
-        }
-    }
-
-    async loadDashboardData() {
-        console.log('📊 Loading dashboard data from backend...');
-        
-        // Load data in parallel for better performance
-        const [statsResponse, reportsResponse] = await Promise.all([
-            this.loadStats(),
-            this.loadRecentReports()
-        ]);
-
-        AppState.lastUpdate = new Date();
-        console.log('✅ Dashboard data loaded successfully from backend');
-    }
-
-    async loadStats() {
-        try {
-            const stats = await apiService.getDashboardStats();
-            AppState.dashboardStats = stats.data || stats;
-            this.renderStats();
-            return stats;
-        } catch (error) {
-            console.error('❌ Error loading stats:', error);
-            showErrorState('Failed to load dashboard statistics');
-            throw error;
-        }
-    }
-
-    async loadRecentReports() {
-        try {
-            const reports = await apiService.getRecentReports();
-            AppState.recentReports = reports.data || reports;
-            this.renderRecentReports();
-            return reports;
-        } catch (error) {
-            console.error('❌ Error loading recent reports:', error);
-            showErrorState('Failed to load recent reports');
-            throw error;
-        }
-    }
-
-    renderStats() {
-        const stats = AppState.dashboardStats;
-        if (!stats) return;
-
-        // Update stat cards
-        this.updateStatCard('total-reports', stats.totalReports || 0, '+15% from last month');
-        this.updateStatCard('in-progress', stats.inProgress || 0, 'Active cases');
-        this.updateStatCard('resolved', stats.resolved || 0, `${stats.resolutionRate || 0}% resolution rate`);
-        this.updateStatCard('avg-response', stats.avgResponseTime || '0h', `${stats.responseImprovement || 0}min from target`);
-    }
-
-    renderRecentReports() {
-        const reports = AppState.recentReports;
-        if (!reports || !reports.length) return;
-
-        const container = document.querySelector('.reports-list') || 
-                         document.querySelector('[data-recent-reports]');
-        
-        if (!container) {
-            console.warn('Recent reports container not found');
-            return;
-        }
-
-        container.innerHTML = reports.map(report => this.createReportItem(report)).join('');
-        
-        // Add interactions to new items
-        this.addReportInteractions();
-    }
-
-    createReportItem(report) {
-        const timeAgo = this.formatTimeAgo(report.createdAt || report.date);
-        const statusClass = this.getStatusClass(report.status);
-        
-        return `
-            <div class="report-item" data-report-id="${report.id}" data-clickable="true">
-                <div class="report-info">
-                    <h4>${report.title}</h4>
-                    <p>${report.location || report.address}</p>
-                    <div class="report-time">${timeAgo}</div>
-                </div>
-                <span class="report-status ${statusClass}">${this.formatStatus(report.status)}</span>
-            </div>
-        `;
-    }
-
-    updateStatCard(cardId, value, subtitle) {
-        // Try multiple selectors to find the stat card
-        const selectors = [
-            `[data-stat="${cardId}"]`,
-            `#${cardId}`,
-            `.stat-card:nth-child(${this.getCardIndex(cardId)})`
-        ];
-        
-        let card = null;
-        for (const selector of selectors) {
-            card = document.querySelector(selector);
-            if (card) break;
-        }
-        
-        if (!card) {
-            console.warn(`Stat card not found: ${cardId}`);
-            return;
-        }
-
-        const numberElement = card.querySelector('.stat-number');
-        const trendElement = card.querySelector('.stat-trend');
-
-        if (numberElement) {
-            this.animateNumber(numberElement, value);
-        }
-        
-        if (trendElement && subtitle) {
-            trendElement.textContent = subtitle;
-        }
-    }
-
-    getCardIndex(cardId) {
-        const cardMapping = {
-            'total-reports': 1,
-            'in-progress': 2,
-            'resolved': 3,
-            'avg-response': 4
-        };
-        return cardMapping[cardId] || 1;
-    }
-
-    animateNumber(element, targetValue) {
-        const currentValue = parseFloat(element.textContent.replace(/[^\d.]/g, '')) || 0;
-        const isNumeric = !isNaN(targetValue);
-        
-        if (!isNumeric) {
-            element.textContent = targetValue;
-            return;
-        }
-
-        const suffix = element.textContent.replace(/[\d.,]/g, '');
-        const duration = 1000;
-        const steps = 20;
-        const increment = (targetValue - currentValue) / steps;
-        let current = currentValue;
-        let step = 0;
-
-        const animate = () => {
-            if (step < steps) {
-                current += increment;
-                element.textContent = Math.floor(current).toLocaleString() + suffix;
-                step++;
-                setTimeout(animate, duration / steps);
-            } else {
-                element.textContent = targetValue.toLocaleString() + suffix;
-            }
-        };
-
-        animate();
-    }
-
-    // 🎭 Interactions
-    setupInteractions() {
-        this.addStatsInteractions();
-        this.addReportInteractions();
-        this.addNavigationInteractions();
-        this.addGeneralInteractions();
-    }
-
-    addStatsInteractions() {
-        const statCards = document.querySelectorAll('.stat-card');
-        
-        statCards.forEach((card, index) => {
-            // Add data attribute for identification
-            if (!card.dataset.stat) {
-                const cardTypes = ['total-reports', 'in-progress', 'resolved', 'avg-response'];
-                card.dataset.stat = cardTypes[index] || 'general';
-            }
-
-            // Entrance animation
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                card.style.transition = 'all 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
-            
-            // Hover effects
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-5px) scale(1.02)';
-                card.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0) scale(1)';
-                card.style.boxShadow = '';
-            });
-            
-            // Click for detailed view
-            card.addEventListener('click', () => {
-                this.showStatDetails(card);
-            });
-        });
-    }
-
-    addReportInteractions() {
-        const reportItems = document.querySelectorAll('.report-item');
-        
-        reportItems.forEach((item, index) => {
-            // Entrance animation
-            item.style.opacity = '0';
-            item.style.transform = 'translateX(-20px)';
-            
-            setTimeout(() => {
-                item.style.transition = 'all 0.4s ease';
-                item.style.opacity = '1';
-                item.style.transform = 'translateX(0)';
-            }, 300 + (index * 100));
-            
-            // Hover effects
-            item.addEventListener('mouseenter', () => {
-                item.style.backgroundColor = '#f8fafc';
-                item.style.transform = 'translateX(5px)';
-                item.style.cursor = 'pointer';
-            });
-            
-            item.addEventListener('mouseleave', () => {
-                item.style.backgroundColor = '';
-                item.style.transform = 'translateX(0)';
-            });
-            
-            // Click to view details
-            item.addEventListener('click', () => {
-                const reportId = item.dataset.reportId;
-                if (reportId) {
-                    this.viewReport(reportId);
-                }
-            });
-        });
-    }
-
-    addNavigationInteractions() {
-        const navItems = document.querySelectorAll('.nav-item');
-        
-        navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const page = item.dataset.icon || 
-                            item.getAttribute('href')?.replace('.html', '') ||
-                            item.textContent.toLowerCase().trim();
-                
-                this.handleNavigation(page, item);
-            });
-        });
-    }
-
-    addGeneralInteractions() {
-        // Smooth scrolling
-        document.documentElement.style.scrollBehavior = 'smooth';
-        
-        // Button animations
-        const buttons = document.querySelectorAll('button, .btn, [onclick]');
-        buttons.forEach(button => {
-            button.addEventListener('click', function() {
-                this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 150);
-            });
-        });
-        
-        // Add entrance animation for main content
-        const mainContent = document.querySelector('.content-wrapper, .main-content');
-        if (mainContent) {
-            mainContent.style.opacity = '0';
-            mainContent.style.transform = 'translateY(10px)';
-            
-            setTimeout(() => {
-                mainContent.style.transition = 'all 0.6s ease';
-                mainContent.style.opacity = '1';
-                mainContent.style.transform = 'translateY(0)';
-            }, 100);
-        }
-    }
-
-    // 🚀 Actions
-    async viewReport(reportId) {
-        try {
-            console.log(`🔍 Viewing report: ${reportId}`);
-            
-            // Navigate to report details page
-            window.location.href = `ReportsDetails.html?id=${reportId}`;
-            
-        } catch (error) {
-            console.error('Error viewing report:', error);
-            showNotification('Error loading report details', 'error');
-        }
-    }
-
-    async editReport(reportId) {
-        try {
-            console.log(`✏️ Editing report: ${reportId}`);
-            
-            // Navigate to edit page or show modal
-            window.location.href = `ReportsDetails.html?id=${reportId}&mode=edit`;
-            
-        } catch (error) {
-            console.error('Error editing report:', error);
-            showNotification('Error opening report editor', 'error');
-        }
-    }
-
-    async showStatDetails(card) {
-        const statType = card.dataset.stat || 'general';
-        
-        try {
-            // Load detailed analytics for this stat
-            const analytics = await apiService.getAnalytics();
-            console.log(`📊 Loading detailed ${statType} analytics:`, analytics);
-            
-            // Navigate to analytics page with filter
-            window.location.href = `analytics.html?filter=${statType}`;
-            
-        } catch (error) {
-            console.error('Error loading stat details:', error);
-            showNotification('Error loading detailed analytics', 'error');
-        }
-    }
-
-    handleNavigation(page, navItem) {
-        // Update active navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        navItem.classList.add('active');
-
-        // Navigate based on page
-        const pageUrls = {
-            'dashboard': 'dashboard.html',
-            'reports': 'Reports.html',
-            'analytics': 'analytics.html',
-            'team': 'team.html',
-            'notifications': 'notifications.html',
-            'settings': 'settings.html'
-        };
-
-        const url = pageUrls[page];
-        if (url) {
-            window.location.href = url;
-        } else {
-            showNotification(`${page} section coming soon!`, 'info');
-        }
-    }
-
-    // 🔄 Auto Refresh
-    setupAutoRefresh() {
-        // Refresh dashboard data every 30 seconds
-        this.refreshInterval = setInterval(async () => {
-            try {
-                await this.loadDashboardData();
-                console.log('🔄 Dashboard data refreshed');
-            } catch (error) {
-                console.error('Error refreshing dashboard:', error);
-            }
-        }, 30000);
-    }
-
-    // 📡 Real-time Updates (WebSocket)
-    setupRealTimeUpdates() {
-        // WebSocket connection for real-time updates
-        try {
-            const wsUrl = API_CONFIG.BASE_URL.replace('http', 'ws') + '/ws';
-            const ws = new WebSocket(wsUrl);
-            
-            ws.onopen = () => {
-                console.log('📡 WebSocket connected');
-            };
-            
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                this.handleRealTimeUpdate(data);
-            };
-            
-            ws.onerror = () => {
-                console.warn('⚠️ WebSocket connection failed - using polling instead');
-            };
-            
-        } catch (error) {
-            console.warn('⚠️ WebSocket not available - using polling instead');
-        }
-    }
-
-    handleRealTimeUpdate(data) {
-        switch (data.type) {
-            case 'new_report':
-                this.addNewReport(data.report);
-                break;
-            case 'report_updated':
-                this.updateReport(data.report);
-                break;
-            case 'stats_updated':
-                this.updateStats(data.stats);
-                break;
-        }
-    }
-
-    addNewReport(report) {
-        const container = document.querySelector('.reports-list');
-        if (!container) return;
-        
-        const reportHTML = this.createReportItem(report);
-        container.insertAdjacentHTML('afterbegin', reportHTML);
-        
-        // Add interactions to new item
-        const newItem = container.firstElementChild;
-        this.addReportInteractions();
-        
-        // Show notification
-        showNotification('New report received!', 'info');
-    }
-
-    // 🔧 Utility Functions
-    formatTimeAgo(date) {
-        const now = new Date();
-        const reportDate = new Date(date);
-        const diffMs = now - reportDate;
-        const diffMins = Math.floor(diffMs / (1000 * 60));
-        
-        if (diffMins < 1) return 'Just now';
-        if (diffMins < 60) return `${diffMins} minutes ago`;
-        
-        const diffHours = Math.floor(diffMins / 60);
-        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-        
-        const diffDays = Math.floor(diffHours / 24);
-        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-    }
-
-    getStatusClass(status) {
-        const statusClasses = {
-            'new': 'new',
-            'in-progress': 'progress', 
-            'pending': 'pending',
-            'resolved': 'resolved',
-            'closed': 'closed'
-        };
-        return statusClasses[status] || 'new';
-    }
-
-    formatStatus(status) {
-        const statusNames = {
-            'new': 'New',
-            'in-progress': 'In Progress',
-            'pending': 'Pending', 
-            'resolved': 'Resolved',
-            'closed': 'Closed'
-        };
-        return statusNames[status] || 'New';
-    }
-
-    // 🧹 Cleanup
-    destroy() {
-        if (this.refreshInterval) {
-            clearInterval(this.refreshInterval);
-        }
-    }
-}
-
-// 🔧 UI Helper Functions
-function showLoading() {
-    const loader = document.createElement('div');
-    loader.className = 'dashboard-loading';
-    loader.innerHTML = `
-        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-                    background: rgba(255,255,255,0.9); display: flex; 
-                    align-items: center; justify-content: center; z-index: 2000;">
-            <div style="text-align: center;">
-                <div class="spinner"></div>
-                <div style="margin-top: 15px; color: #666;">Loading dashboard...</div>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(loader);
-}
-
-function hideLoading() {
-    const loader = document.querySelector('.dashboard-loading');
-    if (loader) {
-        loader.remove();
-    }
-}
-
-function showErrorState(message) {
-    const mainContent = document.querySelector('.content-wrapper, .main-content');
-    if (!mainContent) return;
-    
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-state';
-    errorDiv.innerHTML = `
-        <div style="text-align: center; padding: 50px; color: #666;">
-            <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-            <h3 style="color: #dc2626; margin-bottom: 10px;">Backend Connection Error</h3>
-            <p style="margin-bottom: 20px;">${message}</p>
-            <div style="margin-bottom: 20px; padding: 15px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; text-align: left;">
-                <h4 style="color: #991b1b; margin-bottom: 10px;">Required Backend Endpoints:</h4>
-                <ul style="color: #7f1d1d; font-family: monospace; font-size: 14px;">
-                    <li>GET ${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DASHBOARD_STATS}</li>
-                    <li>GET ${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RECENT_REPORTS}</li>
-                    <li>GET ${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REPORTS}</li>
-                </ul>
-            </div>
-            <button onclick="dashboard.initialize()" style="
-                margin-top: 20px; padding: 12px 24px; background: #dc2626; 
-                color: white; border: none; border-radius: 6px; cursor: pointer;
-                font-weight: 500; transition: all 0.2s ease;
-            " onmouseover="this.style.background='#b91c1c'" 
-               onmouseout="this.style.background='#dc2626'">🔄 Retry Connection</button>
-        </div>
-    `;
-    
-    // Clear existing content and show error
-    mainContent.innerHTML = '';
-    mainContent.appendChild(errorDiv);
-}
-
-function showNotification(message, type = 'info') {
-    const colors = {
-        success: '#10b981',
-        info: '#3b82f6', 
-        warning: '#f59e0b',
-        error: '#ef4444'
-    };
-    
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed; top: 20px; right: 20px; background: ${colors[type]};
-        color: white; padding: 15px 20px; border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); z-index: 10001;
-        opacity: 0; transform: translateX(100%); transition: all 0.3s ease;
-        max-width: 350px;
-    `;
-    
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => notification.remove(), 300);
-    }, 4000);
-}
-
-// 🎨 Add Dashboard Styles
-function addDashboardStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        .stat-card, .report-item, .nav-item {
-            transition: all 0.3s ease;
-        }
-        
-        button, .btn {
-            transition: transform 0.15s ease;
-        }
-        
-        .report-item:hover {
-            cursor: pointer;
-        }
-        
-        .stat-card:hover {
-            cursor: pointer;
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-// 🔧 Legacy Functions (for compatibility with existing HTML)
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    
-    if (sidebar && overlay) {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-    }
-}
-
-function closeSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    
-    if (sidebar && overlay) {
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-    }
-}
-
-function setActive(element) {
-    // Remove active class from all nav items
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
+    // Username next to avatar (optional)
+    const nameEls = document.querySelectorAll('.user-name');
+    nameEls.forEach((el) => {
+      if (CONFIG.SHOW_USERNAME_NEXT_TO_AVATAR) {
+        el.textContent = user.username || 'Admin';
+        el.style.display = '';
+      } else {
+        el.textContent = '';
+        el.style.display = 'none';
+      }
     });
-    
-    // Add active class to clicked item
-    element.classList.add('active');
+
+    console.log('✅ Authenticated:', user.email);
+    return true;
+  } catch (err) {
+    console.error('Auth error:', err);
+    window.location.href = 'login.html';
+    return false;
+  }
 }
 
-// 🚀 Initialize Dashboard
-const dashboard = new DashboardController();
+// ==================== DATA ====================
+async function fetchAllReports() {
+  try {
+    console.log('📊 Fetching reports from backend...');
+    let response = await fetch(`${CONFIG.API_BASE}/api/reports/all`, {
+      headers: {
+        Authorization: `Bearer ${DashboardState.token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-// Auto-initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    addDashboardStyles();
-    dashboard.initialize();
+    if (!response.ok) {
+      console.log('Trying alternative endpoint /api/reports ...');
+      response = await fetch(`${CONFIG.API_BASE}/api/reports`, {
+        headers: {
+          Authorization: `Bearer ${DashboardState.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+
+    if (!response.ok) throw new Error('Failed to fetch reports');
+
+    const raw = await response.json();
+    const list = raw.data || raw.reports || raw || [];
+
+    // Normalize + enrich
+    const normalized = await Promise.all(list.map(normalizeReport));
+    console.log(`✅ Processed ${normalized.length} reports with user/location data`);
+    return normalized;
+  } catch (err) {
+    console.error('Fetch error, using fallback data:', err);
+    return getFallbackReports().map((r) => ({
+      ...r,
+      coordinates: r.coordinates || generateIsraelCoordinates(r.location),
+    }));
+  }
+}
+
+async function normalizeReport(report) {
+  // --- Reporter info ---
+  let reporterEmail = 'Not provided';
+  let reporterName = 'Anonymous';
+  let reporterPhone = 'Not provided';
+
+  // Embedded structures
+  const pick = (...vals) => vals.find((v) => v != null && v !== '') ?? undefined;
+
+  const embedded =
+    report.reportedBy || report.user || report.reporter || report.createdBy || {};
+  reporterEmail =
+    pick(embedded.email, embedded.userEmail, report.userEmail, report.email) || reporterEmail;
+  reporterName =
+    pick(embedded.username, embedded.name, report.username) || reporterName;
+  reporterPhone =
+    pick(embedded.phone, embedded.mobile, report.phone) || reporterPhone;
+
+  // If only ID exists, try to fetch user
+  const userId = report.userId || report.user_id || report.reporter_id;
+  if (userId && (!embedded || Object.keys(embedded).length === 0)) {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE}/api/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${DashboardState.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (res.ok) {
+        const u = await res.json();
+        reporterEmail = pick(u.email, u.userEmail, reporterEmail) || reporterEmail;
+        reporterName = pick(u.username, u.name, reporterName) || reporterName;
+        reporterPhone = pick(u.phone, u.mobile, reporterPhone) || reporterPhone;
+      }
+    } catch (e) {
+      console.warn('User lookup failed for', userId, e);
+    }
+  }
+
+  // --- Location string ---
+  let locationString = 'Location not specified';
+  const L = report.location;
+
+  if (typeof L === 'string') {
+    locationString = L;
+  } else if (L && typeof L === 'object') {
+    locationString =
+      pick(L.address, L.formatted_address, L.name, L.description) ||
+      (L.street ? `${L.street}${L.city ? ', ' + L.city : ''}` : locationString);
+  } else {
+    locationString = pick(report.address, report.street, report.place) || locationString;
+  }
+
+  // --- Coordinates ---
+  const coords = extractCoordinates(report) || generateIsraelCoordinates(locationString);
+
+  return {
+    ...report,
+    _id: report._id || report.id || Math.random().toString(36).slice(2, 11),
+    title: report.title || 'Untitled Report',
+    description: report.description || '',
+    status: report.status || 'pending',
+    location: locationString,
+    coordinates: coords,
+    reportedBy: {
+      username: reporterName,
+      email: reporterEmail,
+      phone: reporterPhone,
+    },
+    createdAt: report.createdAt || report.created_at || new Date().toISOString(),
+    priority: report.priority || 'medium',
+    category: report.category || 'General',
+  };
+}
+
+function extractCoordinates(report) {
+  // 1) report.coordinates as object {lat,lng} or {latitude,longitude}
+  if (report.coordinates && typeof report.coordinates === 'object') {
+    const c = report.coordinates;
+    if (hasLatLng(c)) return { lat: +c.lat || +c.latitude, lng: +c.lng || +c.longitude };
+    if (Array.isArray(c) && c.length >= 2) return { lat: +c[1], lng: +c[0] };
+  }
+
+  // 2) report.location.coordinates as [lng,lat] or {lat,lng}
+  if (report.location && typeof report.location === 'object') {
+    const lc = report.location.coordinates || report.location.coords || report.location.geo;
+    if (lc) {
+      if (Array.isArray(lc) && lc.length >= 2) return { lat: +lc[1], lng: +lc[0] };
+      if (hasLatLng(lc)) return { lat: +lc.lat || +lc.latitude, lng: +lc.lng || +lc.longitude };
+    }
+  }
+
+  // 3) other common fields
+  const lat = report.lat || report.latitude;
+  const lng = report.lng || report.lon || report.long || report.longitude;
+  if (isFinite(+lat) && isFinite(+lng)) return { lat: +lat, lng: +lng };
+
+  return null;
+}
+
+function hasLatLng(o) {
+  return (
+    o &&
+    (('lat' in o && 'lng' in o) ||
+      ('latitude' in o && 'longitude' in o) ||
+      ('lat' in o && 'long' in o))
+  );
+}
+
+function generateIsraelCoordinates(location) {
+  const loc = (location || '').toString().toLowerCase();
+
+  const cities = {
+    'jerusalem': { lat: 31.7683, lng: 35.2137 },
+    'tel aviv': { lat: 32.0853, lng: 34.7818 },
+    'haifa': { lat: 32.794, lng: 34.9896 },
+    'rishon lezion': { lat: 31.9642, lng: 34.8047 },
+    'petah tikva': { lat: 32.0867, lng: 34.8856 },
+    'ashdod': { lat: 31.8044, lng: 34.6553 },
+    'netanya': { lat: 32.3215, lng: 34.8532 },
+    'beer sheva': { lat: 31.252973, lng: 34.791462 },
+    'holon': { lat: 32.0114, lng: 34.7745 },
+    'bnei brak': { lat: 32.0807, lng: 34.8338 },
+    'ramat gan': { lat: 32.068, lng: 34.8243 },
+    'eilat': { lat: 29.5577, lng: 34.9519 },
+  };
+
+  for (const [city, c] of Object.entries(cities)) {
+    if (loc.includes(city)) {
+      return {
+        lat: c.lat + (Math.random() - 0.5) * 0.01,
+        lng: c.lng + (Math.random() - 0.5) * 0.01,
+      };
+    }
+  }
+
+  // Random within Israel bounding box
+  return { lat: 29.5 + Math.random() * 3.5, lng: 34.2 + Math.random() * 3.0 };
+}
+
+function getFallbackReports() {
+  return [
+    {
+      _id: '68a0258538daa12aa52c3163',
+      title: 'Drainage Issue at HaTayelet 17, Rishon LeZion, Israel',
+      description: 'Water drainage problem',
+      status: 'pending',
+      location: 'HaTayelet 17, Rishon LeZion',
+      coordinates: { lat: 31.9642, lng: 34.8047 },
+      createdAt: new Date(Date.now() - 86400000),
+      reportedBy: { username: 'user123', email: 'user123@cityfix.com', phone: '050-1234567' },
+      category: 'sewage',
+      priority: 'medium',
+    },
+    {
+      _id: '2',
+      title: 'Large pothole on King George Street',
+      description: 'Dangerous pothole',
+      status: 'pending',
+      location: 'King George Street, Tel Aviv',
+      coordinates: { lat: 32.0733, lng: 34.7745 },
+      createdAt: new Date(Date.now() - 172800000),
+      reportedBy: { username: 'david_cohen', email: 'david.cohen@gmail.com', phone: '052-9876543' },
+      category: 'roads',
+      priority: 'high',
+    },
+    {
+      _id: '3',
+      title: 'Street light not working',
+      description: 'No light at night',
+      status: 'in-progress',
+      location: 'Herzl Street, Haifa',
+      coordinates: { lat: 32.794, lng: 34.9896 },
+      createdAt: new Date(Date.now() - 259200000),
+      reportedBy: { username: 'sarah_levi', email: 'sarah.levi@hotmail.com', phone: '054-5555555' },
+      category: 'electricity',
+      priority: 'low',
+    },
+    {
+      _id: '4',
+      title: 'Pothole at 4, Bnot Hill, Holon, Israel',
+      description: 'Road damage',
+      status: 'pending',
+      location: '4 Bnot Hill, Holon',
+      coordinates: { lat: 32.0114, lng: 34.7745 },
+      createdAt: new Date(Date.now() - 86400000),
+      reportedBy: { username: 'moshe_green', email: 'moshe.green@yahoo.com', phone: '053-1111111' },
+      category: 'roads',
+      priority: 'medium',
+    },
+  ];
+}
+
+// ==================== UI: STATS & LIST ====================
+function updateDashboardStats() {
+  const total = DashboardState.reports.length;
+  const inProgress = DashboardState.reports.filter((r) => r.status === 'in-progress').length;
+  const resolved = DashboardState.reports.filter((r) => r.status === 'resolved').length;
+
+  const totalEl = document.querySelector('.stat-card:nth-child(1) .stat-number');
+  if (totalEl) totalEl.textContent = total.toLocaleString();
+
+  const progressEl = document.querySelector('.stat-card:nth-child(2) .stat-number');
+  if (progressEl) progressEl.textContent = inProgress.toLocaleString();
+
+  const resolvedEl = document.querySelector('.stat-card:nth-child(3) .stat-number');
+  if (resolvedEl) resolvedEl.textContent = resolved.toLocaleString();
+}
+
+function updateRecentReports() {
+  const reportsList = document.querySelector('.reports-list');
+  if (!reportsList) return;
+
+  const recent = [...DashboardState.reports].slice(-5).reverse();
+
+  reportsList.innerHTML = recent
+    .map(
+      (r) => `
+      <div class="report-item" onclick="focusOnReport('${r._id}')" style="cursor:pointer">
+        <div class="report-info">
+          <h4>${escapeHTML(r.title)}</h4>
+          <p>${escapeHTML(formatLocation(r.location))}</p>
+          <div class="report-time">⏱ ${formatTimeAgo(r.createdAt)}</div>
+        </div>
+        <span class="report-status ${r.status}">${r.status.toUpperCase()}</span>
+      </div>`
+    )
+    .join('');
+}
+
+function formatLocation(location) {
+  if (!location) return 'Location not specified';
+  if (typeof location === 'object') {
+    if (location.address) return location.address;
+    if (location.name) return location.name;
+    if (location.description) return location.description;
+    if (location.street) return location.street;
+    if (location.coordinates) {
+      if (Array.isArray(location.coordinates))
+        return `Lat: ${location.coordinates[1]}, Lng: ${location.coordinates[0]}`;
+      if (location.coordinates.lat && location.coordinates.lng)
+        return `Lat: ${location.coordinates.lat}, Lng: ${location.coordinates.lng}`;
+    }
+    return 'Location not specified';
+  }
+  const locStr = location.toString();
+  return locStr === '[object Object]' ? 'Location not specified' : locStr;
+}
+
+function formatTimeAgo(date) {
+  const now = new Date();
+  const past = new Date(date);
+  const diffMins = Math.floor((now - past) / 60000);
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} minutes ago`;
+  const hours = Math.floor(diffMins / 60);
+  if (hours < 24) return `${hours} hours ago`;
+  return `${Math.floor(hours / 24)} days ago`;
+}
+
+// ==================== GOOGLE MAPS ====================
+function ensureGoogleMapsLoaded() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) {
+      resolve();
+      return;
+    }
+
+    // callback to resolve when loaded
+    window.__gmapsLoaded = () => resolve();
+
+    // auth failure hook
+    window.gm_authFailure = () =>
+      reject(new Error('Google Maps authentication failed (gm_authFailure)'));
+
+    // inject proper script URL
+    const s = document.createElement('script');
+    s.async = true;
+    s.defer = true;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
+      CONFIG.GMAPS_API_KEY
+    )}&v=weekly&libraries=marker&callback=__gmapsLoaded`;
+    s.onerror = () => reject(new Error('Google Maps script failed to load'));
+    document.head.appendChild(s);
+  });
+}
+
+async function initializeMap() {
+  const container = document.querySelector('.map-placeholder');
+  if (!container) return;
+
+  container.innerHTML = '';
+  container.style.height = '500px';
+
+  const opts = {
+    center: CONFIG.MAP_CENTER,
+    zoom: CONFIG.MAP_ZOOM,
+    mapTypeControl: true,
+    streetViewControl: false,
+    fullscreenControl: true,
+  };
+  if (CONFIG.MAP_ID) opts.mapId = CONFIG.MAP_ID;
+
+  DashboardState.map = new google.maps.Map(container, opts);
+
+  google.maps.event.addListenerOnce(DashboardState.map, 'idle', () => {
+    DashboardState.mapReady = true;
+    addMarkers();
+  });
+}
+
+function addMarkers() {
+  if (!DashboardState.map) return;
+
+  console.log('📍 Adding markers for', DashboardState.reports.length, 'reports');
+
+  // Clear old
+  DashboardState.markers.forEach((m) => m.setMap && m.setMap(null));
+  DashboardState.markers = [];
+
+  const colors = {
+    pending: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+    'in-progress': 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+    resolved: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+    rejected: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    new: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
+  };
+
+  const bounds = new google.maps.LatLngBounds();
+  let placed = 0;
+
+  DashboardState.reports.forEach((report, i) => {
+    const c = report.coordinates || generateIsraelCoordinates(report.location);
+    if (!c || !isFinite(+c.lat) || !isFinite(+c.lng)) {
+      console.warn('⚠️ No valid coordinates for report:', report.title);
+      return;
+    }
+
+    setTimeout(() => {
+      const marker = new google.maps.Marker({
+        position: c,
+        map: DashboardState.map,
+        title: report.title,
+        icon: colors[report.status] || colors.pending,
+        animation: google.maps.Animation.DROP,
+      });
+
+      marker.reportId = report._id;
+      marker.addListener('click', () => showReportPopup(report, marker));
+      DashboardState.markers.push(marker);
+
+      bounds.extend(marker.getPosition());
+      placed++;
+
+      if (placed === 1) {
+        // first report center
+        DashboardState.map.setCenter(marker.getPosition());
+        if (DashboardState.map.getZoom() < 12) DashboardState.map.setZoom(CONFIG.MAP_ZOOM);
+      } else if (placed > 1) {
+        // fit all
+        DashboardState.map.fitBounds(bounds);
+      }
+    }, i * 80);
+  });
+}
+
+function showReportPopup(report, marker) {
+  if (DashboardState.currentInfoWindow) DashboardState.currentInfoWindow.close();
+
+  const content = `
+    <div style="padding:25px;min-width:450px;max-width:520px">
+      <h2 style="margin:0 0 12px 0;font-size:20px;font-weight:700;color:#111827">
+        ${escapeHTML(report.title)}
+      </h2>
+
+      <p style="margin:0 0 15px 0;color:#4b5563;font-size:14px;line-height:1.6">
+        ${escapeHTML(report.description || 'No description provided')}
+      </p>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <span style="background:${getStatusColor(report.status)};color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">
+          ${report.status.toUpperCase()}
+        </span>
+        ${
+          report.priority
+            ? `<span style="background:${getPriorityColor(
+                report.priority
+              )};color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">
+          ${report.priority.toUpperCase()}</span>`
+            : ''
+        }
+        ${
+          report.category
+            ? `<span style="background:#6B7280;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">
+          ${escapeHTML(report.category.toUpperCase())}</span>`
+            : ''
+        }
+      </div>
+
+      <div style="background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px;font-size:14px;color:#374151;line-height:1.7">
+        <div><strong>📍 Location:</strong> ${escapeHTML(formatLocation(report.location))}</div>
+        <div><strong>👤 Reported by:</strong> ${escapeHTML(report.reportedBy?.username || 'Anonymous')}</div>
+        <div><strong>📧 Email:</strong> ${escapeHTML(report.reportedBy?.email || 'Not provided')}</div>
+        <div><strong>📱 Phone:</strong> ${escapeHTML(report.reportedBy?.phone || 'Not provided')}</div>
+        <div><strong>🕒 Submitted:</strong> ${escapeHTML(formatTimeAgo(report.createdAt))}</div>
+        <div><strong>📅 Date:</strong> ${new Date(report.createdAt).toLocaleDateString()}</div>
+      </div>
+
+      <div style="border:2px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff">
+        <h3 style="margin:0 0 10px 0;font-size:16px;font-weight:700;color:#111827">Quick Status Update</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${quickBtn(report,'pending','🟠 Pending','#FFA500')}
+          ${quickBtn(report,'in-progress','🔵 In Progress','#3B82F6')}
+          ${quickBtn(report,'resolved','🟢 Resolved','#10B981')}
+          ${quickBtn(report,'rejected','🔴 Rejected','#EF4444')}
+        </div>
+        <p style="margin-top:12px;padding:8px;background:#fef3c7;border-radius:6px;color:#92400e;font-size:12px;text-align:center">
+          Status change will notify the reporter automatically
+        </p>
+      </div>
+
+      <div style="margin-top:16px;text-align:center">
+        <button onclick="window.location.href='ReportsDetails.html?id=${report._id}'"
+          style="padding:10px 24px;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700">
+          📄 View Full Details Page
+        </button>
+      </div>
+    </div>
+  `;
+
+  const iw = new google.maps.InfoWindow({ content, maxWidth: 560, minWidth: 480 });
+  iw.open(DashboardState.map, marker);
+  DashboardState.currentInfoWindow = iw;
+
+  // Focus
+  DashboardState.map.panTo(marker.getPosition());
+  if (DashboardState.map.getZoom() < 12) DashboardState.map.setZoom(12);
+}
+
+function quickBtn(report, status, label, bg) {
+  const disabled = report.status === status;
+  const op = disabled ? 'opacity:.45;cursor:not-allowed' : '';
+  const dis = disabled ? 'disabled' : '';
+  return `<button onclick="quickUpdate('${report._id}','${status}')" ${dis}
+    style="padding:10px 14px;background:${bg};color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;transition:transform .2s;${op}"
+    onmouseover="if(!this.disabled)this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+    ${label}
+  </button>`;
+}
+
+function getStatusColor(status) {
+  return (
+    {
+      pending: '#FFA500',
+      new: '#FDE047',
+      'in-progress': '#3B82F6',
+      resolved: '#10B981',
+      rejected: '#EF4444',
+    }[status] || '#6B7280'
+  );
+}
+
+function getPriorityColor(priority) {
+  return (
+    { urgent: '#DC2626', high: '#F59E0B', medium: '#3B82F6', low: '#6B7280' }[priority] ||
+    '#6B7280'
+  );
+}
+
+// ==================== STATUS UPDATE ====================
+window.quickUpdate = async function (reportId, newStatus) {
+  const r = DashboardState.reports.find((x) => x._id === reportId);
+  if (!r || r.status === newStatus) return;
+
+  try {
+    await fetch(`${CONFIG.API_BASE}/api/reports/${reportId}/status`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${DashboardState.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
+  } catch (e) {
+    console.warn('Backend status update failed, applying locally', e);
+  }
+
+  const old = r.status;
+  r.status = newStatus;
+
+  // Fire notification (best effort)
+  sendNotification(r, newStatus).catch((e) => console.warn('Notify error', e));
+
+  updateDashboardStats();
+  updateRecentReports();
+  addMarkers();
+
+  showToast(`Status updated: ${old} → ${newStatus}`, 'success');
+  if (DashboardState.currentInfoWindow) DashboardState.currentInfoWindow.close();
+};
+
+async function sendNotification(report, newStatus) {
+  if (CONFIG.AZURE_NOTIFICATION_URL === 'https://your-azure-function.azurewebsites.net/api/notify')
+    return;
+
+  const payload = {
+    to: report.reportedBy?.email || report.reportedBy?.phone || 'user',
+    title: 'Report Status Updated',
+    body: `Your report "${report.title}" is now: ${newStatus}`,
+    reportId: report._id,
+    newStatus,
+    timestamp: new Date().toISOString(),
+  };
+
+  await fetch(CONFIG.AZURE_NOTIFICATION_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+// ==================== UTILITIES ====================
+window.focusOnReport = function (reportId) {
+  const marker = DashboardState.markers.find((m) => m.reportId === reportId);
+  const report = DashboardState.reports.find((r) => r._id === reportId);
+  if (marker && report) {
+    DashboardState.map.setCenter(marker.getPosition());
+    DashboardState.map.setZoom(14);
+    showReportPopup(report, marker);
+  }
+};
+
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position:fixed;bottom:20px;right:20px;padding:14px 18px;
+    background:${type === 'success' ? '#10B981' : type === 'warning' ? '#F59E0B' : '#3B82F6'};
+    color:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:10000;
+    animation:slideUp .25s ease
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'slideDown .25s ease';
+    setTimeout(() => toast.remove(), 250);
+  }, 2600);
+}
+
+function escapeHTML(s) {
+  return (s ?? '')
+    .toString()
+    .replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+// ==================== GOOGLE MAPS CALLBACK (if HTML uses callback) ====================
+window.initializeGoogleMap = async function () {
+  console.log('✅ Google Maps API loaded (callback)');
+  await initializeMap();
+};
+
+// ==================== BOOTSTRAP ====================
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('🚀 Initializing Dashboard...');
+  try {
+    if (!(await initializeAuth())) return;
+
+    DashboardState.reports = await fetchAllReports();
+    updateDashboardStats();
+    updateRecentReports();
+
+    // Make sure Maps is loaded even if HTML had a wrong script tag
+    try {
+      await ensureGoogleMapsLoaded();
+      await initializeMap();
+    } catch (gmErr) {
+      console.error('Google Maps failed to load:', gmErr);
+      const cont = document.querySelector('.map-placeholder');
+      if (cont) cont.innerHTML = `<div style="padding:18px;color:#b91c1c">⚠️ Map failed to load. Check API key, referrers and billing.</div>`;
+    }
+
+    // Refresh data every 30s
+    setInterval(async () => {
+      DashboardState.reports = await fetchAllReports();
+      updateDashboardStats();
+      updateRecentReports();
+      addMarkers();
+    }, 30000);
+
+    console.log('✅ Dashboard ready');
+  } catch (e) {
+    console.error('Initialization error:', e);
+  }
 });
 
-// Global access for debugging and HTML compatibility
-window.dashboard = dashboard;
-window.apiService = apiService;
-window.toggleSidebar = toggleSidebar;
-window.closeSidebar = closeSidebar;
-window.setActive = setActive;
-
-console.log('✨ CityFix Dashboard - Backend Ready Version Loaded!');
+// ==================== INLINE CSS (small helpers) ====================
+if (!document.getElementById('cityfix-dashboard-styles')) {
+  const style = document.createElement('style');
+  style.id = 'cityfix-dashboard-styles';
+  style.textContent = `
+    @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+    @keyframes slideDown { from{transform:translateY(0);opacity:1} to{transform:translateY(100%);opacity:0} }
+    .report-item:hover { background: rgba(59,130,246,.05) }
+  `;
+  document.head.appendChild(style);
+}
