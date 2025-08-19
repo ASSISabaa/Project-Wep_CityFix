@@ -14,6 +14,7 @@
     );
   }
 
+  // --- DOM cache
   const els = {
     total: document.getElementById("total-members"),
     active: document.getElementById("active-members"),
@@ -24,6 +25,17 @@
     filterBtn: document.querySelector(".team-controls .filter-btn"),
     addBtn: document.querySelector(".add-member-btn"),
   };
+
+  // force id/name to avoid Lighthouse/DevTools warning
+  function ensureIdentity(el, id, name, auto = null) {
+    if (!el) return;
+    if (!el.id) el.id = id;
+    if (!el.name) el.name = name;
+    if (auto !== null) el.setAttribute("autocomplete", auto);
+    // also make sure it's associated with a label if one exists
+    const label = el.closest("label") || document.querySelector(`label[for="${el.id}"]`);
+    if (!label) el.setAttribute("aria-label", name.replace(/[-_]/g, " "));
+  }
 
   const state = {
     roles: ["admin"], // admin only
@@ -223,8 +235,8 @@
           <div class="detail-item"><span class="detail-label">Last Active:</span><span class="detail-value">${timeAgo(m.lastActiveAt)}</span></div>
         </div>
         <div class="member-actions">
-          <button class="action-btn btn-primary" data-action="view">View Profile</button>
-          <a class="action-btn btn-secondary ${m.email ? "" : "disabled"}" ${m.email ? `href="mailto:${m.email}"` : 'tabindex="-1" aria-disabled="true"'}>Contact</a>
+          <button class="action-btn btn-primary" data-action="view" name="view-profile">View Profile</button>
+          <a class="action-btn btn-secondary ${m.email ? "" : "disabled"}" ${m.email ? `href="mailto:${m.email}"` : 'tabindex="-1" aria-disabled="true"'} name="contact">Contact</a>
         </div>
       </div>
     `;
@@ -315,10 +327,10 @@
     sheet.className = "team-filter-sheet";
     sheet.innerHTML = `
       <div class="sheet-body">
-        <div class="filter-row"><label>Department</label><input type="text" id="filter-dept" placeholder="e.g. Engineering"></div>
+        <div class="filter-row"><label for="filter-dept">Department</label><input type="text" id="filter-dept" name="department" placeholder="e.g. Engineering" autocomplete="off"></div>
         <div class="filter-row">
-          <label>Status</label>
-          <select id="filter-status">
+          <label for="filter-status">Status</label>
+          <select id="filter-status" name="status" autocomplete="off">
             <option value="">Any</option>
             <option value="active">active</option>
             <option value="away">away</option>
@@ -327,8 +339,8 @@
         </div>
       </div>
       <div class="sheet-actions">
-        <button id="apply-filter" class="action-btn btn-primary">Apply</button>
-        <button id="clear-filter" class="action-btn btn-secondary">Clear</button>
+        <button id="apply-filter" class="action-btn btn-primary" name="apply-filter">Apply</button>
+        <button id="clear-filter" class="action-btn btn-secondary" name="clear-filter">Clear</button>
       </div>
     `;
     document.body.appendChild(sheet);
@@ -384,22 +396,22 @@
     const modal = document.createElement("div");
     modal.className = "modal-overlay";
     modal.innerHTML = `
-      <div class="modal">
+      <div class="modal" role="dialog" aria-modal="true" aria-label="Add Member">
         <div class="modal-header">
           <h3>Add Member</h3>
           <button class="modal-close" aria-label="Close">&times;</button>
         </div>
         <div class="modal-body">
-          <div class="form-row"><label>Email</label><input id="am-email" type="email" required placeholder="name@cityfix.gov"></div>
-          <div class="form-row"><label>National ID</label><input id="am-nid" type="text" required placeholder="ID number"></div>
-          <div class="form-row"><label>Role</label>
-            <select id="am-role"><option value="moderator" selected>moderator</option><option value="admin">admin</option></select>
+          <div class="form-row"><label for="am-email">Email</label><input id="am-email" name="email" type="email" required placeholder="name@cityfix.gov" autocomplete="email"></div>
+          <div class="form-row"><label for="am-nid">National ID</label><input id="am-nid" name="national_id" type="text" required placeholder="ID number" autocomplete="off" inputmode="numeric"></div>
+          <div class="form-row"><label for="am-role">Role</label>
+            <select id="am-role" name="role" autocomplete="off"><option value="moderator" selected>moderator</option><option value="admin">admin</option></select>
           </div>
           <div class="hint">Only email and ID are required. Member completes profile on first sign-in.</div>
         </div>
         <div class="modal-actions">
-          <button id="am-save" class="action-btn btn-primary">Invite</button>
-          <button class="action-btn btn-secondary modal-close">Cancel</button>
+          <button id="am-save" class="action-btn btn-primary" name="invite">Invite</button>
+          <button class="action-btn btn-secondary modal-close" name="cancel">Cancel</button>
         </div>
       </div>
     `;
@@ -426,6 +438,9 @@
   }
 
   function attachEvents() {
+    // ensure search input has id/name to silence the DevTools warning
+    ensureIdentity(els.searchInput, "team-search", "search", "off");
+
     els.searchInput?.addEventListener(
       "input",
       debounce(async (e) => {
@@ -446,7 +461,7 @@
       const modal = document.createElement("div");
       modal.className = "modal-overlay";
       modal.innerHTML = `
-        <div class="modal">
+        <div class="modal" role="dialog" aria-modal="true" aria-label="Member Profile">
           <div class="modal-header"><h3>${m.name}</h3><button class="modal-close" aria-label="Close">&times;</button></div>
           <div class="modal-body">
             <div class="modal-row"><strong>Role:</strong> ${m.roleTitle}</div>
@@ -473,8 +488,8 @@
 
   async function init() {
     try {
-      await fetchMembers();
       attachEvents();
+      await fetchMembers();
       if (state.refreshTimer) clearInterval(state.refreshTimer);
       state.refreshTimer = setInterval(async () => {
         const prevHash = hashItems(state.items);
