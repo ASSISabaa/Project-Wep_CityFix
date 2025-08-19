@@ -527,23 +527,23 @@ body {
     opacity: 1;
 }
 
-/* Footer - Professional Responsive Layout */
+/* Footer */
 .dashboard-footer {
     background: #111827;
     color: white;
     width: 100%;
     margin: 0;
-    margin-left: 256px;
     display: block;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease; 
+    margin-left: 150px;
 }
 
 .footer-content {
     display: grid;
     grid-template-columns: 2fr repeat(4, 1fr);
-    gap: clamp(24px, 3vw, 32px);
-    padding: clamp(32px, 4vw, 48px) clamp(16px, 3vw, 32px);
-    max-width: 1400px;
+    gap: 32px;
+    padding: 48px 32px;
+    max-width: 1200px;
     margin: 0 auto;
     align-items: start;
 }
@@ -578,20 +578,20 @@ body {
 
 .brand-name {
     font-family: Poppins;
-    font-size: clamp(18px, 2vw, 20px);
+    font-size: 20px;
     font-style: normal;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 20px;
     color: #FFFFFF;
 }
 
 .footer-description {
     color: #9CA3AF;
     font-family: Poppins;
-    font-size: clamp(14px, 1.5vw, 16px);
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
-    line-height: 1.5;
+    line-height: 24px;
     margin: 0;
     max-width: 280px;
 }
@@ -605,7 +605,7 @@ body {
 .footer-links a {
     color: #9CA3AF;
     text-decoration: none;
-    font-size: clamp(13px, 1.4vw, 14px);
+    font-size: 14px;
     transition: all 0.3s ease;
     padding: 4px 0;
     position: relative;
@@ -619,10 +619,10 @@ body {
 .footer-column h4 {
     color: #FFF;
     font-family: Poppins;
-    font-size: clamp(16px, 1.8vw, 18px);
+    font-size: 18px;
     font-style: normal;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 18px;
     margin: 0 0 20px 0;
 }
 
@@ -646,16 +646,19 @@ body {
 
 .footer-bottom {
     border-top: 1px solid #374151;
-    padding: clamp(16px, 2vw, 24px) clamp(16px, 3vw, 32px);
+    padding: 24px 32px;
     text-align: center;
+    width: 100%;
+    margin-left: 0;
 }
 
 .footer-bottom p {
     color: #9CA3AF;
     font-family: Poppins;
-    font-size: clamp(12px, 1.4vw, 14px);
+    font-size: 14px;
     font-weight: 400;
     margin: 0;
+    text-align: center;
 }
 
 /* Empty Section Styles */
@@ -669,31 +672,30 @@ body {
 
 .empty-content {
     text-align: center;
-    padding: clamp(24px, 3vw, 40px);
+    padding: 40px;
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border: 1px solid #E5E7EB;
     max-width: 400px;
-    width: 90%;
 }
 
 .empty-icon {
-    font-size: clamp(36px, 5vw, 48px);
+    font-size: 48px;
     margin-bottom: 20px;
     opacity: 0.6;
 }
 
 .empty-content h2 {
     color: #111827;
-    font-size: clamp(20px, 2.5vw, 24px);
+    font-size: 24px;
     font-weight: 600;
     margin-bottom: 12px;
 }
 
 .empty-content p {
     color: #6B7280;
-    font-size: clamp(14px, 1.6vw, 16px);
+    font-size: 16px;
     line-height: 1.5;
     margin: 0;
 }
@@ -706,24 +708,24 @@ body {
     justify-content: center;
     min-height: 60vh;
     text-align: center;
-    padding: clamp(20px, 3vw, 40px) 20px;
+    padding: 40px 20px;
 }
 
 .coming-soon-icon {
-    width: clamp(80px, 10vw, 120px);
-    height: clamp(80px, 10vw, 120px);
+    width: 120px;
+    height: 120px;
     background: linear-gradient(135deg, #3B82F6, #1D4ED8);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: clamp(24px, 3vw, 32px);
+    margin-bottom: 32px;
     animation: pulse 2s infinite;
 }
 
 .coming-soon-icon svg {
-    width: 50%;
-    height: 50%;
+    width: 60px;
+    height: 60px;
     fill: white;
 }
 
@@ -733,20 +735,20 @@ body {
 }
 
 .coming-soon-title {
-    font-size: clamp(24px, 3vw, 32px);
+    font-size: 32px;
     font-weight: 600;
     color: #1F2937;
     margin-bottom: 16px;
 }
 
 .coming-soon-subtitle {
-    font-size: clamp(18px, 2.2vw, 20px);
+    font-size: 20px;
     color: #6B7280;
     margin-bottom: 24px;
 }
 
 .coming-soon-description {
-    font-size: clamp(14px, 1.6vw, 16px);
+    font-size: 16px;
     color: #9CA3AF;
     max-width: 600px;
     line-height: 1.6;
@@ -757,9 +759,9 @@ body {
     background: #3B82F6;
     color: white;
     border: none;
-    padding: clamp(10px, 1.5vw, 12px) clamp(16px, 2vw, 24px);
+    padding: 12px 24px;
     border-radius: 8px;
-    font-size: clamp(14px, 1.6vw, 16px);
+    font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -773,27 +775,50 @@ body {
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-/* ========== RESPONSIVE BREAKPOINTS ========== */
+/* Responsive Design */
 
-/* Extra Large Desktop */
-@media (min-width: 1600px) {
+/* Medium Desktop 1200px-1399px */
+@media (max-width: 1399px) and (min-width: 1200px) {
     .dashboard-footer {
         margin-left: 256px;
+        width: calc(100% - 256px);
     }
     
     .footer-content {
-        grid-template-columns: 2fr repeat(4, 1fr);
-    }
-}
-
-/* Large Desktop to Extra Large */
-@media (max-width: 1599px) and (min-width: 1400px) {
-    .dashboard-footer {
-        margin-left: 256px;
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 40px 24px;
+        text-align: center;
+        max-width: 100%;
     }
     
-    .footer-content {
-        grid-template-columns: 2fr repeat(3, 1fr);
+    .footer-logo {
+        justify-content: center;
+    }
+    
+    .footer-description {
+        text-align: center;
+        max-width: none;
+        margin: 0 auto;
+    }
+    
+    .footer-links {
+        align-items: center;
+    }
+    
+    .social-icons {
+        justify-content: center;
+    }
+    
+    .footer-bottom {
+        padding: 24px 0;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .footer-bottom p {
+        text-align: center;
+        width: 100%;
     }
 }
 
@@ -801,6 +826,7 @@ body {
 @media (max-width: 1399px) and (min-width: 1200px) {
     .dashboard-footer {
         margin-left: 256px;
+        width: calc(100% - 256px);
     }
     
     .footer-content {
@@ -812,11 +838,23 @@ body {
 @media (max-width: 1199px) and (min-width: 1025px) {
     .dashboard-footer {
         margin-left: 256px;
+        width: calc(100% - 256px);
     }
     
     .footer-content {
         grid-template-columns: 1fr 1fr;
         text-align: left;
+    }
+    
+    .footer-bottom {
+        padding: 24px 0;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .footer-bottom p {
+        text-align: center;
+        width: 100%;
     }
 }
 
@@ -859,6 +897,7 @@ body {
     /* Footer adjustments */
     .dashboard-footer {
         margin-left: 0;
+        width: 100%;
     }
     
     .footer-content {
