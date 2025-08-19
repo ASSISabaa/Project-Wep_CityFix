@@ -1,599 +1,494 @@
-// CityFix Reports Management - Full with robust PDF export
-'use strict';
+/* CityFix — Reports page (photo-safe, no image errors) */
+(() => {
+  'use strict';
 
-/* API */
-const API_CONFIG = {
-  BASE_URL:
-    (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  const API = {
+    BASE: (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
       ? 'http://localhost:5000/api'
       : `${location.origin}/api`,
-  ENDPOINTS: {
-    REPORTS: '/reports',
-    STATISTICS: '/reports/statistics',
-    DISTRICTS: '/districts',
-    REPORT_TYPES: '/report-types',
-    UPDATE_STATUS: '/reports/:id/status',
-    DELETE_REPORT: '/reports/:id'
-  }
-};
-
-/* State */
-let reportsData = [];
-let currentPage = 1;
-let totalPages = 1;
-let totalReports = 0;
-const itemsPerPage = 12;
-let sortConfig = 'newest';
-let isLoading = false;
-let cachedDistricts = null;
-let cachedReportTypes = null;
-
-/* DOM */
-const reportsTableBody = document.querySelector('.reports-table tbody');
-const searchInput = document.getElementById('searchInput');
-const issueTypeFilter = document.getElementById('issueTypeFilter');
-const districtFilter = document.getElementById('districtFilter');
-const statusFilter = document.getElementById('statusFilter');
-const dateFromInput = document.getElementById('dateFrom');
-const exportBtn = document.querySelector('.export-btn');
-const filterBtn = document.querySelector('.filter-btn');
-const paginationInfo = document.querySelector('.pagination-info span');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-
-/* Enums mapping (UI -> backend) */
-const ALLOWED_ISSUES = ['pothole', 'lighting', 'drainage', 'traffic', 'safety', 'vandalism', 'garbage', 'other'];
-const ISSUE_MAP = {
-  lighting: 'lighting',
-  roads: 'traffic',
-  water: 'drainage',
-  waste: 'garbage',
-  parks: 'other'
-};
-
-/* Auth */
-function getAuthToken() {
-  return (
-    localStorage.getItem('cityfix_token') ||
-    sessionStorage.getItem('cityfix_token') ||
-    localStorage.getItem('authToken') ||
-    localStorage.getItem('token') ||
-    ''
-  );
-}
-
-/* HTTP */
-async function makeApiRequest(endpoint, options = {}) {
-  const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-  const headers = { 'Content-Type': 'application/json', Accept: 'application/json', ...options.headers };
-  const token = getAuthToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
-  try {
-    const res = await fetch(url, { ...options, headers });
-    if (!res.ok) {
-      let msg = `${res.status} ${res.statusText}`;
-      try { const j = await res.json(); if (j?.message) msg = j.message; } catch {}
-      throw new Error(msg);
+    PATH: {
+      REPORTS: '/reports',
+      STATUS: '/reports/:id/status',
+      DELETE: '/reports/:id',
+      DISTRICTS: '/districts',
+      TYPES: '/report-types',
+      STATS: '/reports/statistics'
     }
-    try { return await res.json(); } catch { return {}; }
-  } catch (e) { handleApiError(e, options.method); throw e; }
-}
-function handleApiError(error, method = 'GET') {
-  let message = error?.message || 'Unexpected error';
-  if (message.includes('Failed to fetch')) message = 'Failed to connect to server. Verify backend and BASE_URL.';
-  else if (message.startsWith('404')) message = 'Endpoint not found. Check API routes.';
-  else if (message.startsWith('401') && method !== 'GET') message = 'Unauthorized. Please login again.';
-  toast(message, 'error');
-}
+  };
 
-/* UI utils */
-function showLoading() {
-  if (isLoading || !reportsTableBody) return;
-  isLoading = true;
-  reportsTableBody.innerHTML = `
-    <tr>
-      <td colspan="7" style="text-align:center;padding:40px">
-        <div class="loading-container">
-          <div class="spinner"></div>
-          <div style="margin-top:15px;color:#666">Loading reports...</div>
-        </div>
-      </td>
-    </tr>`;
-}
-function hideLoading() { isLoading = false; }
-function showEmptyState() {
-  if (!reportsTableBody) return;
-  reportsTableBody.innerHTML = `
-    <tr>
-      <td colspan="7" style="text-align:center;padding:60px 20px;color:#6c757d">
-        <div style="font-size:48px;margin-bottom:12px">📋</div>
-        <div style="font-size:16px">No reports found. Try adjusting filters.</div>
-      </td>
-    </tr>`;
-}
-function showErrorInTable(message) {
-  if (!reportsTableBody) return;
-  reportsTableBody.innerHTML = `
-    <tr>
-      <td colspan="7" style="text-align:center;padding:60px 20px;color:#dc3545">
-        <div style="font-size:48px;margin-bottom:12px">⚠️</div>
-        <div style="font-size:16px">${escapeHtml(message)}</div>
-      </td>
-    </tr>`;
-}
-function toast(message, type = 'info') {
-  const colors = { success: '#16a34a', error: '#dc2626', info: '#2563eb', warning: '#d97706' };
-  const icons = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' };
-  const old = document.querySelector('.notification-toast'); if (old) old.remove();
-  const n = document.createElement('div');
-  n.className = 'notification-toast';
-  n.innerHTML = `
-    <div style="background:${colors[type]};color:#fff;padding:14px 18px;border-radius:8px;
-                position:fixed;top:20px;right:20px;z-index:10001;display:flex;gap:10px;
-                box-shadow:0 4px 12px rgba(0,0,0,.15);min-width:280px;animation:slideIn .25s ease">
-      <span style="font-size:18px">${icons[type]}</span>
-      <span style="flex:1">${escapeHtml(message)}</span>
-      <button style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer">×</button>
-    </div>`;
-  n.querySelector('button').onclick = () => n.remove();
-  document.body.appendChild(n);
-  setTimeout(() => { if (n.parentNode) n.remove(); }, 4200);
-}
-function injectStyles() {
-  if (document.getElementById('cf-reports-styles')) return;
-  const s = document.createElement('style');
-  s.id = 'cf-reports-styles';
-  s.textContent = `
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
-    .spinner{width:40px;height:40px;border-radius:50%;border:4px solid #f3f3f3;border-top-color:#2563eb;animation:spin 1s linear infinite;margin:0 auto}
-    .action-menu-btn{background:none;border:none;font-size:18px;cursor:pointer;color:#6b7280;padding:6px 8px;border-radius:6px}
-    .action-menu-btn:hover{background:#f3f4f6;color:#111827}
-    .cf-action-menu{position:fixed;min-width:180px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);padding:6px;z-index:9999}
-    .cf-action-menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:10px 12px;border-radius:8px;cursor:pointer}
-    .cf-action-menu button:hover{background:#f3f4f6}
-    .cf-action-menu .danger{color:#ef4444}
-    .report-row{transition:background .15s ease}
-    .report-row:hover{background:#f8f9fa}
-  `;
-  document.head.appendChild(s);
-}
+  const PAGE_SIZE = 12;
+  let page = 1, total = 0, pages = 1, sort = 'newest';
+  let rows = [];
+  let cachedDistricts = null, cachedTypes = null;
+  let contextMenu = null;
 
-/* Formatters */
-function escapeHtml(x) {
-  return String(x ?? '').replace(/[&<>"']/g, (m) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-}
-function fmtDate(d) {
-  if (!d) return 'N/A';
-  const date = new Date(d);
-  return isNaN(date.getTime()) ? 'N/A' :
-    date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-function statusClass(s = 'pending') {
-  return ({
-    new: 'status-new',
-    pending: 'status-pending',
-    'in-progress': 'status-progress',
-    resolved: 'status-resolved',
-    rejected: 'status-rejected',
-    closed: 'status-closed'
-  }[String(s).toLowerCase()] || 'status-pending');
-}
-function statusText(s = 'pending') {
-  return ({
-    new: 'New',
-    pending: 'Pending',
-    'in-progress': 'In Progress',
-    resolved: 'Resolved',
-    rejected: 'Rejected',
-    closed: 'Closed'
-  }[String(s).toLowerCase()] || 'Pending');
-}
-function formatLocation(loc, fallbacks = {}) {
-  if (!loc) {
-    const { address, street, city } = fallbacks;
-    if (address) return address;
-    if (street && city) return `${street}, ${city}`;
-    return street || city || '—';
-  }
-  if (typeof loc === 'string') return loc;
-  if (Array.isArray(loc)) return loc.filter(Boolean).join(', ');
-  if (typeof loc === 'object') {
-    if (loc.formatted_address) return loc.formatted_address;
-    if (loc.address) return loc.address;
-    if (loc.name && loc.city) return `${loc.name}, ${loc.city}`;
-    if (loc.street && loc.city) return `${loc.street}, ${loc.city}`;
-    if (loc.city) return loc.city;
-    if (loc.lat && loc.lng) return `${Number(loc.lat).toFixed(5)}, ${Number(loc.lng).toFixed(5)}`;
-    if (loc.coordinates) {
-      const c = loc.coordinates;
-      if (Array.isArray(c) && c.length >= 2) {
-        const [lng, lat] = c;
-        return `${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`;
-      }
-      if (c.lat && c.lng) return `${Number(c.lat).toFixed(5)}, ${Number(c.lng).toFixed(5)}`;
-    }
-    if (loc.geometry?.location?.lat && loc.geometry?.location?.lng) {
-      const { lat, lng } = loc.geometry.location;
-      return `${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`;
-    }
-  }
-  return '—';
-}
-function formatType(t, fb = {}) {
-  if (!t) return fb.category || fb.typeName || fb.issueType || '—';
-  if (typeof t === 'string') return t;
-  if (Array.isArray(t)) return t.map((x) => x.name || x.title || x).join(', ');
-  if (typeof t === 'object') return t.name || t.title || t.slug || '—';
-  return '—';
-}
+  const el = {
+    table: document.querySelector('.reports-table'),
+    thead: document.querySelector('.reports-table thead'),
+    tbody: document.querySelector('.reports-table tbody'),
+    search: document.getElementById('searchInput'),
+    issue: document.getElementById('issueTypeFilter'),
+    district: document.getElementById('districtFilter'),
+    status: document.getElementById('statusFilter'),
+    dateFrom: document.getElementById('dateFrom'),
+    exportBtn: document.querySelector('.export-btn'),
+    filterBtn: document.querySelector('.filter-btn'),
+    pageInfo: document.querySelector('.pagination-info span'),
+    prev: document.getElementById('prevBtn'),
+    next: document.getElementById('nextBtn')
+  };
 
-/* Data loading */
-async function loadReports() {
-  try {
-    showLoading();
-
-    const params = new URLSearchParams({
-      page: String(currentPage),
-      limit: String(itemsPerPage),
-      sort: sortConfig
-    });
-
-    if (searchInput?.value) params.append('search', searchInput.value);
-
-    if (issueTypeFilter?.value) {
-      const mapped = ISSUE_MAP[issueTypeFilter.value] || issueTypeFilter.value;
-      if (ALLOWED_ISSUES.includes(mapped)) params.append('issueType', mapped);
-    }
-
-    if (districtFilter?.value) params.append('district', districtFilter.value);
-    if (statusFilter?.value) params.append('status', statusFilter.value);
-    if (dateFromInput?.value) params.append('dateFrom', dateFromInput.value);
-
-    const endpoint = `${API_CONFIG.ENDPOINTS.REPORTS}?${params.toString()}`;
-    const response = await makeApiRequest(endpoint);
-
-    const list =
-      (Array.isArray(response) && response) ||
-      response.reports ||
-      response.items ||
-      response.data ||
-      [];
-
-    reportsData = list;
-
-    totalReports = response.total ?? response.count ?? (Array.isArray(list) ? list.length : 0);
-    totalPages = response.pages ?? Math.max(1, Math.ceil(totalReports / itemsPerPage));
-    currentPage = response.page || currentPage;
-
-    renderReportsTable();
-    updatePaginationInfo();
-  } catch (error) {
-    console.error('loadReports error:', error);
-    showErrorInTable(error.message || 'Failed to load reports.');
-  } finally { hideLoading(); }
-}
-
-async function loadDropdownOptions() {
-  try { await loadDistricts(); } catch { useDefaultDistricts(); }
-  try { await loadReportTypes(); } catch { useDefaultReportTypes(); }
-}
-async function loadDistricts() {
-  if (cachedDistricts) return populateDistrictsDropdown(cachedDistricts);
-  const res = await makeApiRequest(API_CONFIG.ENDPOINTS.DISTRICTS);
-  const arr = res.data || res.districts || res || [];
-  cachedDistricts = arr; populateDistrictsDropdown(arr);
-}
-async function loadReportTypes() {
-  if (cachedReportTypes) return populateReportTypesDropdown(cachedReportTypes);
-  const res = await makeApiRequest(API_CONFIG.ENDPOINTS.REPORT_TYPES);
-  const arr = res.data || res.reportTypes || res || [];
-  cachedReportTypes = arr; populateReportTypesDropdown(arr);
-}
-function populateDistrictsDropdown(districts) {
-  if (!districtFilter) return;
-  districtFilter.innerHTML = '<option value="">All Districts</option>';
-  districts.forEach((d) => {
-    const opt = document.createElement('option');
-    opt.value = d.value || d.id || d.slug || d.name || d;
-    opt.textContent = d.name || d.title || d;
-    districtFilter.appendChild(opt);
-  });
-}
-function populateReportTypesDropdown(types) {
-  if (!issueTypeFilter) return;
-  issueTypeFilter.innerHTML = '<option value="">All Issue Types</option>';
-  types.forEach((t) => {
-    const opt = document.createElement('option');
-    opt.value = t.value || t.id || t.slug || t.name || t;
-    opt.textContent = t.name || t.title || t;
-    issueTypeFilter.appendChild(opt);
-  });
-}
-function useDefaultDistricts() {
-  populateDistrictsDropdown(['Downtown', 'North Side', 'West End', 'East End', 'Suburbs']);
-}
-function useDefaultReportTypes() {
-  populateReportTypesDropdown(['Lighting', 'Roads', 'Drainage', 'Sanitation', 'Parks']);
-}
-
-/* Render */
-function renderReportsTable() {
-  if (!reportsTableBody) return;
-  if (!reportsData || reportsData.length === 0) { showEmptyState(); return; }
-
-  reportsTableBody.innerHTML = reportsData.map((report) => {
-    const id = report._id || report.id || report.reportId || '';
-    const displayId = id ? `#${String(id).slice(-5).toUpperCase()}` : '#00000';
-    const location = formatLocation(report.location, { address: report.address, street: report.street, city: report.city });
-    const type = formatType(report.issueType || report.type, { category: report.category, typeName: report.typeName, issueType: report.issueType });
-    const s = (report.status || 'pending').toLowerCase();
-    const date = report.createdAt || report.timestamp || report.date;
-
-    return `
-      <tr class="report-row" data-report-id="${escapeHtml(id)}">
-        <td class="report-id">${escapeHtml(displayId)}</td>
-        <td class="report-title">${escapeHtml(report.title || 'Untitled')}</td>
-        <td class="report-location">${escapeHtml(location)}</td>
-        <td class="report-type">${escapeHtml(type)}</td>
-        <td><span class="status-badge ${statusClass(s)}">${statusText(s)}</span></td>
-        <td class="report-date">${fmtDate(date)}</td>
-        <td class="actions-cell"><button class="action-menu-btn" aria-label="Actions">⋮</button></td>
-      </tr>`;
-  }).join('');
-}
-
-/* Pagination */
-function updatePaginationInfo() {
-  if (!paginationInfo) return;
-  const startItem = Math.min((currentPage - 1) * itemsPerPage + 1, Math.max(totalReports, 0));
-  const endItem = Math.min(currentPage * itemsPerPage, Math.max(totalReports, 0));
-  paginationInfo.textContent = `Showing ${startItem} to ${endItem} of ${totalReports} entries`;
-  if (prevBtn) { prevBtn.disabled = currentPage === 1; prevBtn.style.opacity = currentPage === 1 ? '0.5' : '1'; prevBtn.style.cursor = currentPage === 1 ? 'not-allowed' : 'pointer'; }
-  if (nextBtn) { nextBtn.disabled = currentPage >= totalPages; nextBtn.style.opacity = currentPage >= totalPages ? '0.5' : '1'; nextBtn.style.cursor = currentPage >= totalPages ? 'not-allowed' : 'pointer'; }
-}
-function previousPage() { if (currentPage > 1) { currentPage--; loadReports(); scrollTo({ top: 0, behavior: 'smooth' }); } }
-function nextPage() { if (currentPage < totalPages) { currentPage++; loadReports(); scrollTo({ top: 0, behavior: 'smooth' }); } }
-
-/* Actions */
-let openMenu = null;
-function openActionMenu(btn, reportId) {
-  closeActionMenu();
-  const menu = document.createElement('div');
-  menu.className = 'cf-action-menu';
-  menu.innerHTML = `
-    <button data-cmd="view" data-id="${reportId}">View details</button>
-    <button data-cmd="status" data-id="${reportId}">Edit status</button>
-    <button data-cmd="assign" data-id="${reportId}">Assign team</button>
-    <button data-cmd="delete" class="danger" data-id="${reportId}">Delete</button>`;
-  document.body.appendChild(menu);
-  const r = btn.getBoundingClientRect();
-  const mw = menu.offsetWidth, mh = menu.offsetHeight;
-  let left = Math.max(8, r.right - mw), top = r.bottom + 6;
-  if (top + mh > innerHeight - 8) top = r.top - mh - 6;
-  menu.style.left = `${left}px`; menu.style.top = `${top}px`;
-  menu.addEventListener('click', onMenuCommand);
-  setTimeout(() => document.addEventListener('click', closeActionMenu, { once: true }), 0);
-  openMenu = menu;
-}
-function closeActionMenu() {
-  if (openMenu) { openMenu.removeEventListener('click', onMenuCommand); openMenu.remove(); openMenu = null; }
-}
-function onMenuCommand(e) {
-  const b = e.target.closest('button[data-cmd]'); if (!b) return;
-  const id = b.dataset.id; const cmd = b.dataset.cmd;
-  if (cmd === 'view') navigateToReportDetails(id);
-  if (cmd === 'status') showStatusModal(id);
-  if (cmd === 'assign') assignReport(id);
-  if (cmd === 'delete') deleteReport(id);
-  closeActionMenu();
-}
-function navigateToReportDetails(reportId) { if (reportId) location.href = `ReportsDetails.html?id=${encodeURIComponent(reportId)}`; }
-async function deleteReport(reportId) {
-  if (!confirm('Delete this report?')) return;
-  try { await makeApiRequest(API_CONFIG.ENDPOINTS.DELETE_REPORT.replace(':id', reportId), { method: 'DELETE' }); toast('Report deleted', 'success'); await loadReports(); } catch {}
-}
-async function updateReportStatus(reportId, newStatus) {
-  try { await makeApiRequest(API_CONFIG.ENDPOINTS.UPDATE_STATUS.replace(':id', reportId), { method: 'PATCH', body: JSON.stringify({ status: newStatus }) }); toast('Status updated', 'success'); await loadReports(); } catch {}
-}
-function showStatusModal(reportId) {
-  document.querySelector('.status-modal')?.remove();
-  const modal = document.createElement('div');
-  modal.className = 'status-modal';
-  modal.innerHTML = `
-    <div class="modal-backdrop" onclick="this.parentElement.remove()"></div>
-    <div class="modal-content">
-      <h3>Update Report Status</h3>
-      <div class="status-options">
-        <button class="status-option status-new" onclick="updateStatus('${reportId}','new')">New</button>
-        <button class="status-option status-pending" onclick="updateStatus('${reportId}','pending')">Pending</button>
-        <button class="status-option status-progress" onclick="updateStatus('${reportId}','in-progress')">In Progress</button>
-        <button class="status-option status-resolved" onclick="updateStatus('${reportId}','resolved')">Resolved</button>
-        <button class="status-option status-rejected" onclick="updateStatus('${reportId}','rejected')">Rejected</button>
-      </div>
-      <button class="modal-close" onclick="this.closest('.status-modal').remove()">Cancel</button>
-    </div>`;
-  document.body.appendChild(modal);
-}
-function updateStatus(reportId, status) { document.querySelector('.status-modal')?.remove(); updateReportStatus(reportId, status); }
-function assignReport() { toast('Team assignment feature coming soon!', 'info'); }
-
-/* PDF Export */
-async function exportReportsPDF() {
-  try {
-    toast('Preparing PDF...', 'info');
-
-    const params = new URLSearchParams();
-    if (searchInput?.value) params.append('search', searchInput.value);
-
-    if (issueTypeFilter?.value) {
-      const mapped = ISSUE_MAP[issueTypeFilter.value] || issueTypeFilter.value;
-      if (ALLOWED_ISSUES.includes(mapped)) params.append('issueType', mapped);
-    }
-
-    if (districtFilter?.value) params.append('district', districtFilter.value);
-    if (statusFilter?.value) params.append('status', statusFilter.value);
-    if (dateFromInput?.value) params.append('dateFrom', dateFromInput.value);
-    params.append('limit', '1000'); params.append('page', '1'); params.append('sort', typeof sortConfig === 'string' ? sortConfig : 'newest');
-
-    const endpoint = `${API_CONFIG.ENDPOINTS.REPORTS}?${params.toString()}`;
-
-    let list = [];
+  document.addEventListener('DOMContentLoaded', async () => {
+    injectStyles();
+    ensurePhotoColumn();
+    hookEvents();
+    await loadDropdowns();
+    await loadReports();
     try {
-      const res = await makeApiRequest(endpoint);
-      list = res?.reports || res?.items || res?.data || (Array.isArray(res) ? res : []);
-    } catch {
-      const trs = [...document.querySelectorAll('.reports-table tbody tr')];
-      list = trs.map((tr) => {
-        const tds = tr.querySelectorAll('td');
-        const idCell = (tds[0]?.textContent || '').trim(); // like #12345
-        return {
-          _id: idCell.replace('#',''),
-          title: tds[1]?.textContent?.trim() || '',
-          location: tds[2]?.textContent?.trim() || '',
-          issueType: tds[3]?.textContent?.trim() || '',
-          status: tds[4]?.textContent?.trim() || '',
-          createdAt: tds[5]?.textContent?.trim() || ''
-        };
-      }).filter(r => r.title);
-    }
+      const s = await request(API.PATH.STATS);
+      document.querySelector('[data-stat="total"]')?.replaceChildren(String(s.total ?? 0));
+      document.querySelector('[data-stat="resolved"]')?.replaceChildren(String(s.resolved ?? 0));
+      document.querySelector('[data-stat="in-progress"]')?.replaceChildren(String(s.inProgress ?? 0));
+      document.querySelector('[data-stat="pending"]')?.replaceChildren(String(s.pending ?? 0));
+    } catch {}
+  });
 
-    if (!list.length) { toast('Nothing to export', 'warning'); return; }
-
-    if (!window.jspdf || !window.jspdf.jsPDF || !window.jspdf.jsPDF.prototype) {
-      toast('jsPDF not loaded. Add jsPDF and autoTable scripts in HTML.', 'error');
-      return;
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
-
-    const marginX = 40;
-    const now = new Date();
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
-    doc.text('CityFix — Reports Export', marginX, 40);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-    doc.text(`Generated: ${now.toLocaleString()}`, marginX, 58);
-
-    const filtersSummary = [
-      searchInput?.value ? `Search: "${searchInput.value}"` : null,
-      issueTypeFilter?.value ? `Type: ${issueTypeFilter.value}` : null,
-      districtFilter?.value ? `District: ${districtFilter.value}` : null,
-      statusFilter?.value ? `Status: ${statusFilter.value}` : null,
-      dateFromInput?.value ? `From: ${dateFromInput.value}` : null
-    ].filter(Boolean).join('  •  ') || 'All records';
-    doc.text(filtersSummary, marginX, 74);
-
-    const body = list.map((r) => [
-      String((r._id || r.id || '')).slice(-5).toUpperCase(),
-      (r.title || '').toString().trim(),
-      typeof r.location === 'string' ? r.location : formatLocation(r.location, { address: r.address, street: r.street, city: r.city }),
-      typeof r.issueType === 'string' ? r.issueType : formatType(r.issueType || r.type, { category: r.category }),
-      typeof r.status === 'string' ? r.status : statusText(r.status),
-      typeof r.createdAt === 'string' ? r.createdAt : fmtDate(r.createdAt || r.timestamp || r.date)
-    ]);
-
-    doc.autoTable({
-      startY: 92,
-      head: [['ID', 'Title', 'Location', 'Type', 'Status', 'Date']],
-      body,
-      styles: { fontSize: 9, cellPadding: 6, overflow: 'linebreak', valign: 'middle' },
-      headStyles: { fillColor: [37, 99, 235], textColor: 255 },
-      columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 240 }, 2: { cellWidth: 240 }, 3: { cellWidth: 110 }, 4: { cellWidth: 90, halign: 'center' }, 5: { cellWidth: 100 } },
-      margin: { left: marginX, right: marginX },
-      didDrawPage: (data) => {
-        const pageSize = data.doc.internal.pageSize;
-        const pageWidth = pageSize.getWidth(); const pageHeight = pageSize.getHeight();
-        const pageNumber = data.doc.internal.getNumberOfPages();
-        data.doc.setFontSize(9);
-        data.doc.text(`Page ${pageNumber}`, pageWidth - marginX, pageHeight - 20, { align: 'right' });
+  function hookEvents() {
+    el.tbody?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.action-menu-btn');
+      if (btn) {
+        e.stopPropagation();
+        openMenu(btn, btn.closest('tr')?.dataset.id);
+        return;
       }
+      const photoBtn = e.target.closest('.photo-btn');
+      if (photoBtn) { e.stopPropagation(); showImage(photoBtn.dataset.src); return; }
+      const row = e.target.closest('tr.report-row');
+      if (row && !e.target.closest('.actions-cell')) goDetails(row.dataset.id);
     });
 
-    doc.save(`cityfix-reports-${now.toISOString().slice(0, 10)}.pdf`);
-    toast('PDF downloaded', 'success');
-  } catch (e) { console.error(e); toast('PDF export failed', 'error'); }
-}
+    el.prev?.addEventListener('click', () => { if (page > 1) { page--; loadReports(); } });
+    el.next?.addEventListener('click', () => { if (page < pages) { page++; loadReports(); } });
+    el.filterBtn?.addEventListener('click', () => { page = 1; loadReports(); });
 
-/* Filters + events */
-function applyFilters() { currentPage = 1; loadReports(); }
-function debounce(fn, wait = 400) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); }; }
-function resetFilters() {
-  if (searchInput) searchInput.value = '';
-  if (issueTypeFilter) issueTypeFilter.value = '';
-  if (districtFilter) districtFilter.value = '';
-  if (statusFilter) statusFilter.value = '';
-  if (dateFromInput) dateFromInput.value = '';
-  currentPage = 1; sortConfig = 'newest'; loadReports();
-}
+    const onFilter = debounce(() => { page = 1; loadReports(); }, 350);
+    el.search?.addEventListener('input', onFilter);
+    el.issue?.addEventListener('change', onFilter);
+    el.district?.addEventListener('change', onFilter);
+    el.status?.addEventListener('change', onFilter);
+    el.dateFrom?.addEventListener('change', onFilter);
 
-/* Stats (optional) */
-async function loadStatistics() {
-  try {
-    const els = {
-      total: document.querySelector('[data-stat="total"]'),
-      resolved: document.querySelector('[data-stat="resolved"]'),
-      inProgress: document.querySelector('[data-stat="in-progress"]'),
-      pending: document.querySelector('[data-stat="pending"]')
-    };
-    if (!els.total) return;
-    const res = await makeApiRequest(API_CONFIG.ENDPOINTS.STATISTICS);
-    if (res) {
-      if (els.total) els.total.textContent = res.total ?? 0;
-      if (els.resolved) els.resolved.textContent = res.resolved ?? 0;
-      if (els.inProgress) els.inProgress.textContent = res.inProgress ?? 0;
-      if (els.pending) els.pending.textContent = res.pending ?? 0;
-    }
-  } catch {}
-}
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') { e.preventDefault(); el.search?.focus(); }
+      if (e.key === 'Escape') { closeMenu(); document.querySelector('.cf-img-modal')?.remove(); document.querySelector('.cf-status-modal')?.remove(); }
+    });
 
-/* Boot */
-document.addEventListener('DOMContentLoaded', async () => {
-  injectStyles();
-
-  reportsTableBody?.addEventListener('click', (e) => {
-    const menuBtn = e.target.closest('.action-menu-btn');
-    if (menuBtn) {
-      e.stopPropagation();
-      const row = menuBtn.closest('tr');
-      openActionMenu(menuBtn, row?.dataset.reportId || row?.getAttribute('data-report-id'));
-      return;
-    }
-    const row = e.target.closest('tr.report-row');
-    if (row && !e.target.closest('.actions-cell')) navigateToReportDetails(row.dataset.reportId || row.getAttribute('data-report-id'));
-  });
-
-  searchInput?.addEventListener('input', debounce(applyFilters, 500));
-  issueTypeFilter?.addEventListener('change', applyFilters);
-  districtFilter?.addEventListener('change', applyFilters);
-  statusFilter?.addEventListener('change', applyFilters);
-  dateFromInput?.addEventListener('change', applyFilters);
-
-  prevBtn?.addEventListener('click', previousPage);
-  nextBtn?.addEventListener('click', nextPage);
-
-  if (exportBtn) {
-    try { exportBtn.replaceWith(exportBtn.cloneNode(true)); } catch {} // clear old listeners if any
+    el.exportBtn?.addEventListener('click', exportPDF);
   }
-  const freshExportBtn = document.querySelector('.export-btn');
-  freshExportBtn?.addEventListener('click', exportReportsPDF);
 
-  filterBtn?.addEventListener('click', applyFilters);
+  async function loadReports() {
+    showLoading();
+    try {
+      const qs = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE), sort });
+      if (el.search?.value) qs.set('search', el.search.value);
+      if (el.issue?.value) qs.set('issueType', mapIssue(el.issue.value));
+      if (el.district?.value) qs.set('district', el.district.value);
+      if (el.status?.value) qs.set('status', el.status.value);
+      if (el.dateFrom?.value) qs.set('dateFrom', el.dateFrom.value);
 
-  addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); searchInput?.focus(); }
-    if (e.key === 'Escape') { closeActionMenu(); document.querySelector('.status-modal')?.remove(); }
-  });
+      const res = await request(`${API.PATH.REPORTS}?${qs.toString()}`);
+      const list = (Array.isArray(res) && res) || res.reports || res.items || res.data || [];
+      rows = list;
+      total = res.total ?? res.count ?? (Array.isArray(list) ? list.length : 0);
+      pages = res.pages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
+      page = res.page || page;
 
-  await loadDropdownOptions();
-  await loadReports();
-  loadStatistics();
-});
+      renderTable();
+      updatePager();
+    } catch (e) {
+      showError(e.message || 'Failed to load reports.');
+    }
+  }
 
-/* Expose */
-window.updateStatus = updateStatus;
-window.resetFilters = resetFilters;
-window.loadReports = loadReports;
-window.exportReportsPDF = exportReportsPDF;
+  async function loadDropdowns() {
+    try {
+      if (!cachedDistricts) {
+        const r = await request(API.PATH.DISTRICTS);
+        cachedDistricts = r.data || r.districts || r || [];
+      }
+      fillSelect(el.district, cachedDistricts, 'All Districts');
+    } catch {
+      fillSelect(el.district, ['Downtown','North','West','East','Suburbs'], 'All Districts');
+    }
+    try {
+      if (!cachedTypes) {
+        const r = await request(API.PATH.TYPES);
+        cachedTypes = r.data || r.reportTypes || r || [];
+      }
+      fillSelect(el.issue, cachedTypes, 'All Issue Types');
+    } catch {
+      fillSelect(el.issue, ['Lighting','Roads','Drainage','Sanitation','Parks'], 'All Issue Types');
+    }
+  }
+
+  function renderTable() {
+    if (!el.tbody) return;
+    if (!rows.length) { showEmpty(); return; }
+
+    el.tbody.innerHTML = rows.map(r => {
+      const id = r._id || r.id || r.reportId || '';
+      const displayId = id ? `#${String(id).slice(-5).toUpperCase()}` : '#00000';
+      const location = formatLocation(r.location, { address: r.address, street: r.street, city: r.city, text: r.locationText });
+      const type = formatType(r.issueType || r.type, { category: r.category, typeName: r.typeName });
+      const s = (r.status || 'pending').toLowerCase();
+      const date = r.createdAt || r.timestamp || r.date;
+
+      const rawPhoto = firstPhotoCandidate(r);
+      const photo = sanitizeImageUrl(rawPhoto); // returns '' if invalid
+
+      return `
+        <tr class="report-row" data-id="${attr(id)}">
+          <td class="cell-id">${esc(displayId)}</td>
+          <td class="cell-title">${esc(r.title || 'Untitled')}</td>
+          <td class="cell-photo">
+            ${photo
+              ? `<button class="photo-btn" data-src="${attr(photo)}" title="View photo">
+                   <img class="photo-thumb"
+                        src="${attr(photo)}"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        referrerpolicy="no-referrer"
+                        onerror="this.onerror=null;this.closest('.cell-photo').innerHTML='<span class=&quot;no-photo&quot;>—</span>';">
+                 </button>`
+              : `<span class="no-photo">—</span>`
+            }
+          </td>
+          <td class="cell-location">${esc(location)}</td>
+          <td class="cell-type">${esc(type)}</td>
+          <td class="cell-status"><span class="status-badge ${statusClass(s)}">${statusText(s)}</span></td>
+          <td class="cell-date">${fmtDate(date)}</td>
+          <td class="actions-cell"><button class="action-menu-btn" aria-label="Actions">⋮</button></td>
+        </tr>`;
+    }).join('');
+  }
+
+  function updatePager() {
+    if (!el.pageInfo) return;
+    const start = Math.min((page - 1) * PAGE_SIZE + 1, Math.max(total, 0));
+    const end = Math.min(page * PAGE_SIZE, Math.max(total, 0));
+    el.pageInfo.textContent = `Showing ${start} to ${end} of ${total} entries`;
+    if (el.prev) el.prev.disabled = page === 1;
+    if (el.next) el.next.disabled = page >= pages;
+  }
+
+  function showLoading() {
+    if (!el.tbody) return;
+    el.tbody.innerHTML = `
+      <tr><td colspan="${getColspan()}" style="text-align:center;padding:42px">
+        <div class="spinner"></div>
+        <div style="margin-top:10px;color:#6b7280">Loading...</div>
+      </td></tr>`;
+  }
+  function showEmpty() {
+    el.tbody.innerHTML = `
+      <tr><td colspan="${getColspan()}" style="text-align:center;padding:60px 20px;color:#6b7280">
+        <div style="font-size:44px;margin-bottom:8px">📋</div>No reports found.
+      </td></tr>`;
+  }
+  function showError(msg) {
+    el.tbody.innerHTML = `
+      <tr><td colspan="${getColspan()}" style="text-align:center;padding:60px 20px;color:#dc2626">
+        <div style="font-size:44px;margin-bottom:8px">⚠️</div>${esc(msg)}
+      </td></tr>`;
+  }
+
+  function ensurePhotoColumn() {
+    if (!el.thead) return;
+    const tr = el.thead.querySelector('tr'); if (!tr) return;
+    const already = [...tr.children].some(th => (th.dataset.col || th.textContent.trim().toLowerCase()) === 'photo');
+    if (already) return;
+    const idxTitle = [...tr.children].findIndex(th => th.textContent.trim().toLowerCase() === 'title');
+    const th = document.createElement('th');
+    th.dataset.col = 'photo';
+    th.textContent = 'Photo';
+    th.className = 'col-photo';
+    if (idxTitle >= 0 && idxTitle < tr.children.length - 1) tr.insertBefore(th, tr.children[idxTitle + 1]);
+    else tr.insertBefore(th, tr.firstChild.nextSibling);
+  }
+  function getColspan() { const n = el.thead ? el.thead.querySelectorAll('th').length : 8; return Math.max(n, 8); }
+
+  function openMenu(anchorBtn, id) {
+    closeMenu();
+    const m = document.createElement('div');
+    m.className = 'cf-menu';
+    m.innerHTML = `
+      <button data-cmd="view" data-id="${attr(id)}">View details</button>
+      <button data-cmd="status" data-id="${attr(id)}">Edit status</button>
+      <button data-cmd="assign" data-id="${attr(id)}">Assign team</button>
+      <button class="danger" data-cmd="delete" data-id="${attr(id)}">Delete</button>`;
+    document.body.appendChild(m);
+    const r = anchorBtn.getBoundingClientRect();
+    const mw = m.offsetWidth, mh = m.offsetHeight;
+    let left = Math.max(8, r.right - mw), top = r.bottom + 6;
+    if (top + mh > innerHeight - 8) top = r.top - mh - 6;
+    m.style.left = `${left}px`; m.style.top = `${top}px`;
+    m.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-cmd]'); if (!b) return;
+      const rid = b.dataset.id, cmd = b.dataset.cmd;
+      if (cmd === 'view') goDetails(rid);
+      if (cmd === 'status') openStatusModal(rid);
+      if (cmd === 'assign') toast('Team assignment coming soon', 'info');
+      if (cmd === 'delete') confirmDelete(rid);
+      closeMenu();
+    }, { once: true });
+    setTimeout(() => document.addEventListener('click', closeMenu, { once: true }), 0);
+    contextMenu = m;
+  }
+  function closeMenu() { if (contextMenu) { contextMenu.remove(); contextMenu = null; } }
+  function goDetails(id) { if (id) location.href = `ReportsDetails.html?id=${encodeURIComponent(id)}`; }
+
+  function openStatusModal(id) {
+    const host = document.createElement('div');
+    host.className = 'cf-status-modal';
+    host.innerHTML = `
+      <div class="modal-backdrop"></div>
+      <div class="modal-card">
+        <h3>Update Report Status</h3>
+        <div class="grid">
+          ${['new','pending','in-progress','resolved','rejected','closed'].map(s =>
+            `<button data-new="${s}" class="status-option ${statusClass(s)}">${statusText(s)}</button>`).join('')}
+        </div>
+        <div class="actions"><button class="close">Cancel</button></div>
+      </div>`;
+    document.body.appendChild(host);
+    setTimeout(() => host.classList.add('show'), 10);
+    host.querySelector('.modal-backdrop').onclick = () => host.remove();
+    host.querySelector('.close').onclick = () => host.remove();
+    host.querySelectorAll('[data-new]').forEach(b => b.onclick = async () => { host.remove(); await updateStatus(id, b.dataset.new); });
+  }
+  async function updateStatus(id, status) {
+    try {
+      await request(API.PATH.STATUS.replace(':id', id), { method: 'PATCH', body: JSON.stringify({ status }) });
+      toast('Status updated', 'success'); await loadReports();
+    } catch (e) { toast(e.message || 'Failed to update status', 'error'); }
+  }
+  async function confirmDelete(id) {
+    if (!confirm('Delete this report?')) return;
+    try { await request(API.PATH.DELETE.replace(':id', id), { method: 'DELETE' }); toast('Report deleted', 'success'); await loadReports(); }
+    catch (e) { toast(e.message || 'Delete failed', 'error'); }
+  }
+
+  async function exportPDF() {
+    if (!(window.jspdf?.jsPDF && window.jspdf.jsPDF.prototype?.autoTable)) {
+      toast('jsPDF + autoTable required on the page.', 'error'); return;
+    }
+    try {
+      toast('Preparing PDF...', 'info');
+      const qs = new URLSearchParams();
+      if (el.search?.value) qs.set('search', el.search.value);
+      if (el.issue?.value) qs.set('issueType', mapIssue(el.issue.value));
+      if (el.district?.value) qs.set('district', el.district.value);
+      if (el.status?.value) qs.set('status', el.status.value);
+      if (el.dateFrom?.value) qs.set('dateFrom', el.dateFrom.value);
+      qs.set('page', '1'); qs.set('limit', '1000'); qs.set('sort', sort);
+
+      let list = [];
+      try {
+        const res = await request(`${API.PATH.REPORTS}?${qs.toString()}`);
+        list = res?.reports || res?.items || res?.data || (Array.isArray(res) ? res : []);
+      } catch { list = rows; }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+      const margin = 40;
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(16);
+      doc.text('CityFix — Reports Export', margin, 40);
+      doc.setFont('helvetica','normal'); doc.setFontSize(10);
+      doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 58);
+
+      const head = [['ID','Title','Photo','Location','Type','Status','Date']];
+      const body = list.map(r => [
+        String((r._id || r.id || '')).slice(-5).toUpperCase(),
+        r.title || '',
+        sanitizeImageUrl(firstPhotoCandidate(r)) ? 'Yes' : '—',
+        typeof r.location === 'string' ? r.location : formatLocation(r.location, { address:r.address, street:r.street, city:r.city }),
+        typeof r.issueType === 'string' ? r.issueType : formatType(r.issueType || r.type, { category:r.category }),
+        typeof r.status === 'string' ? r.status : statusText(r.status),
+        fmtDate(r.createdAt || r.timestamp || r.date)
+      ]);
+
+      doc.autoTable({
+        startY: 80, head, body,
+        styles: { fontSize: 9, cellPadding: 6, overflow: 'linebreak' },
+        headStyles: { fillColor: [37, 99, 235], textColor: 255 },
+        columnStyles: {
+          0:{cellWidth:60}, 1:{cellWidth:220}, 2:{cellWidth:60, halign:'center'},
+          3:{cellWidth:220}, 4:{cellWidth:110}, 5:{cellWidth:90, halign:'center'}, 6:{cellWidth:100}
+        },
+        margin: { left: margin, right: margin },
+        didDrawPage: (d) => {
+          const w = d.doc.internal.pageSize.getWidth(), h = d.doc.internal.pageSize.getHeight();
+          d.doc.setFontSize(9); d.doc.text(`Page ${d.doc.internal.getNumberOfPages()}`, w - margin, h - 20, { align: 'right' });
+        }
+      });
+
+      doc.save(`cityfix-reports-${new Date().toISOString().slice(0,10)}.pdf`);
+      toast('PDF downloaded', 'success');
+    } catch { toast('Export failed', 'error'); }
+  }
+
+  /* --------------- Image helpers (no errors) --------------- */
+  function firstPhotoCandidate(r = {}) {
+    return (
+      r.photo || r.thumbnail || r.image || r.picture ||
+      (Array.isArray(r.photos) && r.photos[0]) ||
+      (Array.isArray(r.images) && r.images[0]) ||
+      (Array.isArray(r.media) && r.media.find(m => (m?.type||m?.mime||'').startsWith('image'))) ||
+      (Array.isArray(r.attachments) && r.attachments.find(a => (a?.type||a?.mime||'').startsWith('image'))) ||
+      ''
+    );
+  }
+
+  function sanitizeImageUrl(u) {
+    if (!u) return '';
+    const s = typeof u === 'string' ? u.trim() : (u.url || u.src || u.path || '').trim();
+    if (!s) return '';
+    const ok =
+      s.startsWith('https://') ||
+      s.startsWith('http://') ||
+      s.startsWith('/') ||
+      s.startsWith('data:image/');
+    if (!ok) return '';                 // blocks blob: and invalid schemes => no request => no errors
+    return s;
+  }
+
+  /* --------------- Misc helpers --------------- */
+  function request(path, opt = {}) {
+    const url = path.startsWith('http') ? path : API.BASE + path;
+    const headers = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+      ...(opt.headers || {})
+    };
+    return fetch(url, { ...opt, headers }).then(async (r) => {
+      if (!r.ok) {
+        let msg = `${r.status} ${r.statusText}`;
+        try { const j = await r.json(); if (j?.message) msg = j.message; } catch {}
+        throw new Error(msg);
+      }
+      try { return await r.json(); } catch { return {}; }
+    });
+  }
+  function getToken() {
+    const keys = ['cityfix_token','authToken','token','jwt','accessToken'];
+    for (const store of [localStorage, sessionStorage]) {
+      for (const k of keys) { const v = store.getItem(k); if (v) return v; }
+    }
+    return '';
+  }
+  function mapIssue(v) { const m = { lighting:'lighting', roads:'traffic', water:'drainage', waste:'garbage', parks:'other' }; return m[v] || v; }
+  function fillSelect(select, data, firstLabel) {
+    if (!select) return;
+    select.innerHTML = `<option value="">${firstLabel}</option>`;
+    data.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.value || d.id || d.slug || d.name || d;
+      opt.textContent = d.name || d.title || d;
+      select.appendChild(opt);
+    });
+  }
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function attr(s) { return String(s ?? '').replace(/"/g, '&quot;'); }
+  function fmtDate(d) { if (!d) return 'N/A'; const x = new Date(d); return isNaN(x) ? 'N/A' : x.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}); }
+  function statusText(v='pending'){ const m={new:'New',pending:'Pending','in-progress':'In Progress',resolved:'Resolved',rejected:'Rejected',closed:'Closed'}; return m[String(v).toLowerCase()]||'Pending'; }
+  function statusClass(v='pending'){ const m={new:'status-new',pending:'status-pending','in-progress':'status-progress',resolved:'status-resolved',rejected:'status-rejected',closed:'status-closed'}; return m[String(v).toLowerCase()]||'status-pending'; }
+  function formatType(t, fb={}){ if(!t) return fb.category||fb.typeName||'—'; if(typeof t==='string') return t; if(Array.isArray(t)) return t.map(x=>x?.name||x?.title||x).join(', '); if(typeof t==='object') return t.name||t.title||t.slug||'—'; return '—'; }
+  function formatLocation(loc, fb={}) {
+    if (!loc) { const {address,street,city,text}=fb; if(address) return address; if(street&&city) return `${street}, ${city}`; return text||street||city||'—'; }
+    if (typeof loc === 'string') return loc;
+    if (Array.isArray(loc)) return loc.filter(Boolean).join(', ');
+    if (typeof loc === 'object') {
+      if (loc.formatted_address || loc.formatted) return loc.formatted_address || loc.formatted;
+      if (loc.display_name || loc.address || loc.label || loc.text) return loc.display_name || loc.address || loc.label || loc.text;
+      if (loc.name && loc.city) return `${loc.name}, ${loc.city}`;
+      if (loc.street && loc.city) return `${loc.street}, ${loc.city}`;
+      if (loc.city) return loc.city;
+      if (loc.lat && loc.lng) return `${Number(loc.lat).toFixed(5)}, ${Number(loc.lng).toFixed(5)}`;
+      if (loc.coordinates) {
+        const c = loc.coordinates;
+        if (Array.isArray(c) && c.length >= 2) return `${Number(c[1]).toFixed(5)}, ${Number(c[0]).toFixed(5)}`;
+        if (c.lat && c.lng) return `${Number(c.lat).toFixed(5)}, ${Number(c.lng).toFixed(5)}`;
+      }
+      if (loc.geometry?.location?.lat && loc.geometry?.location?.lng) {
+        const {lat,lng}=loc.geometry.location; return `${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`;
+      }
+    }
+    return '—';
+  }
+  function debounce(fn, ms=300){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+
+  function injectStyles() {
+    if (document.getElementById('cf-reports-inline')) return;
+    const s = document.createElement('style');
+    s.id = 'cf-reports-inline';
+    s.textContent = `
+      .spinner{width:40px;height:40px;border-radius:50%;border:4px solid #eee;border-top-color:#2563eb;animation:spin 1s linear infinite}
+      @keyframes spin{to{transform:rotate(360deg)}}
+      .col-photo{width:88px}
+      .cell-photo{text-align:center}
+      .photo-btn{display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:2px;cursor:pointer}
+      .photo-btn:hover{box-shadow:0 6px 18px rgba(0,0,0,.08)}
+      .photo-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;background:#eef2f7}
+      .no-photo{color:#9ca3af;display:inline-block;min-width:52px;text-align:center}
+      .action-menu-btn{background:transparent;border:0;color:#6b7280;font-size:18px;padding:6px 8px;border-radius:8px;cursor:pointer}
+      .action-menu-btn:hover{background:#f3f4f6;color:#111827}
+      .cf-menu{position:fixed;min-width:190px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:6px;z-index:9999;box-shadow:0 14px 36px rgba(0,0,0,.12)}
+      .cf-menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:10px 12px;border-radius:10px;cursor:pointer}
+      .cf-menu button:hover{background:#f3f4f6}
+      .cf-menu .danger{color:#ef4444}
+      .cf-img-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;z-index:10000}
+      .cf-img-modal.show{opacity:1}
+      .cf-img-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+      .cf-img-box{position:relative;background:#fff;border-radius:14px;max-width:min(92vw,980px);max-height:80vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+      .cf-img-box img{display:block;max-width:100%;max-height:80vh}
+      .cf-img-close{position:absolute;top:8px;right:8px;background:#111827;color:#fff;border:0;border-radius:8px;padding:6px 10px;cursor:pointer}
+      .cf-status-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;z-index:10000}
+      .cf-status-modal.show{opacity:1}
+      .cf-status-modal .modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+      .cf-status-modal .modal-card{position:relative;background:#fff;border-radius:14px;min-width:340px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+      .cf-status-modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+      .cf-status-modal .actions{text-align:right}
+      .cf-toast{pointer-events:none}
+    `;
+    document.head.appendChild(s);
+  }
+
+  function showImage(url) {
+    if (!url) return;
+    const m = document.createElement('div');
+    m.className = 'cf-img-modal';
+    m.innerHTML = `
+      <div class="cf-img-backdrop"></div>
+      <div class="cf-img-box">
+        <button class="cf-img-close" aria-label="Close">×</button>
+        <img src="${attr(url)}" alt="">
+      </div>`;
+    document.body.appendChild(m);
+    setTimeout(() => m.classList.add('show'), 10);
+    m.querySelector('.cf-img-backdrop').onclick = () => m.remove();
+    m.querySelector('.cf-img-close').onclick = () => m.remove();
+  }
+
+  function toast(message, type = 'info') {
+    const colors = { success:'#16a34a', error:'#dc2626', info:'#2563eb', warning:'#d97706' };
+    const host = document.createElement('div');
+    host.className = 'cf-toast';
+    host.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10001';
+    host.innerHTML = `<div class="cf-toast-inner" style="background:${colors[type]};color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.2);font-weight:600">${esc(message)}</div>`;
+    document.body.appendChild(host);
+    setTimeout(() => host.remove(), 3000);
+  }
+})();
