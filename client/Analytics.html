@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CityFix - Analytics</title>
+   
+    <!-- Favicon -->
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
+   
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/toast.css">
+    <link rel="stylesheet" href="css/Base.css">
+    <link rel="stylesheet" href="css/analytics.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-logo">
+            <div class="logo-icon-mobile"></div>
+            <div class="logo-text-mobile">CityFix Admin</div>
+        </div>
+        <div class="hamburger-btn" id="hamburgerBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo-section">
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <div class="logo-text-container">
+                    <div class="logo-text">CityFix Admin</div>
+                </div>
+            </div>
+        </div>
+                <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item" data-icon="dashboard">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+           
+            <a href="reports.html" class="nav-item" data-icon="reports">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Reports</span>
+            </a>
+           
+            <a href="analytics.html" class="nav-item active" data-icon="analytics">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Analytics</span>
+            </a>
+           
+            <a href="Team.html" class="nav-item"class="nav-item" data-icon="team">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Team</span>
+            </a>
+           
+            <a href="notifications.html" class="nav-item" data-icon="notifications">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Notifications</span>
+            </a>
+           
+            <a href="settings.html" class="nav-item" data-icon="settings">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Analytics Overview</h1>
+                    <p>Track performance and insights</p>
+                </div>
+                <div class="header-right">
+                    <div class="notification-container">
+                        <span class="notification-icon"></span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar"></div>
+                        <span class="user-name">John Doe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon completion-icon"></div>
+                    <div class="stat-content">
+                        <h3>Completion Rate</h3>
+                        <div class="stat-number">87.3%</div>
+                        <div class="stat-trend positive">+12% from last month</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon efficiency-icon"></div>
+                    <div class="stat-content">
+                        <h3>Team Efficiency</h3>
+                        <div class="stat-number">94.2%</div>
+                        <div class="stat-trend positive">+8% above target</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon satisfaction-icon"></div>
+                    <div class="stat-content">
+                        <h3>Satisfaction Score</h3>
+                        <div class="stat-number">4.6/5</div>
+                        <div class="stat-trend neutral">Customer rating</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon cost-icon"></div>
+                    <div class="stat-content">
+                        <h3>Cost Savings</h3>
+                        <div class="stat-number">$2.4K</div>
+                        <div class="stat-trend positive">+15% this month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Performance Chart -->
+                <div class="map-section">
+                    <div class="chart-header">
+                        <h3>Performance Trends</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-chart="reports">Reports</button>
+                            <button class="chart-btn" data-chart="resolution">Resolution</button>
+                            <button class="chart-btn" data-chart="response">Response</button>
+                        </div>
+                    </div>
+                    <div class="map-container">
+                        <div class="chart-placeholder">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Summary -->
+                <div class="reports-section">
+                    <h3>Analytics Summary</h3>
+                    <div class="reports-list">
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Issue Categories</h4>
+                                <p>Infrastructure: 34% • Environment: 28%</p>
+                                <div class="report-time">Safety: 22% • Other: 16%</div>
+                            </div>
+                            <span class="report-status analysis">Analysis</span>
+                        </div>
+                        
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Geographic Distribution</h4>
+                                <p>Downtown: 284 • West End: 198</p>
+                                <div class="report-time">Industrial: 156 • Residential: 132</div>
+                            </div>
+                            <span class="report-status mapping">Mapping</span>
+                        </div>
+                        
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Response Time Analysis</h4>
+                                <p>Average: 4.2h • Fastest: 12min</p>
+                                <div class="report-time">99th Percentile: 18h</div>
+                            </div>
+                            <span class="report-status metrics">Metrics</span>
+                        </div>
+
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Team Performance</h4>
+                                <p>Sarah Johnson: 248 resolved • 3.2h avg</p>
+                                <div class="report-time">Mike Chen: 192 resolved • 4.1h avg</div>
+                            </div>
+                            <span class="report-status performance">Performance</span>
+                        </div>
+
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Monthly Trends</h4>
+                                <p>Resolution Rate: +12% improvement</p>
+                                <div class="report-time">Customer Satisfaction: 4.6/5 rating</div>
+                            </div>
+                            <span class="report-status trending">Trending</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <a href="dashboard.html" class="footer-logo">
+                    <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                    <span class="brand-name">CityFix</span>
+                </a>
+                <p class="footer-description">Making our city better together.</p>
+            </div>
+            
+            <div class="footer-section links">
+                <h4>Quick Links</h4>
+                <div class="footer-links">
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="reports.html">Reports</a>
+                    <a href="analytics.html">Analytics</a>
+                </div>
+            </div>
+            
+            <div class="footer-section tools">
+                <h4>Admin Tools</h4>
+                <div class="footer-links">
+                    <a href="#team">Team Management</a>
+                    <a href="notifications.html">Notifications</a>
+                    <a href="settings.html">Settings</a>
+                </div>
+            </div>
+            
+            <div class="footer-section support">
+                <h4>Support</h4>
+                <div class="footer-links">
+                    <a href="#contact">Contact IT</a>
+                    <a href="#privacy">Privacy Policy</a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                    </a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2025 CityFix. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
+
+    
+    <!-- JavaScript -->
+    <script src="js/AdminProfile.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/footer-modals.js"></script>
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/responsive-header.js"></script>
+    <script
+        async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8&callback=initializeGoogleMap&v=weekly&loading=async&libraries=marker,places">
+    </script>
+
+
+</body>
+</html>
