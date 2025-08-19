@@ -1,0 +1,15 @@
+const gitignoreFile = `
+node_modules/
+.env
+.env.local
+.env.production
+uploads/
+*.log
+.DS_Store
+.vscode/
+.idea/
+dist/
+build/
+*.tmp
+*.temp
+`;
