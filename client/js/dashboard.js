@@ -1,31 +1,15 @@
-/**
- * CityFix Dashboard – Israel Map + Quick Status Updates (FIXED)
- * v10.3.0
- * - Correct Google Maps loading (async+defer with proper URL)
- * - Fallback geocoding for Israeli cities/addresses
- * - Robust report normalization (user + location)
- * - Works even if HTML forgot the correct <script> tag
- * - Optional Map ID, optional showing username next to avatar
- */
-
 'use strict';
 
-// ==================== CONFIG ====================
 const CONFIG = {
   API_BASE: 'http://localhost:5000',
-
-  // Google Maps
-  GMAPS_API_KEY: 'AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8', // your key
-  MAP_ID: '', // optional: put your vector Map ID here to remove mapId warnings
-  MAP_CENTER: { lat: 31.0461, lng: 34.8516 }, // Israel center
-  MAP_ZOOM: 7, // country zoom
+  GMAPS_API_KEY: 'AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8',
+  MAP_ID: '',
+  MAP_CENTER: { lat: 31.0461, lng: 34.8516 },
+  MAP_ZOOM: 7,
   SHOW_USERNAME_NEXT_TO_AVATAR: false,
-
-  // Notifications
-  AZURE_NOTIFICATION_URL: 'https://your-azure-function.azurewebsites.net/api/notify',
+  AZURE_NOTIFICATION_URL: 'https://your-azure-function.azurewebsites.net/api/notify'
 };
 
-// ==================== STATE ====================
 const DashboardState = {
   user: null,
   token: null,
@@ -34,9 +18,13 @@ const DashboardState = {
   markers: [],
   currentInfoWindow: null,
   mapReady: false,
+  sheetEl: null
 };
 
-// ==================== AUTH ====================
+function isSmallScreen() {
+  return window.innerWidth <= 768;
+}
+
 async function initializeAuth() {
   try {
     const token =
@@ -63,11 +51,9 @@ async function initializeAuth() {
     DashboardState.token = token;
     DashboardState.user = user;
 
-    // Header welcome
     const welcomeEl = document.querySelector('.header-left p');
     if (welcomeEl) welcomeEl.textContent = `Welcome back, ${user.username || 'Admin'}`;
 
-    // Username next to avatar (optional)
     const nameEls = document.querySelectorAll('.user-name');
     nameEls.forEach((el) => {
       if (CONFIG.SHOW_USERNAME_NEXT_TO_AVATAR) {
@@ -79,33 +65,28 @@ async function initializeAuth() {
       }
     });
 
-    console.log('✅ Authenticated:', user.email);
     return true;
-  } catch (err) {
-    console.error('Auth error:', err);
+  } catch {
     window.location.href = 'login.html';
     return false;
   }
 }
 
-// ==================== DATA ====================
 async function fetchAllReports() {
   try {
-    console.log('📊 Fetching reports from backend...');
     let response = await fetch(`${CONFIG.API_BASE}/api/reports/all`, {
       headers: {
         Authorization: `Bearer ${DashboardState.token}`,
-        'Content-Type': 'application/json',
-      },
+        'Content-Type': 'application/json'
+      }
     });
 
     if (!response.ok) {
-      console.log('Trying alternative endpoint /api/reports ...');
       response = await fetch(`${CONFIG.API_BASE}/api/reports`, {
         headers: {
           Authorization: `Bearer ${DashboardState.token}`,
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'
+        }
       });
     }
 
@@ -113,27 +94,21 @@ async function fetchAllReports() {
 
     const raw = await response.json();
     const list = raw.data || raw.reports || raw || [];
-
-    // Normalize + enrich
     const normalized = await Promise.all(list.map(normalizeReport));
-    console.log(`✅ Processed ${normalized.length} reports with user/location data`);
     return normalized;
-  } catch (err) {
-    console.error('Fetch error, using fallback data:', err);
+  } catch {
     return getFallbackReports().map((r) => ({
       ...r,
-      coordinates: r.coordinates || generateIsraelCoordinates(r.location),
+      coordinates: r.coordinates || generateIsraelCoordinates(r.location)
     }));
   }
 }
 
 async function normalizeReport(report) {
-  // --- Reporter info ---
   let reporterEmail = 'Not provided';
   let reporterName = 'Anonymous';
   let reporterPhone = 'Not provided';
 
-  // Embedded structures
   const pick = (...vals) => vals.find((v) => v != null && v !== '') ?? undefined;
 
   const embedded =
@@ -145,15 +120,14 @@ async function normalizeReport(report) {
   reporterPhone =
     pick(embedded.phone, embedded.mobile, report.phone) || reporterPhone;
 
-  // If only ID exists, try to fetch user
   const userId = report.userId || report.user_id || report.reporter_id;
   if (userId && (!embedded || Object.keys(embedded).length === 0)) {
     try {
       const res = await fetch(`${CONFIG.API_BASE}/api/users/${userId}`, {
         headers: {
           Authorization: `Bearer ${DashboardState.token}`,
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'
+        }
       });
       if (res.ok) {
         const u = await res.json();
@@ -161,12 +135,9 @@ async function normalizeReport(report) {
         reporterName = pick(u.username, u.name, reporterName) || reporterName;
         reporterPhone = pick(u.phone, u.mobile, reporterPhone) || reporterPhone;
       }
-    } catch (e) {
-      console.warn('User lookup failed for', userId, e);
-    }
+    } catch {}
   }
 
-  // --- Location string ---
   let locationString = 'Location not specified';
   const L = report.location;
 
@@ -180,7 +151,6 @@ async function normalizeReport(report) {
     locationString = pick(report.address, report.street, report.place) || locationString;
   }
 
-  // --- Coordinates ---
   const coords = extractCoordinates(report) || generateIsraelCoordinates(locationString);
 
   return {
@@ -188,29 +158,27 @@ async function normalizeReport(report) {
     _id: report._id || report.id || Math.random().toString(36).slice(2, 11),
     title: report.title || 'Untitled Report',
     description: report.description || '',
-    status: report.status || 'pending',
+    status: (report.status || 'pending').toLowerCase(),
     location: locationString,
     coordinates: coords,
     reportedBy: {
       username: reporterName,
       email: reporterEmail,
-      phone: reporterPhone,
+      phone: reporterPhone
     },
     createdAt: report.createdAt || report.created_at || new Date().toISOString(),
-    priority: report.priority || 'medium',
-    category: report.category || 'General',
+    priority: (report.priority || 'medium').toLowerCase(),
+    category: report.category || 'General'
   };
 }
 
 function extractCoordinates(report) {
-  // 1) report.coordinates as object {lat,lng} or {latitude,longitude}
   if (report.coordinates && typeof report.coordinates === 'object') {
     const c = report.coordinates;
     if (hasLatLng(c)) return { lat: +c.lat || +c.latitude, lng: +c.lng || +c.longitude };
     if (Array.isArray(c) && c.length >= 2) return { lat: +c[1], lng: +c[0] };
   }
 
-  // 2) report.location.coordinates as [lng,lat] or {lat,lng}
   if (report.location && typeof report.location === 'object') {
     const lc = report.location.coordinates || report.location.coords || report.location.geo;
     if (lc) {
@@ -219,7 +187,6 @@ function extractCoordinates(report) {
     }
   }
 
-  // 3) other common fields
   const lat = report.lat || report.latitude;
   const lng = report.lng || report.lon || report.long || report.longitude;
   if (isFinite(+lat) && isFinite(+lng)) return { lat: +lat, lng: +lng };
@@ -251,19 +218,18 @@ function generateIsraelCoordinates(location) {
     'holon': { lat: 32.0114, lng: 34.7745 },
     'bnei brak': { lat: 32.0807, lng: 34.8338 },
     'ramat gan': { lat: 32.068, lng: 34.8243 },
-    'eilat': { lat: 29.5577, lng: 34.9519 },
+    'eilat': { lat: 29.5577, lng: 34.9519 }
   };
 
   for (const [city, c] of Object.entries(cities)) {
     if (loc.includes(city)) {
       return {
         lat: c.lat + (Math.random() - 0.5) * 0.01,
-        lng: c.lng + (Math.random() - 0.5) * 0.01,
+        lng: c.lng + (Math.random() - 0.5) * 0.01
       };
     }
   }
 
-  // Random within Israel bounding box
   return { lat: 29.5 + Math.random() * 3.5, lng: 34.2 + Math.random() * 3.0 };
 }
 
@@ -279,7 +245,7 @@ function getFallbackReports() {
       createdAt: new Date(Date.now() - 86400000),
       reportedBy: { username: 'user123', email: 'user123@cityfix.com', phone: '050-1234567' },
       category: 'sewage',
-      priority: 'medium',
+      priority: 'medium'
     },
     {
       _id: '2',
@@ -291,7 +257,7 @@ function getFallbackReports() {
       createdAt: new Date(Date.now() - 172800000),
       reportedBy: { username: 'david_cohen', email: 'david.cohen@gmail.com', phone: '052-9876543' },
       category: 'roads',
-      priority: 'high',
+      priority: 'high'
     },
     {
       _id: '3',
@@ -303,7 +269,7 @@ function getFallbackReports() {
       createdAt: new Date(Date.now() - 259200000),
       reportedBy: { username: 'sarah_levi', email: 'sarah.levi@hotmail.com', phone: '054-5555555' },
       category: 'electricity',
-      priority: 'low',
+      priority: 'low'
     },
     {
       _id: '4',
@@ -315,12 +281,11 @@ function getFallbackReports() {
       createdAt: new Date(Date.now() - 86400000),
       reportedBy: { username: 'moshe_green', email: 'moshe.green@yahoo.com', phone: '053-1111111' },
       category: 'roads',
-      priority: 'medium',
-    },
+      priority: 'medium'
+    }
   ];
 }
 
-// ==================== UI: STATS & LIST ====================
 function updateDashboardStats() {
   const total = DashboardState.reports.length;
   const inProgress = DashboardState.reports.filter((r) => r.status === 'in-progress').length;
@@ -387,29 +352,21 @@ function formatTimeAgo(date) {
   return `${Math.floor(hours / 24)} days ago`;
 }
 
-// ==================== GOOGLE MAPS ====================
 function ensureGoogleMapsLoaded() {
   return new Promise((resolve, reject) => {
     if (window.google && window.google.maps) {
       resolve();
       return;
     }
-
-    // callback to resolve when loaded
     window.__gmapsLoaded = () => resolve();
-
-    // auth failure hook
-    window.gm_authFailure = () =>
-      reject(new Error('Google Maps authentication failed (gm_authFailure)'));
-
-    // inject proper script URL
+    window.gm_authFailure = () => reject(new Error('gm_authFailure'));
     const s = document.createElement('script');
     s.async = true;
     s.defer = true;
     s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
       CONFIG.GMAPS_API_KEY
     )}&v=weekly&libraries=marker&callback=__gmapsLoaded`;
-    s.onerror = () => reject(new Error('Google Maps script failed to load'));
+    s.onerror = () => reject(new Error('Google Maps load failed'));
     document.head.appendChild(s);
   });
 }
@@ -419,7 +376,7 @@ async function initializeMap() {
   if (!container) return;
 
   container.innerHTML = '';
-  container.style.height = '500px';
+  container.style.height = isSmallScreen() ? '420px' : '500px';
 
   const opts = {
     center: CONFIG.MAP_CENTER,
@@ -427,6 +384,8 @@ async function initializeMap() {
     mapTypeControl: true,
     streetViewControl: false,
     fullscreenControl: true,
+    gestureHandling: 'greedy',
+    zoomControl: true
   };
   if (CONFIG.MAP_ID) opts.mapId = CONFIG.MAP_ID;
 
@@ -436,14 +395,16 @@ async function initializeMap() {
     DashboardState.mapReady = true;
     addMarkers();
   });
+
+  google.maps.event.addListener(DashboardState.map, 'click', () => {
+    closeInfoWindow();
+    closeMobileSheet();
+  });
 }
 
 function addMarkers() {
   if (!DashboardState.map) return;
 
-  console.log('📍 Adding markers for', DashboardState.reports.length, 'reports');
-
-  // Clear old
   DashboardState.markers.forEach((m) => m.setMap && m.setMap(null));
   DashboardState.markers = [];
 
@@ -452,7 +413,7 @@ function addMarkers() {
     'in-progress': 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
     resolved: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
     rejected: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-    new: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
+    new: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
   };
 
   const bounds = new google.maps.LatLngBounds();
@@ -460,10 +421,7 @@ function addMarkers() {
 
   DashboardState.reports.forEach((report, i) => {
     const c = report.coordinates || generateIsraelCoordinates(report.location);
-    if (!c || !isFinite(+c.lat) || !isFinite(+c.lng)) {
-      console.warn('⚠️ No valid coordinates for report:', report.title);
-      return;
-    }
+    if (!c || !isFinite(+c.lat) || !isFinite(+c.lng)) return;
 
     setTimeout(() => {
       const marker = new google.maps.Marker({
@@ -471,70 +429,60 @@ function addMarkers() {
         map: DashboardState.map,
         title: report.title,
         icon: colors[report.status] || colors.pending,
-        animation: google.maps.Animation.DROP,
+        animation: google.maps.Animation.DROP
       });
 
       marker.reportId = report._id;
-      marker.addListener('click', () => showReportPopup(report, marker));
+      marker.addListener('click', () => {
+        if (isSmallScreen()) {
+          closeInfoWindow();
+          openMobileSheet(report, marker);
+        } else {
+          closeMobileSheet();
+          showReportPopup(report, marker);
+        }
+      });
       DashboardState.markers.push(marker);
 
       bounds.extend(marker.getPosition());
       placed++;
 
       if (placed === 1) {
-        // first report center
         DashboardState.map.setCenter(marker.getPosition());
         if (DashboardState.map.getZoom() < 12) DashboardState.map.setZoom(CONFIG.MAP_ZOOM);
       } else if (placed > 1) {
-        // fit all
         DashboardState.map.fitBounds(bounds);
       }
     }, i * 80);
   });
 }
 
+function closeInfoWindow() {
+  if (DashboardState.currentInfoWindow) {
+    DashboardState.currentInfoWindow.close();
+    DashboardState.currentInfoWindow = null;
+  }
+}
+
 function showReportPopup(report, marker) {
-  if (DashboardState.currentInfoWindow) DashboardState.currentInfoWindow.close();
+  closeInfoWindow();
 
   const content = `
-    <div style="padding:25px;min-width:450px;max-width:520px">
-      <h2 style="margin:0 0 12px 0;font-size:20px;font-weight:700;color:#111827">
-        ${escapeHTML(report.title)}
-      </h2>
-
-      <p style="margin:0 0 15px 0;color:#4b5563;font-size:14px;line-height:1.6">
-        ${escapeHTML(report.description || 'No description provided')}
-      </p>
-
+    <div style="padding:20px;min-width:420px;max-width:520px">
+      <h2 style="margin:0 0 12px 0;font-size:20px;font-weight:700;color:#111827">${escapeHTML(report.title)}</h2>
+      <p style="margin:0 0 15px 0;color:#4b5563;font-size:14px;line-height:1.6">${escapeHTML(report.description || 'No description provided')}</p>
       <div style="display:flex;gap:8px;margin-bottom:16px">
-        <span style="background:${getStatusColor(report.status)};color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">
-          ${report.status.toUpperCase()}
-        </span>
-        ${
-          report.priority
-            ? `<span style="background:${getPriorityColor(
-                report.priority
-              )};color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">
-          ${report.priority.toUpperCase()}</span>`
-            : ''
-        }
-        ${
-          report.category
-            ? `<span style="background:#6B7280;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">
-          ${escapeHTML(report.category.toUpperCase())}</span>`
-            : ''
-        }
+        <span style="background:${getStatusColor(report.status)};color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">${report.status.toUpperCase()}</span>
+        ${report.priority ? `<span style="background:${getPriorityColor(report.priority)};color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">${report.priority.toUpperCase()}</span>` : ''}
+        ${report.category ? `<span style="background:#6B7280;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700">${escapeHTML(report.category.toUpperCase())}</span>` : ''}
       </div>
-
       <div style="background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px;font-size:14px;color:#374151;line-height:1.7">
         <div><strong>📍 Location:</strong> ${escapeHTML(formatLocation(report.location))}</div>
         <div><strong>👤 Reported by:</strong> ${escapeHTML(report.reportedBy?.username || 'Anonymous')}</div>
         <div><strong>📧 Email:</strong> ${escapeHTML(report.reportedBy?.email || 'Not provided')}</div>
         <div><strong>📱 Phone:</strong> ${escapeHTML(report.reportedBy?.phone || 'Not provided')}</div>
         <div><strong>🕒 Submitted:</strong> ${escapeHTML(formatTimeAgo(report.createdAt))}</div>
-        <div><strong>📅 Date:</strong> ${new Date(report.createdAt).toLocaleDateString()}</div>
       </div>
-
       <div style="border:2px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff">
         <h3 style="margin:0 0 10px 0;font-size:16px;font-weight:700;color:#111827">Quick Status Update</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -543,25 +491,17 @@ function showReportPopup(report, marker) {
           ${quickBtn(report,'resolved','🟢 Resolved','#10B981')}
           ${quickBtn(report,'rejected','🔴 Rejected','#EF4444')}
         </div>
-        <p style="margin-top:12px;padding:8px;background:#fef3c7;border-radius:6px;color:#92400e;font-size:12px;text-align:center">
-          Status change will notify the reporter automatically
-        </p>
       </div>
-
       <div style="margin-top:16px;text-align:center">
-        <button onclick="window.location.href='ReportsDetails.html?id=${report._id}'"
-          style="padding:10px 24px;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700">
-          📄 View Full Details Page
-        </button>
+        <button onclick="window.location.href='ReportsDetails.html?id=${report._id}'" style="padding:10px 24px;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700">📄 View Full Details Page</button>
       </div>
     </div>
   `;
 
-  const iw = new google.maps.InfoWindow({ content, maxWidth: 560, minWidth: 480 });
+  const iw = new google.maps.InfoWindow({ content, maxWidth: 560, minWidth: 420 });
   iw.open(DashboardState.map, marker);
   DashboardState.currentInfoWindow = iw;
 
-  // Focus
   DashboardState.map.panTo(marker.getPosition());
   if (DashboardState.map.getZoom() < 12) DashboardState.map.setZoom(12);
 }
@@ -584,19 +524,17 @@ function getStatusColor(status) {
       new: '#FDE047',
       'in-progress': '#3B82F6',
       resolved: '#10B981',
-      rejected: '#EF4444',
+      rejected: '#EF4444'
     }[status] || '#6B7280'
   );
 }
 
 function getPriorityColor(priority) {
   return (
-    { urgent: '#DC2626', high: '#F59E0B', medium: '#3B82F6', low: '#6B7280' }[priority] ||
-    '#6B7280'
+    { urgent: '#DC2626', high: '#F59E0B', medium: '#3B82F6', low: '#6B7280' }[priority] || '#6B7280'
   );
 }
 
-// ==================== STATUS UPDATE ====================
 window.quickUpdate = async function (reportId, newStatus) {
   const r = DashboardState.reports.find((x) => x._id === reportId);
   if (!r || r.status === newStatus) return;
@@ -606,56 +544,56 @@ window.quickUpdate = async function (reportId, newStatus) {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${DashboardState.token}`,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ status: newStatus })
     });
-  } catch (e) {
-    console.warn('Backend status update failed, applying locally', e);
-  }
+  } catch {}
 
   const old = r.status;
   r.status = newStatus;
 
-  // Fire notification (best effort)
-  sendNotification(r, newStatus).catch((e) => console.warn('Notify error', e));
+  sendNotification(r, newStatus).catch(() => {});
 
   updateDashboardStats();
   updateRecentReports();
   addMarkers();
 
   showToast(`Status updated: ${old} → ${newStatus}`, 'success');
-  if (DashboardState.currentInfoWindow) DashboardState.currentInfoWindow.close();
+  closeInfoWindow();
+  if (DashboardState.sheetEl) refreshMobileSheet(r);
 };
 
 async function sendNotification(report, newStatus) {
-  if (CONFIG.AZURE_NOTIFICATION_URL === 'https://your-azure-function.azurewebsites.net/api/notify')
-    return;
-
+  if (CONFIG.AZURE_NOTIFICATION_URL === 'https://your-azure-function.azurewebsites.net/api/notify') return;
   const payload = {
     to: report.reportedBy?.email || report.reportedBy?.phone || 'user',
     title: 'Report Status Updated',
     body: `Your report "${report.title}" is now: ${newStatus}`,
     reportId: report._id,
     newStatus,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   };
-
   await fetch(CONFIG.AZURE_NOTIFICATION_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payload)
   });
 }
 
-// ==================== UTILITIES ====================
 window.focusOnReport = function (reportId) {
   const marker = DashboardState.markers.find((m) => m.reportId === reportId);
   const report = DashboardState.reports.find((r) => r._id === reportId);
   if (marker && report) {
     DashboardState.map.setCenter(marker.getPosition());
     DashboardState.map.setZoom(14);
-    showReportPopup(report, marker);
+    if (isSmallScreen()) {
+      closeInfoWindow();
+      openMobileSheet(report, marker);
+    } else {
+      closeMobileSheet();
+      showReportPopup(report, marker);
+    }
   }
 };
 
@@ -681,15 +619,11 @@ function escapeHTML(s) {
     .replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
-// ==================== GOOGLE MAPS CALLBACK (if HTML uses callback) ====================
 window.initializeGoogleMap = async function () {
-  console.log('✅ Google Maps API loaded (callback)');
   await initializeMap();
 };
 
-// ==================== BOOTSTRAP ====================
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🚀 Initializing Dashboard...');
   try {
     if (!(await initializeAuth())) return;
 
@@ -697,31 +631,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateDashboardStats();
     updateRecentReports();
 
-    // Make sure Maps is loaded even if HTML had a wrong script tag
     try {
       await ensureGoogleMapsLoaded();
       await initializeMap();
-    } catch (gmErr) {
-      console.error('Google Maps failed to load:', gmErr);
+    } catch {
       const cont = document.querySelector('.map-placeholder');
-      if (cont) cont.innerHTML = `<div style="padding:18px;color:#b91c1c">⚠️ Map failed to load. Check API key, referrers and billing.</div>`;
+      if (cont) cont.innerHTML = `<div style="padding:18px;color:#b91c1c">⚠️ Map failed to load. Check API key.</div>`;
     }
 
-    // Refresh data every 30s
     setInterval(async () => {
       DashboardState.reports = await fetchAllReports();
       updateDashboardStats();
       updateRecentReports();
       addMarkers();
     }, 30000);
-
-    console.log('✅ Dashboard ready');
-  } catch (e) {
-    console.error('Initialization error:', e);
-  }
+  } catch {}
 });
 
-// ==================== INLINE CSS (small helpers) ====================
 if (!document.getElementById('cityfix-dashboard-styles')) {
   const style = document.createElement('style');
   style.id = 'cityfix-dashboard-styles';
@@ -729,6 +655,181 @@ if (!document.getElementById('cityfix-dashboard-styles')) {
     @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
     @keyframes slideDown { from{transform:translateY(0);opacity:1} to{transform:translateY(100%);opacity:0} }
     .report-item:hover { background: rgba(59,130,246,.05) }
+
+    .cf-sheet-overlay{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.15);opacity:0;transition:opacity .2s ease;display:none}
+    .cf-sheet-overlay.show{display:block;opacity:1}
+    .cf-sheet{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-top-left-radius:16px;border-top-right-radius:16px;box-shadow:0 -8px 30px rgba(0,0,0,.2);transform:translateY(100%);transition:transform .2s ease}
+    .cf-sheet.show{transform:translateY(0)}
+    .cf-sheet .handle{width:56px;height:6px;border-radius:999px;background:#d1d5db;margin:8px auto}
+    .cf-sheet .content{max-height:72vh;overflow:auto;padding:8px 16px 16px}
+    .cf-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    .cf-chip{background:#111827;color:#fff;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800}
+    .cf-chip.gray{background:#6b7280}
+    .cf-chip.green{background:#10b981}
+    .cf-chip.blue{background:#3b82f6}
+    .cf-chip.orange{background:#f59e0b}
+    .cf-chip.red{background:#ef4444}
+    .cf-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .cf-btn{padding:10px 14px;border:none;border-radius:10px;color:#fff;font-weight:800}
+    .cf-btn.orange{background:#f59e0b}
+    .cf-btn.blue{background:#3b82f6}
+    .cf-btn.green{background:#10b981}
+    .cf-btn.red{background:#ef4444}
+    .cf-view{margin-top:10px;width:100%;padding:10px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-weight:800}
   `;
   document.head.appendChild(style);
+}
+
+/* Mobile bottom sheet */
+
+function openMobileSheet(report) {
+  closeMobileSheet();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'cf-sheet-overlay';
+  document.body.appendChild(overlay);
+
+  const sheet = document.createElement('div');
+  sheet.className = 'cf-sheet';
+  sheet.innerHTML = `
+    <div class="handle"></div>
+    <div class="content">
+      <h3 style="margin:0 0 8px 0;font-size:18px;font-weight:800;color:#111827">${escapeHTML(report.title)}</h3>
+      <p style="margin:0 0 10px 0;color:#4b5563">${escapeHTML(report.description || 'No description provided')}</p>
+
+      <div class="cf-row">
+        <span class="cf-chip ${statusChip(report.status)}">${report.status.toUpperCase()}</span>
+        ${report.priority ? `<span class="cf-chip ${priorityChip(report.priority)}">${report.priority.toUpperCase()}</span>` : ''}
+        ${report.category ? `<span class="cf-chip gray">${escapeHTML(report.category.toUpperCase())}</span>` : ''}
+      </div>
+
+      <div style="background:#f9fafb;padding:10px;border-radius:10px;margin:10px 0;font-size:14px;color:#374151;line-height:1.7">
+        <div><strong>📍 Location:</strong> ${escapeHTML(formatLocation(report.location))}</div>
+        <div><strong>👤 Reported by:</strong> ${escapeHTML(report.reportedBy?.username || 'Anonymous')}</div>
+        <div><strong>📧 Email:</strong> ${escapeHTML(report.reportedBy?.email || 'Not provided')}</div>
+        <div><strong>📱 Phone:</strong> ${escapeHTML(report.reportedBy?.phone || 'Not provided')}</div>
+        <div><strong>🕒 Submitted:</strong> ${escapeHTML(formatTimeAgo(report.createdAt))}</div>
+      </div>
+
+      <div class="cf-actions">
+        <button class="cf-btn orange" data-s="pending">🟠 Pending</button>
+        <button class="cf-btn blue" data-s="in-progress">🔵 In Progress</button>
+        <button class="cf-btn green" data-s="resolved">🟢 Resolved</button>
+        <button class="cf-btn red" data-s="rejected">🔴 Rejected</button>
+      </div>
+
+      <button class="cf-view" data-view>📄 View Full Details</button>
+    </div>
+  `;
+  document.body.appendChild(sheet);
+
+  DashboardState.sheetEl = { overlay, sheet, report };
+
+  overlay.addEventListener('click', closeMobileSheet);
+
+  sheet.querySelectorAll('.cf-btn').forEach((b) => {
+    b.addEventListener('click', () => {
+      const s = b.getAttribute('data-s');
+      window.quickUpdate(report._id, s);
+    });
+  });
+
+  sheet.querySelector('[data-view]')?.addEventListener('click', () => {
+    window.location.href = `ReportsDetails.html?id=${report._id}`;
+  });
+
+  enableSheetDrag(sheet, overlay);
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('show');
+    sheet.classList.add('show');
+  });
+}
+
+function refreshMobileSheet(report) {
+  if (!DashboardState.sheetEl) return;
+  closeMobileSheet();
+  openMobileSheet(report);
+}
+
+function closeMobileSheet() {
+  if (!DashboardState.sheetEl) return;
+  const { overlay, sheet } = DashboardState.sheetEl;
+  overlay.classList.remove('show');
+  sheet.classList.remove('show');
+  setTimeout(() => {
+    overlay.remove();
+    sheet.remove();
+  }, 200);
+  DashboardState.sheetEl = null;
+}
+
+function enableSheetDrag(sheet, overlay) {
+  const handle = sheet.querySelector('.handle');
+  let startY = 0;
+  let currentY = 0;
+  let dragging = false;
+  let maxTranslate = sheet.offsetHeight;
+
+  const onStart = (e) => {
+    dragging = true;
+    startY = (e.touches ? e.touches[0].clientY : e.clientY);
+    currentY = 0;
+    sheet.style.transition = 'none';
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchend', onEnd);
+    document.addEventListener('mouseup', onEnd);
+  };
+
+  const onMove = (e) => {
+    if (!dragging) return;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY);
+    currentY = Math.max(0, y - startY);
+    sheet.style.transform = `translateY(${currentY}px)`;
+    e.preventDefault();
+  };
+
+  const onEnd = () => {
+    dragging = false;
+    sheet.style.transition = 'transform .2s ease';
+    const shouldClose = currentY > maxTranslate * 0.35;
+    if (shouldClose) {
+      overlay.classList.remove('show');
+      sheet.classList.remove('show');
+      setTimeout(() => closeMobileSheet(), 180);
+    } else {
+      sheet.style.transform = 'translateY(0)';
+    }
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchend', onEnd);
+    document.removeEventListener('mouseup', onEnd);
+  };
+
+  handle.addEventListener('touchstart', onStart);
+  handle.addEventListener('mousedown', onStart);
+}
+
+function statusChip(s) {
+  return (
+    {
+      pending: 'orange',
+      'in-progress': 'blue',
+      resolved: 'green',
+      rejected: 'red',
+      new: 'gray'
+    }[s] || 'gray'
+  );
+}
+
+function priorityChip(p) {
+  return (
+    {
+      urgent: 'red',
+      high: 'orange',
+      medium: 'blue',
+      low: 'gray'
+    }[p] || 'gray'
+  );
 }
