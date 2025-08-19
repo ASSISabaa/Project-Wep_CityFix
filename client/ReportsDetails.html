@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,6 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
    
     <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/toast.css">
     <link rel="stylesheet" href="css/Base.css">
     <link rel="stylesheet" href="css/ReportsDetails.css">
 </head>
@@ -23,7 +26,7 @@
             <div class="logo-icon-mobile"></div>
             <div class="logo-text-mobile">CityFix Admin</div>
         </div>
-        <div class="hamburger-btn" onclick="toggleSidebar()">
+        <div class="hamburger-btn" id="hamburgerBtn">
             <span></span>
             <span></span>
             <span></span>
@@ -40,7 +43,7 @@
                 </div>
             </div>
         </div>
-        <nav class="nav-menu">
+            <nav class="nav-menu">
             <a href="dashboard.html" class="nav-item" data-icon="dashboard">
                 <span class="nav-icon"></span>
                 <span class="nav-text">Dashboard</span>
@@ -56,7 +59,7 @@
                 <span class="nav-text">Analytics</span>
             </a>
            
-            <a href="team.html" class="nav-item" data-icon="team">
+            <a href="Team.html" class="nav-item" data-icon="team">
                 <span class="nav-icon"></span>
                 <span class="nav-text">Team</span>
             </a>
@@ -72,7 +75,6 @@
             </a>
         </nav>
     </div>
-
     
     <!-- Main Content Area -->
     <div class="main-content">
@@ -139,7 +141,7 @@
                             <h3 class="status-title">Status</h3>
                             <select class="status-dropdown">
                                 <option value="new">New</option>
-                                <option value="progress" selected>In Progress</option>
+                                <option value="in-progress" selected>In Progress</option>
                                 <option value="pending">Pending</option>
                                 <option value="resolved">Resolved</option>
                                 <option value="closed">Closed</option>
@@ -181,7 +183,7 @@
             <div class="footer-section tools">
                 <h4>Admin Tools</h4>
                 <div class="footer-links">
-                    <a href="team.html">Team Management</a>
+                    <a href="#team">Team Management</a>
                     <a href="notifications.html">Notifications</a>
                     <a href="settings.html">Settings</a>
                 </div>
@@ -217,12 +219,18 @@
     </footer>
 
     <!-- Overlay for mobile -->
-    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+    <div class="overlay" id="overlay"></div>
 
-    <script src="js/reports-details.js"></script>
-    <script src="js/footer-admin.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6jZx_eYnWWpBMMGEIVdNwmlNgWbfDqtM&libraries=geometry,places&callback=initMap" async defer></script>
+    <!-- JavaScript -->
+     <script>window.CF_MAP_ID = 'AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8';</script>
 
+    <script src="js/ReportsDetails.js"></script>
+    <script src="js/AdminProfile.js"></script>
+    <script src="js/footer-modals.js"></script>
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/responsive-header.js"></script>
+    <script
+        async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8&callback=initializeGoogleMap&v=weekly&loading=async&libraries=marker,places">
+    </script>
 </body>
 </html>
