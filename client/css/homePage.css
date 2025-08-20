@@ -87,17 +87,17 @@ Hero Section
     border-radius: 12px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
-
 /* 
 Stats Section 
 */
 .stats-section {
     background-color: #F5F7FB;
-    padding: 0px 141px 40px 141px;
-    margin-top: --80px;
+    padding: 0px 135px 40px 165px; 
+    margin-top: --80px;  
     position: relative;
     z-index: 10;
     margin-bottom: -35px;
+    margin-right: 141px;
 }
 
 .stats-container {
@@ -120,9 +120,8 @@ Stats Section
     background-color: #fff;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-left: 6px solid #3B82F6;
     border: 1px solid #E5E7EB;
-    border-left: 6px solid #3B82F6;
+    border-left: 6px solid #3B82F6;  /* حذفت التكرار */
     margin-top: -32px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -222,7 +221,7 @@ Stats Section
 /* Filters Section */
 .filters-section {
     width: 256px;
-    height: 600px;
+    height: 700px;
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -514,9 +513,10 @@ Stats Section
 
 /* Common Issues Section */
 .common-issues-section {
+    margin-bottom: 120px;
     margin-top: 64px;
     margin-left: 147px;
-    margin-right: 147px;
+    margin-right: 160px;
     padding: 0;
 }
 
@@ -533,13 +533,14 @@ Stats Section
 .issues-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 48px;
+    gap: 50px;  
+    margin-right: 100px;
 }
 
 .issue-card {
     background-color: #ffffff;
     border-radius: 16px;
-    padding: 32px 40px;
+    padding: 28px 32px; 
     text-align: center;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
     border: 1px solid #E5E7EB;
@@ -570,11 +571,11 @@ Stats Section
 }
 
 .issue-icon-container {
-    width: 80px;
-    height: 80px;
+    width: 72px;  
+    height: 72px;  
     flex-shrink: 0;
     border-radius: 12px;
-    margin: 0 auto 24px auto;
+    margin: 0 auto 20px auto;  
     display: flex;
     align-items: center;
     justify-content: center;
@@ -584,8 +585,8 @@ Stats Section
 }
 
 .issue-icon {
-    width: 80px;
-    height: 80px;
+    width: 72px;  
+    height: 72px;  
     display: block;
     object-fit: contain;
     border-radius: 12px;
@@ -594,11 +595,11 @@ Stats Section
 .issue-title {
     text-align: center;
     font-family: 'Inter', sans-serif;
-    font-size: 18px;
+    font-size: 17px; 
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-    margin: 0 0 16px 0;
+    margin: 0 0 14px 0;  
 }
 
 /* Title colors matching the border colors */
@@ -616,12 +617,12 @@ Stats Section
 
 .issue-description {
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
+    font-size: 13px;  
     font-style: normal;
     font-weight: 400;
-    line-height: 20px;
+    line-height: 19px;  
     margin: 0;
-    color: #3B82F6;
+    color: #6B7280;  
     text-align: center;
 }
 
