@@ -1,3 +1,4 @@
+// server/routes/reports.js
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -300,5 +301,52 @@ router.patch('/:id/notes', auth, async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to update notes' });
   }
 });
+
+// ========  GET /api/reports/markers =========
+router.get('/markers', async (req, res) => {
+  try {
+    const { startDate, endDate, district, issueTypes } = req.query;
+    const q = {};
+
+    if (startDate || endDate) {
+      const createdAt = {};
+      if (startDate) createdAt.$gte = new Date(startDate);
+      if (endDate) {
+        const d = new Date(endDate);
+        d.setHours(23, 59, 59, 999);
+        createdAt.$lte = d;
+      }
+      q.createdAt = createdAt;
+    }
+
+    if (district) q.district = district;
+
+    if (issueTypes) {
+      const arr = String(issueTypes).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      if (arr.length) q.issueType = { $in: arr };
+    }
+
+    const reports = await Report.find(q).select('title description issueType status address district createdAt location');
+
+    const data = reports
+      .filter(r => r?.location?.coordinates?.length >= 2)
+      .map(r => ({
+        id: r._id,
+        lat: r.location.coordinates[1],
+        lng: r.location.coordinates[0],
+        title: r.title || 'Report',
+        description: r.description || '',
+        type: (r.issueType || 'other').toLowerCase(),
+        status: (r.status || 'pending').toLowerCase(),
+        createdAt: r.createdAt,
+        address: r.address || r.district || ''
+      }));
+
+    res.json({ success: true, data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: 'Failed to load markers' });
+  }
+});
+// ========================================================
 
 module.exports = router;

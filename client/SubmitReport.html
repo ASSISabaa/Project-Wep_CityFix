@@ -11,10 +11,10 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="css/toast.css">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/SubmitReport.css">
 </head>
@@ -29,38 +29,37 @@
             
             <nav class="nav-section">
                 <a href="index.html" class="nav-item">Home</a>
-                <a href="#" class="nav-item">Reports</a>
+                <a href="BrowseReports.html" class="nav-item">Reports</a>
                 <a href="SubmitReport.html" class="nav-item active">Submit Report</a>
-                <a href="#" class="nav-item">City Insights</a>
-                <a href="#" class="nav-item">My Impact</a>
-                <a href="#" class="nav-item">Contact</a>
+                <a href="MyImpact.html" class="nav-item">My Impact</a>
+                <a href="Contact.html" class="nav-item">Contact</a>
             </nav>
             
-            <div class="auth-section">
-                <div class="notification-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div class="profile-icon">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="16" cy="16" r="15" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
-                        <circle cx="16" cy="12" r="4" fill="#6B7280"/>
-                        <path d="M8 24c0-4.418 3.582-8 8-8s8 3.582 8 8" fill="#6B7280"/>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- Mobile Menu Button -->
-            <button class="mobile-menu-btn">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+       <div class="auth-section">
+            <a href="login.html" class="login-btn">Login</a>
+            <a href="signup.html" class="signup-btn">Sign Up</a>
         </div>
+        
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    </div>
     </header>
-
+  <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <a href="index.html" class="nav-item ">Home</a>
+        <a href="BrowseReports.html" class="nav-item">Reports</a>
+        <a href="SubmitReport.html" class="nav-item active">Submit Report</a>
+        <a href="MyImpact.html" class="nav-item">My Impact</a>
+        <a href="Contact.html" class="nav-item">Contact</a>
+        <div class="auth-section">
+            <a href="login.html" class="login-btn">Login</a>
+            <a href="signup.html" class="signup-btn">Sign Up</a>
+        </div>
+    </div>
     <!-- Progress Steps Section -->
     <div class="progress-wrapper">
         <div class="progress-section">
@@ -216,7 +215,10 @@
     </footer>
 
     <script src="js/SubmitReport.js"></script>
-    <script src="js/script.js"></script>
-    <script src="js/footer-user.js"></script>
+    <script src="js/mobile-menu.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/userProfile.js"></script>
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8&libraries=places&v=weekly&language=en&region=IL&callback=initializeGoogleMap" async defer></script>
 </body>
 </html>

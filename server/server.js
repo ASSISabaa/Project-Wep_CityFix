@@ -1,9 +1,9 @@
+// server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
-
 dotenv.config();
 
 const app = express();
@@ -83,6 +83,32 @@ app.get('/api/report-types', (_req, res) => {
   });
 });
 
+// ========  Dashboard Stats =========
+const Report = require('./models/Report');
+app.get('/api/dashboard/stats', async (_req, res) => {
+  try {
+    const totalReports = await Report.countDocuments({});
+    const resolved = await Report.countDocuments({ status: { $in: ['resolved', 'closed'] } });
+    const inProgress = await Report.countDocuments({ status: 'in-progress' });
+    const resolutionRate = totalReports ? Math.round((resolved / totalReports) * 100) : 0;
+
+    res.json({
+      success: true,
+      data: {
+        totalReports,
+        resolved,
+        inProgress,
+        resolutionRate,
+        avgResponseTime: null,
+        weeklyTrend: null
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: 'Failed to compute dashboard stats' });
+  }
+});
+// ================================================
+
 const authRoutes = require('./routes/auth');
 const reportRoutes = require('./routes/reports');
 const userRoutes = require('./routes/users');
@@ -105,12 +131,12 @@ try {
 } catch {
   impactRoutes = express.Router();
   const auth = require('./middleware/auth');
-  const Report = require('./models/Report');
+  const ReportModel = require('./models/Report');
 
   impactRoutes.get('/stats', auth, async (req, res) => {
     try {
       const userId = req.user._id;
-      const reports = await Report.find({ userId });
+      const reports = await ReportModel.find({ userId });
       res.json({
         success: true,
         stats: {
@@ -128,7 +154,7 @@ try {
   impactRoutes.get('/activities', auth, async (req, res) => {
     try {
       const userId = req.user._id;
-      const reports = await Report.find({ userId }).sort({ createdAt: -1 }).limit(20);
+      const reports = await ReportModel.find({ userId }).sort({ createdAt: -1 }).limit(20);
       res.json({
         success: true,
         activities: reports.map(r => ({
@@ -151,7 +177,7 @@ try {
   impactRoutes.get('/badges', auth, async (req, res) => {
     try {
       const userId = req.user._id;
-      const reports = await Report.find({ userId });
+      const reports = await ReportModel.find({ userId });
       const totalReports = reports.length;
       const resolvedIssues = reports.filter(r => r.status === 'resolved').length;
 
@@ -179,6 +205,10 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/impact', impactRoutes);
 app.use('/api/teams', teamsRoutes);
 app.use('/api/settings', settingsRoutes);
+
+const issuesRoutes = require('./routes/issues');
+app.use('/api/issues', issuesRoutes);
+// =================================================
 
 app.use((err, _req, res, _next) => {
   console.error('Error:', err);
