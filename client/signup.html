@@ -10,27 +10,47 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
+  <link rel="stylesheet" href="css/toast.css">
   <link rel="stylesheet" href="css/auth-ui.css"/>
   <link rel="stylesheet" href="css/signup.css"/>
   <link rel="stylesheet" href="css/common.css"/>
 </head>
 <body>
   <!-- Header -->
-  <header class="header">
-    <a href="index.html" class="logo-section">
-      <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="logo-image"/>
-      <span class="logo-text">CityFix</span>
-    </a>
-    <nav class="nav-section">
-      <a href="index.html" class="nav-item active">Home</a>
-      <a href="reports.html" class="nav-item">Reports</a>
-      <a href="submit.html" class="nav-item">Submit Report</a>
-      <a href="insights.html" class="nav-item">City Insights</a>
-      <a href="MyImpact.html" class="nav-item">My Impact</a>
-      <a href="contact.html" class="nav-item">Contact</a>
-    </nav>
-    <button class="mobile-menu-btn" aria-label="Open menu"><span></span><span></span><span></span></button>
-  </header>
+<header class="header">
+    <div class="header-content">
+        <!-- Logo -->
+        <a href="index.html" class="logo-section">
+            <img src="assets/Logo-cityfix.jpg" alt="CityFix" class="logo-image">
+            <span class="logo-text">CityFix</span>
+        </a>
+        
+        <!-- Desktop Navigation -->
+        <nav class="nav-section">
+            <a href="index.html" class="nav-item active">Home</a>
+            <a href="BrowseReports.html" class="nav-item">Reports</a>
+            <a href="submit-report.html" class="nav-item">Submit Report</a>
+            <a href="MyImpact.html" class="nav-item">My Impact</a>
+            <a href="contact.html" class="nav-item">Contact</a>
+        </nav>
+        
+        <!-- Mobile Menu Button - -->
+        <button class="mobile-menu-btn" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</header>
+
+<!-- Mobile Navigation Menu -->
+<nav class="mobile-nav">
+    <a href="index.html" class="nav-item active">Home</a>
+    <a href="reports.html" class="nav-item">Reports</a>
+    <a href="submit-report.html" class="nav-item">Submit Report</a>
+    <a href="MyImpact.html" class="nav-item">My Impact</a>
+    <a href="contact.html" class="nav-item">Contact</a>
+</nav>
 
   <main class="main-content">
     <div class="split-container">
@@ -68,7 +88,7 @@
 
               <label class="confirm-password-label">User ID (optional)</label>
               <div class="confirm-password-input-container">
-                <input type="text" class="user-id-input" placeholder="Enter your User ID" name="userId"/>
+                <input type="text" class="confirm-password-input" placeholder="Enter your User ID" name="userId"/>
               </div>
 
               <label class="photo-label">Profile Photo (optional)</label>
@@ -119,8 +139,8 @@
         <div class="footer-column">
           <h4>Quick Links</h4>
           <a href="index.html">Home</a>
-          <a href="reports.html">Reports</a>
-          <a href="submit.html">Submit Report</a>
+          <a href="BrowseReports.html">Reports</a>
+          <a href="SubmitReport.html">Submit Report</a>
         </div>
         <div class="footer-column">
           <h4>Connect</h4>
@@ -149,89 +169,12 @@
       </div>
     </div>
   </footer>
+   <script type="module" src="js/signup.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/auth-protection.js"></script>
+    <script src="js/userProfile.js"></script>
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/mobile-menu.js"></script>
 
-  <!-- Signup logic (single source of truth) -->
-<script>
-// status helper
-function setStatus(msg, type = 'info') {
-  const box = document.getElementById('signup-status');
-  if (!box) return;
-  box.textContent = msg;
-  box.className = 'status ' + type;
-}
-
-// safer JSON
-async function safeJson(res) {
-  const ct = res.headers.get('content-type') || '';
-  if (ct.includes('application/json')) return res.json();
-  return { success: res.ok, error: 'Non-JSON response', raw: await res.text() };
-}
-
-function resolveRole(user) {
-  return user?.role || user?.userType || 'citizen';
-}
-
-async function handleSignup(e) {
-  e.preventDefault();
-  const form = e.currentTarget;
-
-  const username = form.querySelector('.fullname-input').value.trim();
-  const email    = form.querySelector('.email-input').value.trim();
-  const password = form.querySelector('.password-input').value;
-  const userId   = form.querySelector('.user-id-input')?.value.trim() || '';
-  const role     = form.querySelector('input[name="role"]:checked').value;
-  const photo    = form.querySelector('.photo-input').files[0];
-
-  if (!username || !email || !password) return setStatus('Please fill username, email and password.', 'error');
-  if (password.length < 6) return setStatus('Password must be at least 6 characters.', 'error');
-
-  const fd = new FormData();
-  fd.append('username', username);
-  fd.append('email', email);
-  fd.append('password', password);
-  fd.append('role', role);
-  if (userId) fd.append('userId', userId);
-  if (photo)  fd.append('photo', photo);
-
-  setStatus('Submitting...', 'info');
-
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/signup`, { method: 'POST', body: fd });
-    const body = await safeJson(res);
-
-    // Debug log to see exactly what the server returned
-    console.log('Signup response:', { status: res.status, ok: res.ok, body });
-
-    if (!res.ok || body.success === false) {
-      const msg = body.error || body.message || `Signup failed (HTTP ${res.status})`;
-      setStatus(msg, 'error');
-      return;
-    }
-
-    const data  = body.data || body;
-    const token = data.token || data.accessToken || null;
-    const user  = data.user  || data.profile     || null;
-
-    if (token) localStorage.setItem('token', token);
-    if (user)  localStorage.setItem('user', JSON.stringify(user));
-
-    const finalRole = resolveRole(user);
-    setStatus('Success! Redirecting...', 'ok');
-
-    // Fallback redirect even if server didn't include user
-    window.location.href = finalRole === 'admin' ? 'dashboard.html' : 'index.html';
-  } catch (err) {
-    console.error('Signup error:', err);
-    setStatus('Cannot connect to server. Check CORS / server.', 'error');
-  }
-}
-</script>
-
-
-  <!-- Keep only what you actually use; avoid duplicate handlers -->
-  <script defer src="js/flash.js"></script>
-  <!-- Remove js/signup.js if it duplicates form handling -->
-  <!-- <script src="js/signup.js"></script> -->
-  <script src="js/footer-user.js"></script>
 </body>
 </html>
