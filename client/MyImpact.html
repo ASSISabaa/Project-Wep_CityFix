@@ -48,7 +48,18 @@
             </button>
         </div>
     </header>
-
+    <!-- Mobile Navigation -->
+        <div class="mobile-nav">
+            <a href="index.html" class="nav-item ">Home</a>
+            <a href="BrowseReports.html" class="nav-item">Reports</a>
+            <a href="SubmitReport.html" class="nav-item ">Submit Report</a>
+            <a href="MyImpact.html" class="nav-item active">My Impact</a>
+            <a href="Contact.html" class="nav-item">Contact</a>
+            <div class="auth-section">
+                <a href="login.html" class="login-btn">Login</a>
+                <a href="signup.html" class="signup-btn">Sign Up</a>
+            </div>
+        </div>
     <!-- Main Content -->
     <main class="main-content">
         <!-- Page Header -->
@@ -242,15 +253,21 @@
         </div>
     </footer>
 
-    <!-- JavaScript Files -->
+    <!-- JavaScript Files (keep MyImpact.js BEFORE Maps so the callback exists) -->
     <script src="js/MyImpact.js"></script>
-    <script src="js/mobile-menu.js"></script>
     <script src="js/modals.js"></script>
-    <script src="js/userProfile.js"></script>
-    <!-- Marker Clusterer -->
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/header-User.js"></script> 
+
+    <!-- Optional: Marker Clusterer -->
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-    <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8&v=weekly&loading=async&callback=initImpactMap" async defer></script>
+
+    <!-- Google Maps API (FIXED: src + libraries + correct callback) -->
+    <script
+        async
+        defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8&v=weekly&libraries=marker,places&callback=initImpactMap">
+    </script>
 
 
 </body>
