@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CityFix - Team Management</title>
+   
+    <!-- Favicon -->
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
+   
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   
+     <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/toast.css">
+    <link rel="stylesheet" href="css/Base.css">
+    <link rel="stylesheet" href="css/team.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-logo">
+            <div class="logo-icon-mobile"></div>
+            <div class="logo-text-mobile">CityFix Admin</div>
+        </div>
+        <div class="hamburger-btn" id="hamburgerBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo-section">
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <div class="logo-text-container">
+                    <div class="logo-text">CityFix Admin</div>
+                </div>
+            </div>
+        </div>
+            <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item" data-icon="dashboard">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+           
+            <a href="reports.html" class="nav-item" data-icon="reports">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Reports</span>
+            </a>
+           
+            <a href="analytics.html" class="nav-item" data-icon="analytics">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Analytics</span>
+            </a>
+           
+            <a href="Team.html" class="nav-item active" data-icon="team">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Team</span>
+            </a>
+           
+            <a href="notifications.html" class="nav-item" data-icon="notifications">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Notifications</span>
+            </a>
+           
+            <a href="settings.html" class="nav-item" data-icon="settings">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Team Management</h1>
+                    <p>Manage team members and their roles</p>
+                </div>
+                <div class="header-right">
+                    <div class="notification-container">
+                        <span class="notification-icon"></span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar"></div>
+                        <span class="user-name">John Doe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Controls -->
+            <div class="team-controls">
+                <div class="team-search">
+                    <input type="text" class="search-input" placeholder="Search team members...">
+                    <button class="filter-btn">Filter</button>
+                </div>
+                <button class="add-member-btn">+ Add Member</button>
+            </div>
+
+            <!-- Team Stats Container -->
+            <div class="team-stats">
+                <!-- Data from backend API: /api/team/stats -->
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Total Members</div>
+                        <div class="stat-number" id="total-members">24</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Active Members</div>
+                        <div class="stat-number" id="active-members">18</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Departments</div>
+                        <div class="stat-number" id="departments-count">6</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Availability</div>
+                        <div class="stat-number" id="availability-rate">92%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Grid -->
+            <div class="team-grid" id="team-members-grid">
+                <!-- Data from backend API: /api/team/members -->
+                <!-- This section will be populated dynamically -->
+                <!-- Team Member 1 -->
+                <div class="team-member-card">
+                    <div class="member-header">
+                        <div class="member-avatar">JD</div>
+                        <div class="member-info">
+                            <h3>John Doe</h3>
+                            <div class="member-role">Team Lead</div>
+                        </div>
+                    </div>
+                    <div class="member-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Department:</span>
+                            <span class="detail-value">Engineering</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-active">Active</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cases Assigned:</span>
+                            <span class="detail-value">15</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Active:</span>
+                            <span class="detail-value">2 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="action-btn btn-primary">View Profile</button>
+                        <button class="action-btn btn-secondary">Contact</button>
+                    </div>
+                </div>
+
+                <!-- Team Member 2 -->
+                <div class="team-member-card">
+                    <div class="member-header">
+                        <div class="member-avatar">SM</div>
+                        <div class="member-info">
+                            <h3>Sarah Miller</h3>
+                            <div class="member-role">Field Inspector</div>
+                        </div>
+                    </div>
+                    <div class="member-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Department:</span>
+                            <span class="detail-value">Public Works</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-active">Active</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cases Assigned:</span>
+                            <span class="detail-value">8</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Active:</span>
+                            <span class="detail-value">30 minutes ago</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="action-btn btn-primary">View Profile</button>
+                        <button class="action-btn btn-secondary">Contact</button>
+                    </div>
+                </div>
+
+                <!-- Team Member 3 -->
+                <div class="team-member-card">
+                    <div class="member-header">
+                        <div class="member-avatar">MJ</div>
+                        <div class="member-info">
+                            <h3>Mike Johnson</h3>
+                            <div class="member-role">Maintenance Supervisor</div>
+                        </div>
+                    </div>
+                    <div class="member-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Department:</span>
+                            <span class="detail-value">Maintenance</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-away">Away</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cases Assigned:</span>
+                            <span class="detail-value">12</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Active:</span>
+                            <span class="detail-value">1 day ago</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="action-btn btn-primary">View Profile</button>
+                        <button class="action-btn btn-secondary">Contact</button>
+                    </div>
+                </div>
+
+                <!-- Team Member 4 -->
+                <div class="team-member-card">
+                    <div class="member-header">
+                        <div class="member-avatar">LD</div>
+                        <div class="member-info">
+                            <h3>Lisa Davis</h3>
+                            <div class="member-role">Data Analyst</div>
+                        </div>
+                    </div>
+                    <div class="member-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Department:</span>
+                            <span class="detail-value">Analytics</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-active">Active</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cases Assigned:</span>
+                            <span class="detail-value">6</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Active:</span>
+                            <span class="detail-value">1 hour ago</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="action-btn btn-primary">View Profile</button>
+                        <button class="action-btn btn-secondary">Contact</button>
+                    </div>
+                </div>
+
+                <!-- Team Member 5 -->
+                <div class="team-member-card">
+                    <div class="member-header">
+                        <div class="member-avatar">RW</div>
+                        <div class="member-info">
+                            <h3>Robert Wilson</h3>
+                            <div class="member-role">Safety Coordinator</div>
+                        </div>
+                    </div>
+                    <div class="member-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Department:</span>
+                            <span class="detail-value">Safety</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-offline">Offline</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cases Assigned:</span>
+                            <span class="detail-value">3</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Active:</span>
+                            <span class="detail-value">3 days ago</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="action-btn btn-primary">View Profile</button>
+                        <button class="action-btn btn-secondary">Contact</button>
+                    </div>
+                </div>
+
+                <!-- Team Member 6 -->
+                <div class="team-member-card">
+                    <div class="member-header">
+                        <div class="member-avatar">AB</div>
+                        <div class="member-info">
+                            <h3>Anna Brown</h3>
+                            <div class="member-role">Communications Manager</div>
+                        </div>
+                    </div>
+                    <div class="member-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Department:</span>
+                            <span class="detail-value">Communications</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-active">Active</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cases Assigned:</span>
+                            <span class="detail-value">9</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Active:</span>
+                            <span class="detail-value">45 minutes ago</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="action-btn btn-primary">View Profile</button>
+                        <button class="action-btn btn-secondary">Contact</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <a href="dashboard.html" class="footer-logo">
+                    <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                    <span class="brand-name">CityFix</span>
+                </a>
+                <p class="footer-description">Making our city better together.</p>
+            </div>
+            
+            <div class="footer-section links">
+                <h4>Quick Links</h4>
+                <div class="footer-links">
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="reports.html">Reports</a>
+                    <a href="analytics.html">Analytics</a>
+                </div>
+            </div>
+            
+            <div class="footer-section tools">
+                <h4>Admin Tools</h4>
+                <div class="footer-links">
+                    <a href="#team">Team Management</a>
+                    <a href="notifications.html">Notifications</a>
+                    <a href="settings.html">Settings</a>
+                </div>
+            </div>
+            
+            <div class="footer-section support">
+                <h4>Support</h4>
+                <div class="footer-links">
+                    <a href="#contact">Contact IT</a>
+                    <a href="#privacy">Privacy Policy</a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                    </a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2025 CityFix. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- JavaScript -->
+     <script src="js/_shared-api.js"></script>
+     <script src="js/AdminProfile.js"></script>
+     <script src="js/team.js"></script>
+     <script src="js/footer-modals.js"></script>
+     <script src="js/toast-notifications.js"></script>
+     <script src="js/responsive-header.js"></script>
+
+</body>
+</html>

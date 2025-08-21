@@ -1,124 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="theme-color" content="#ffffff">
-    <meta name="description" content="Sign up for CityFix - Your smart city reporting platform">
-    <title>CityFix - Sign Up</title>
-    
-  <link rel="icon" href="../assets/CityFix-logo.svg" type="image/svg+xml">
-    
-     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CityFix - Sign Up</title>
 
-    <link rel="stylesheet" href="css/signup.css">
-    
-    <script defer src="js/header.js"></script>
-    <script defer src="js/login-signup.js"></script>
-    <script src="js/footer-user.js"></script>
+  <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="css/toast.css">
+  <link rel="stylesheet" href="css/auth-ui.css"/>
+  <link rel="stylesheet" href="css/signup.css"/>
+  <link rel="stylesheet" href="css/common.css"/>
 </head>
 <body>
-     <header class="main-header">
-    <div class="container">
-
-      <div class="left">
-        <a href="../client/index.html" class="logo">
-          <img src="../client/assets/CityFix-logo.svg" alt="CityFix Logo" />
-          <span class="logo-text">CityFix</span>
+  <!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <!-- Logo -->
+        <a href="index.html" class="logo-section">
+            <img src="assets/Logo-cityfix.jpg" alt="CityFix" class="logo-image">
+            <span class="logo-text">CityFix</span>
         </a>
-      </div>
-      <div class="center">
-        <nav class="nav-links">
-          <a href="#">Home</a>
-          <a href="#" class="active">Reports</a>
-          <a href="#">Submit Report</a>
-          <a href="#">City Insights</a>
-          <a href="#">My Impact</a>
-          <a href="#">Contact</a>
+        
+        <!-- Desktop Navigation -->
+        <nav class="nav-section">
+            <a href="index.html" class="nav-item active">Home</a>
+            <a href="BrowseReports.html" class="nav-item">Reports</a>
+            <a href="submit-report.html" class="nav-item">Submit Report</a>
+            <a href="MyImpact.html" class="nav-item">My Impact</a>
+            <a href="contact.html" class="nav-item">Contact</a>
         </nav>
-      </div>
-
-      
-
-      <div id="burger" class="burger">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
+        
+        <!-- Mobile Menu Button - -->
+        <button class="mobile-menu-btn" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </div>
+</header>
 
-    <div class="mobile-menu hidden">
-      <a href="#">Home</a>
-      <a href="#" class="active">Reports</a>
-      <a href="#">Submit Report</a>
-      <a href="#">City Insights</a>
-      <a href="#">My Impact</a>
-      <a href="#">Contact</a>
+<!-- Mobile Navigation Menu -->
+<nav class="mobile-nav">
+    <a href="index.html" class="nav-item active">Home</a>
+    <a href="reports.html" class="nav-item">Reports</a>
+    <a href="submit-report.html" class="nav-item">Submit Report</a>
+    <a href="MyImpact.html" class="nav-item">My Impact</a>
+    <a href="contact.html" class="nav-item">Contact</a>
+</nav>
 
-    </div>
-  </header>
   <main class="main-content">
     <div class="split-container">
       <div class="left-container">
-        <img src="assets/login_img.png" alt="Signup Image" class="signup-image" />
+        <img src="assets/login_img.png" alt="Signup Image" class="signup-image"/>
         <div class="image-overlay">
           <h3 class="overlay-title">CityFix</h3>
           <p class="overlay-subtitle">Making our city better, together.</p>
         </div>
       </div>
+
       <div class="right-container">
         <div class="right-content">
-          <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="signup-logo" />
+          <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="signup-logo"/>
           <h1 class="welcome-title">Join CityFix</h1>
           <p class="welcome-subtitle">Create your account to start reporting</p>
-          
-          <div class="signup-form-container">
-            <label class="fullname-label">Username</label>
-            <div class="fullname-input-container">
-              <input type="text" class="fullname-input" placeholder="Enter your username" name="username" />
-            </div>
 
-            <label class="email-label">Email address</label>
-            <div class="email-input-container">
-              <input type="email" class="email-input" placeholder="Enter your email" name="user_email" />
-            </div>
-
-            <label class="password-label">Password</label>
-            <div class="password-input-container">
-              <input type="password" class="password-input" placeholder="Create a password" name="password" />
-            </div>
-
-            <!-- User ID Section -->
-            <label class="confirm-password-label">User ID</label>
-            <div class="confirm-password-input-container">
-              <input type="text" class="confirm-password-input" placeholder="Enter your User ID" name="user_id" />
-            </div>
-
-            <label class="photo-label">Profile Photo</label>
-            <div class="photo-input-container">
-              <input type="file" class="photo-input" name="user_photo" accept="image/*" />
-            </div>
-
-
-            <div class="user-type-container">
-                <label for="">I am a :  </label>
-              <div class="radio-option">
-                <input type="radio" id="citizen" name="userType" value="citizen" class="radio-input" checked />
-                <label for="citizen" class="radio-label">Citizen</label>
+          <!-- FORM -->
+          <form id="signupForm" enctype="multipart/form-data" novalidate>
+            <div class="signup-form-container">
+              <label class="fullname-label">Username</label>
+              <div class="fullname-input-container">
+                <input type="text" class="fullname-input" placeholder="Enter your username" name="username" required/>
               </div>
-              <div class="radio-option">
-                <input type="radio" id="admin" name="userType" value="admin" class="radio-input" />
-                <label for="admin" class="radio-label">Admin</label>
+
+              <label class="email-label">Email address</label>
+              <div class="email-input-container">
+                <input type="email" class="email-input" placeholder="Enter your email" name="email" required/>
+              </div>
+
+              <label class="password-label">Password</label>
+              <div class="password-input-container">
+                <input type="password" class="password-input" placeholder="Create a password" name="password" minlength="6" required/>
+              </div>
+
+              <label class="confirm-password-label">User ID (optional)</label>
+              <div class="confirm-password-input-container">
+                <input type="text" class="confirm-password-input" placeholder="Enter your User ID" name="userId"/>
+              </div>
+
+              <label class="photo-label">Profile Photo (optional)</label>
+              <div class="photo-input-container">
+                <input type="file" class="photo-input" name="photo" accept="image/*"/>
+              </div>
+
+              <div class="user-type-container">
+                <label>I am a :</label>
+                <div class="radio-option">
+                  <input type="radio" id="citizen" name="role" value="citizen" class="radio-input" checked/>
+                  <label for="citizen" class="radio-label">Citizen</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="admin" name="role" value="admin" class="radio-input"/>
+                  <label for="admin" class="radio-label">Admin</label>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div class="signup-button-container">
-            <button class="signup-btn">
-              <span class="signup-btn-text">Sign Up</span>
-            </button>
-          </div>
-          
+
+            <div class="signup-button-container">
+              <button class="signup-btn" type="submit">
+                <span class="signup-btn-text">Sign Up</span>
+              </button>
+              <div id="signup-status" class="status" aria-live="polite"></div>
+            </div>
+          </form>
+
           <div class="login-prompt">
             Already have an account? <a href="login.html" class="login-link">Log in</a>
           </div>
@@ -127,57 +125,56 @@
     </div>
   </main>
 
-     <footer class="main-footer">
+  <!-- Footer -->
+  <footer class="main-footer">
     <div class="footer-container">
       <div class="footer-top">
         <div class="footer-column">
-
-          <a href="../client/index.html" class="footer-logo">
-            <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+          <a href="index.html" class="footer-logo">
+            <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img"/>
             <span class="brand-name">CityFix</span>
           </a>
-
           <p class="footer-description">Making our city better together.</p>
         </div>
-
         <div class="footer-column">
           <h4>Quick Links</h4>
           <a href="index.html">Home</a>
-          <a href="reports.html">Reports</a>
-          <a href="submit.html">Submit Report</a>
+          <a href="BrowseReports.html">Reports</a>
+          <a href="SubmitReport.html">Submit Report</a>
         </div>
-
         <div class="footer-column">
           <h4>Connect</h4>
           <a href="about.html">About Us</a>
           <a href="contact.html">Contact</a>
           <a href="privacy.html">Privacy Policy</a>
         </div>
-
         <div class="footer-column">
           <h4>Follow Us</h4>
           <div class="social-icons">
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter"
-                class="social-icon" />
+              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon"/>
             </a>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook"
-                class="social-icon" />
+              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon"/>
             </a>
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram"
-                class="social-icon" />
+              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon"/>
             </a>
           </div>
         </div>
       </div>
-
       <div class="footer-bottom">
-        <hr />
+        <hr/>
         <p>© 2025 CityFix. All rights reserved.</p>
       </div>
     </div>
   </footer>
+   <script type="module" src="js/signup.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/auth-protection.js"></script>
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/header-User.js"></script> 
+
+
 </body>
 </html>

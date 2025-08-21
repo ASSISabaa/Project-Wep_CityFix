@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CityFix - Settings</title>
+   
+    <!-- Favicon -->
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
+   
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/toast.css">
+    <link rel="stylesheet" href="css/Base.css">
+    <link rel="stylesheet" href="css/Settings.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-logo">
+            <div class="logo-icon-mobile"></div>
+            <div class="logo-text-mobile">CityFix Admin</div>
+        </div>
+        <div class="hamburger-btn" id="hamburgerBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo-section">
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <div class="logo-text-container">
+                    <div class="logo-text">CityFix Admin</div>
+                </div>
+            </div>
+        </div>
+               <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item " data-icon="dashboard">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+           
+            <a href="reports.html" class="nav-item " data-icon="reports">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Reports</span>
+            </a>
+           
+            <a href="analytics.html" class="nav-item" data-icon="analytics">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Analytics</span>
+            </a>
+           
+            <a href="Team.html" class="nav-item"class="nav-item" data-icon="team">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Team</span>
+            </a>
+           
+            <a href="notifications.html" class="nav-item " data-icon="notifications">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Notifications</span>
+            </a>
+           
+            <a href="settings.html" class="nav-item active" data-icon="settings">
+                <span class="nav-icon"></span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>System Settings</h1>
+                    <p>Configure system preferences</p>
+                </div>
+                <div class="header-right">
+                    <div class="notification-container">
+                        <span class="notification-icon"></span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar"></div>
+                        <span class="user-name">John Doe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon profile-icon"></div>
+                    <div class="stat-content">
+                        <h3>Profile Settings</h3>
+                        <div class="stat-number">4</div>
+                        <div class="stat-trend positive">Sections configured</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon security-icon"></div>
+                    <div class="stat-content">
+                        <h3>Security Level</h3>
+                        <div class="stat-number">High</div>
+                        <div class="stat-trend positive">2FA enabled</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon system-icon"></div>
+                    <div class="stat-content">
+                        <h3>System Status</h3>
+                        <div class="stat-number">98%</div>
+                        <div class="stat-trend positive">Uptime this month</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon backup-icon"></div>
+                    <div class="stat-content">
+                        <h3>Last Backup</h3>
+                        <div class="stat-number">2h</div>
+                        <div class="stat-trend neutral">Auto backup enabled</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Settings Configuration -->
+                <div class="map-section">
+                    <div class="settings-header">
+                        <h3>Configuration Panel</h3>
+                        <div class="settings-controls">
+                            <button class="control-btn active" data-section="general">General</button>
+                            <button class="control-btn" data-section="security">Security</button>
+                            <button class="control-btn" data-section="notifications">Notifications</button>
+                            <button class="control-btn save-settings">Save Changes</button>
+                        </div>
+                    </div>
+                    <div class="map-container">
+                        <!-- General Settings -->
+                        <div class="settings-section active" id="general-settings">
+                            <div class="settings-group">
+                                <h4>Account Information</h4>
+                                <div class="setting-item">
+                                    <label for="full-name">Full Name</label>
+                                    <input type="text" id="full-name" value="John Doe" class="setting-input">
+                                </div>
+                                <div class="setting-item">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" value="john.doe@cityfix.com" class="setting-input">
+                                </div>
+                                <div class="setting-item">
+                                    <label for="role">Role</label>
+                                    <select id="role" class="setting-select">
+                                        <option value="admin" selected>Administrator</option>
+                                        <option value="manager">Manager</option>
+                                        <option value="operator">Operator</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <h4>System Preferences</h4>
+                                <div class="setting-item">
+                                    <label for="session-timeout">Session Timeout (minutes)</label>
+                                    <input type="number" id="session-timeout" value="30" class="setting-input">
+                                </div>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="auto-save" checked>
+                                    <label for="auto-save">Enable Auto-save</label>
+                                </div>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="sound-alerts">
+                                    <label for="sound-alerts">Enable Sound Alerts</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="settings-section" id="security-settings">
+                            <div class="settings-group">
+                                <h4>Password & Authentication</h4>
+                                <div class="setting-item">
+                                    <label for="current-password">Current Password</label>
+                                    <input type="password" id="current-password" class="setting-input">
+                                </div>
+                                <div class="setting-item">
+                                    <label for="new-password">New Password</label>
+                                    <input type="password" id="new-password" class="setting-input">
+                                </div>
+                                <div class="setting-item">
+                                    <label for="confirm-password">Confirm Password</label>
+                                    <input type="password" id="confirm-password" class="setting-input">
+                                </div>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="two-factor" checked>
+                                    <label for="two-factor">Enable Two-Factor Authentication</label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <h4>Session Management</h4>
+                                <div class="setting-item">
+                                    <label for="session-timeout">Session Timeout (minutes)</label>
+                                    <input type="number" id="session-timeout" value="30" class="setting-input">
+                                </div>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="remember-login">
+                                    <label for="remember-login">Remember Login for 30 days</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Settings -->
+                        <div class="settings-section" id="notifications-settings">
+                            <div class="settings-group">
+                                <h4>Email Notifications</h4>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="email-alerts" checked>
+                                    <label for="email-alerts">Receive Email Alerts</label>
+                                </div>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="daily-digest" checked>
+                                    <label for="daily-digest">Daily Digest Email</label>
+                                </div>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="weekly-report">
+                                    <label for="weekly-report">Weekly Report Email</label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <h4>Push Notifications</h4>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="browser-notifications" checked>
+                                    <label for="browser-notifications">Browser Notifications</label>
+                                </div>
+                                <div class="setting-item checkbox-item">
+                                    <input type="checkbox" id="urgent-only">
+                                    <label for="urgent-only">Urgent Cases Only</label>
+                                </div>
+                                <div class="setting-item">
+                                    <label for="notification-sound">Notification Sound</label>
+                                    <select id="notification-sound" class="setting-select">
+                                        <option value="default" selected>Default</option>
+                                        <option value="chime">Chime</option>
+                                        <option value="bell">Bell</option>
+                                        <option value="silent">Silent</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="reports-section">
+                    <h3>Quick Actions</h3>
+                    <div class="reports-list">
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Export Data</h4>
+                                <p>Download system data and reports</p>
+                                <div class="report-time">Last export: 1 week ago</div>
+                            </div>
+                            <span class="report-status action" onclick="exportData()">Export</span>
+                        </div>
+                        
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>System Backup</h4>
+                                <p>Create full system backup</p>
+                                <div class="report-time">Auto backup in 6 hours</div>
+                            </div>
+                            <span class="report-status action" onclick="createBackup()">Backup Now</span>
+                        </div>
+                        
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Clear Cache</h4>
+                                <p>Clear system cache and temp files</p>
+                                <div class="report-time">Cache size: 247 MB</div>
+                            </div>
+                            <span class="report-status action" onclick="clearCache()">Clear</span>
+                        </div>
+
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Reset Preferences</h4>
+                                <p>Reset all settings to default</p>
+                                <div class="report-time">This action cannot be undone</div>
+                            </div>
+                            <span class="report-status danger" onclick="resetSettings()">Reset</span>
+                        </div>
+
+                        <div class="report-item">
+                            <div class="report-info">
+                                <h4>Activity Log</h4>
+                                <p>View recent system activity</p>
+                                <div class="report-time">584 activities in last 30 days</div>
+                            </div>
+                            <span class="report-status view" onclick="viewActivity()">View Log</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <a href="dashboard.html" class="footer-logo">
+                    <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                    <span class="brand-name">CityFix</span>
+                </a>
+                <p class="footer-description">Making our city better together.</p>
+            </div>
+            
+            <div class="footer-section links">
+                <h4>Quick Links</h4>
+                <div class="footer-links">
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="reports.html">Reports</a>
+                    <a href="analytics.html">Analytics</a>
+                </div>
+            </div>
+            
+            <div class="footer-section tools">
+                <h4>Admin Tools</h4>
+                <div class="footer-links">
+                    <a href="#team">Team Management</a>
+                    <a href="notifications.html">Notifications</a>
+                    <a href="settings.html">Settings</a>
+                </div>
+            </div>
+            
+            <div class="footer-section support">
+                <h4>Support</h4>
+                <div class="footer-links">
+                    <a href="#contact">Contact IT</a>
+                    <a href="#privacy">Privacy Policy</a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                    </a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2025 CityFix. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- JavaScript -->
+    <script src="js/Settings.js"></script>
+    <script src="js/AdminProfile.js"></script>
+    <script src="js/footer-modals.js"></script>
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/responsive-header.js"></script>
+
+</body>
+</html>

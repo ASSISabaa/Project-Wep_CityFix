@@ -1,0 +1,12 @@
+#toast-root{position:fixed;top:14px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.banner{min-width:320px;max-width:560px;display:flex;gap:10px;align-items:center;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:12px;padding:12px 14px;box-shadow:0 10px 20px rgba(0,0,0,.06);opacity:0;transform:translateY(-10px);transition:opacity .2s,transform .2s}
+.banner--success{background:#dcfce7;border-color:#bbf7d0;color:#065f46}
+.banner--info{background:#e0f2fe;border-color:#bae6fd;color:#075985}
+.banner--show{opacity:1;transform:translateY(0)}
+.banner__icon{font-size:18px;line-height:1}
+.banner__msg{font:500 14px/1.4 Inter,system-ui,Arial}
+.banner__close{margin-left:auto;background:transparent;border:0;font-size:18px;cursor:pointer;color:inherit;opacity:.7}
+.banner__close:hover{opacity:1}
+.field-error{color:#dc2626;font:500 13px/1.2 Inter,system-ui,Arial;margin-top:6px}
+.has-error{border-color:#fca5a5 !important;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+.has-ok{border-color:#86efac !important;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
