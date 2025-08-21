@@ -1238,3 +1238,44 @@ input:checked + .toggle-slider:before{transform:translateX(24px)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin-right:8px}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* Mobile menu for screens 800px and below */
+@media (max-width: 800px) {
+    /* Hide desktop navigation */
+    .nav-section {
+        display: none !important;
+    }
+    
+    /* Hide desktop auth buttons */
+    .header .auth-section {
+        display: none !important;
+    }
+    
+    /* Show mobile menu button */
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+}
+
+/* Desktop navigation for screens above 800px */
+@media (min-width: 801px) {
+    /* Show desktop navigation */
+    .nav-section {
+        display: flex !important;
+    }
+    
+    /* Show desktop auth section */
+    .header .auth-section {
+        display: flex !important;
+    }
+    
+    /* Hide mobile menu button */
+    .mobile-menu-btn {
+        display: none !important;
+    }
+    
+    /* Hide mobile navigation */
+    .mobile-nav {
+        display: none !important;
+    }
+}

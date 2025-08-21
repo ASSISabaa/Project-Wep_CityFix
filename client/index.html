@@ -1,31 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CityFix - Report City Issues, Make a Difference</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- CSS Stylesheet -->
-    <link rel="stylesheet" href="css/toast.css">
-    <link rel="stylesheet" href="css/homePage.css">
-    <link rel="stylesheet" href="css/common.css">
+
+    <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/toast.css" />
+    <link rel="stylesheet" href="css/homePage.css" />
+    <link rel="stylesheet" href="css/common.css" />
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <a href="index.html" class="logo-section">
-            <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="logo-image">
+            <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="logo-image" />
             <span class="logo-text">CityFix</span>
         </a>
-        
+
         <nav class="nav-section">
             <a href="index.html" class="nav-item active">Home</a>
             <a href="BrowseReports.html" class="nav-item">Reports</a>
@@ -33,7 +28,7 @@
             <a href="MyImpact.html" class="nav-item">My Impact</a>
             <a href="Contact.html" class="nav-item">Contact</a>
         </nav>
-        
+
         <div class="auth-section">
             <a href="login.html" class="login-btn">Login</a>
             <a href="signup.html" class="signup-btn">Sign Up</a>
@@ -41,9 +36,7 @@
 
         <!-- Mobile Menu Button -->
         <button class="mobile-menu-btn">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span>
         </button>
     </header>
 
@@ -64,12 +57,12 @@
     <section class="hero-section">
         <div class="hero-container">
             <div class="hero-content">
-                <h1 class="hero-title">Report City Issues,<br>Make a Difference</h1>
+                <h1 class="hero-title">Report City Issues,<br />Make a Difference</h1>
                 <p class="hero-description">Help improve your community by reporting street issues. Together we can make our city better.</p>
                 <a href="SubmitReport.html" class="hero-button">Submit a Report</a>
             </div>
             <div class="hero-image-container">
-                <img src="assets/hero-image.webp" alt="Community helping to improve the city" class="hero-image">
+                <img src="assets/hero-image.webp" alt="Community helping to improve the city" class="hero-image" />
             </div>
         </div>
     </section>
@@ -79,27 +72,27 @@
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-icon">
-                    <img src="assets/total-reports.svg" alt="Total Reports" class="stat-icon-image">
+                    <img src="assets/total-reports.svg" alt="Total Reports" class="stat-icon-image" />
                 </div>
                 <div class="stat-content">
                     <div class="stat-number">0</div>
                     <div class="stat-label">Total Reports</div>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon">
-                    <img src="assets/issues-resolved.svg" alt="Issues Resolved" class="stat-icon-image">
+                    <img src="assets/issues-resolved.svg" alt="Issues Resolved" class="stat-icon-image" />
                 </div>
                 <div class="stat-content">
                     <div class="stat-number">0</div>
                     <div class="stat-label">Issues Resolved</div>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon">
-                    <img src="assets/in-progress.svg" alt="In Progress" class="stat-icon-image">
+                    <img src="assets/in-progress.svg" alt="In Progress" class="stat-icon-image" />
                 </div>
                 <div class="stat-content">
                     <div class="stat-number">0</div>
@@ -109,25 +102,25 @@
         </div>
     </section>
 
-    <!-- Content Container -->
-    <div class="content-container">
+    <!-- Content Container (صار Grid على الكبير) -->
+    <div class="content-container filters-map-row">
         <!-- Filters Section -->
         <aside class="filters-section">
             <div class="filters-header">
                 <h3 class="filters-title">
-                    <img src="assets/filter-icon.svg" alt="Filter Icon">
+                    <img src="assets/filter-icon.svg" alt="Filter Icon" />
                     Filters
                 </h3>
             </div>
-            
+
             <div class="filter-group">
                 <label class="filter-label">Date Range</label>
                 <div class="date-inputs">
-                    <input type="text" class="date-input" placeholder="Start Date">
-                    <input type="text" class="date-input" placeholder="End Date">
+                    <input type="text" class="date-input" placeholder="Start Date" />
+                    <input type="text" class="date-input" placeholder="End Date" />
                 </div>
             </div>
-            
+
             <div class="filter-group">
                 <label class="filter-label">District</label>
                 <select class="district-select">
@@ -139,25 +132,26 @@
                     <option value="west">West District</option>
                 </select>
             </div>
-            
+
             <div class="filter-group">
                 <label class="filter-label">Issue Type</label>
                 <div class="checkbox-group">
                     <div class="checkbox-item">
-                        <input type="checkbox" id="pothole" name="issue-type" value="pothole" checked>                        <label for="potholes" class="checkbox-label">
+                        <input type="checkbox" id="pothole" name="issue-type" value="pothole" checked />
+                        <label for="pothole" class="checkbox-label">
                             <span class="checkbox-icon"></span>
                             Potholes
                         </label>
                     </div>
                     <div class="checkbox-item">
-                        <input type="checkbox" id="lighting" name="issue-type" value="lighting" checked>
+                        <input type="checkbox" id="lighting" name="issue-type" value="lighting" checked />
                         <label for="lighting" class="checkbox-label">
                             <span class="checkbox-icon"></span>
                             Lighting
                         </label>
                     </div>
                     <div class="checkbox-item">
-                        <input type="checkbox" id="drainage" name="issue-type" value="drainage" checked>
+                        <input type="checkbox" id="drainage" name="issue-type" value="drainage" checked />
                         <label for="drainage" class="checkbox-label">
                             <span class="checkbox-icon"></span>
                             Drainage
@@ -169,23 +163,16 @@
 
         <!-- Map Section -->
         <section class="map-section">
-            <!-- Map Card -->
             <div class="map-card">
-                <!-- Map Header -->
                 <div class="map-header">
                     <h3 class="map-title">
-                        <img src="assets/fire.svg" alt="Map Icon" class="map-icon">
+                        <img src="assets/fire.svg" alt="Map Icon" class="map-icon" />
                         Live Issue Map
                     </h3>
                 </div>
-                
-                <!-- Map Container - Google Maps will replace this -->
-                <div class="map-container" id="google-map">
-                    <!-- This will be replaced by Google Maps -->
-                    <!-- Remove the placeholder image, let JavaScript handle it -->
-                </div>
 
-                <!-- Map Legend -->
+                <div class="map-container" id="google-map"></div>
+
                 <div class="map-legend">
                     <div class="legend-title">Legend:</div>
                     <div class="legend-items">
@@ -208,42 +195,41 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Statistics Cards -->
+
             <div class="map-stats-container">
                 <div class="map-stat-card">
                     <div class="map-stat-header">
-                        <img src="assets/chart.svg" alt="Reports Icon" class="map-stat-icon">
+                        <img src="assets/chart.svg" alt="Reports Icon" class="map-stat-icon" />
                         <h4 class="map-stat-title">Active District</h4>
                     </div>
                     <div class="map-stat-content">
                         <div class="resolution-percentage">Loading...</div>
                     </div>
                 </div>
-                
+
                 <div class="map-stat-card">
                     <div class="map-stat-header">
-                        <img src="assets/check.svg" alt="Issues Icon" class="map-stat-icon">
+                        <img src="assets/check.svg" alt="Issues Icon" class="map-stat-icon" />
                         <h4 class="map-stat-title">Top Issue Type</h4>
                     </div>
                     <div class="map-stat-content">
                         <div class="resolution-percentage">Loading...</div>
                     </div>
                 </div>
-                
+
                 <div class="map-stat-card">
                     <div class="map-stat-header">
-                        <img src="assets/chart.svg" alt="Resolution Icon" class="map-stat-icon">
+                        <img src="assets/chart.svg" alt="Resolution Icon" class="map-stat-icon" />
                         <h4 class="map-stat-title">Resolution Rate</h4>
                     </div>
                     <div class="map-stat-content">
                         <div class="resolution-percentage">84%</div>
                     </div>
                 </div>
-                
+
                 <div class="map-stat-card">
                     <div class="map-stat-header">
-                        <img src="assets/weekly-trends.svg" alt="Trends Icon" class="map-stat-icon">
+                        <img src="assets/weekly-trends.svg" alt="Trends Icon" class="map-stat-icon" />
                         <h4 class="map-stat-title">Weekly Trends</h4>
                     </div>
                     <div class="map-stat-content">
@@ -251,15 +237,14 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Action Buttons -->
+
             <div class="map-actions">
                 <button class="share-report-btn">
-                    <img src="assets/share-icon.svg" alt="Share Icon">
+                    <img src="assets/share-icon.svg" alt="Share Icon" />
                     Share Report
                 </button>
                 <button class="export-pdf-btn">
-                    <img src="assets/pdf-icon.svg" alt="Export Icon">
+                    <img src="assets/pdf-icon.svg" alt="Export Icon" />
                     Export to PDF
                 </button>
             </div>
@@ -269,44 +254,35 @@
     <!-- Common Issues Section -->
     <section class="common-issues-section">
         <h2 class="common-issues-title">Report Common Issues</h2>
-        
+
         <div class="issues-container">
-            <!-- Road Potholes Card -->
-            <div class="issue-card pothole-card">
-                <div class="issue-icon-container">
-                    <img src="assets/pothole-icon.webp" alt="Road Potholes" class="issue-icon">
-                </div>
+            <div class="issue-card pothole-card" data-type="pothole">
+                <div class="issue-icon-container"><img src="assets/pothole-icon.webp" alt="Road Potholes" class="issue-icon" /></div>
                 <h3 class="issue-title">Road Potholes</h3>
                 <p class="issue-description">Damaged or missing road surfaces causing danger for vehicles.</p>
                 <div class="issue-stats">
-                    <span class="issue-count">Loading...</span>
-                    <span class="issue-status">Loading...</span>
+                    <span class="issue-count" data-field="count">Loading...</span>
+                    <span class="issue-status" data-field="status">Loading...</span>
                 </div>
             </div>
-            
-            <!-- Street Lighting Card -->
-            <div class="issue-card lighting-card">
-                <div class="issue-icon-container">
-                    <img src="assets/lighting-icon.webp" alt="Street Lighting" class="issue-icon">
-                </div>
+
+            <div class="issue-card lighting-card" data-type="lighting">
+                <div class="issue-icon-container"><img src="assets/lighting-icon.webp" alt="Street Lighting" class="issue-icon" /></div>
                 <h3 class="issue-title">Street Lighting</h3>
                 <p class="issue-description">Broken or malfunctioning street lights affecting visibility at night.</p>
                 <div class="issue-stats">
-                    <span class="issue-count">Loading...</span>
-                    <span class="issue-status">Loading...</span>
+                    <span class="issue-count" data-field="count">Loading...</span>
+                    <span class="issue-status" data-field="status">Loading...</span>
                 </div>
             </div>
-            
-            <!-- Drainage Issues Card -->
-            <div class="issue-card drainage-card">
-                <div class="issue-icon-container">
-                    <img src="assets/drainage-icon.webp" alt="Drainage Issues" class="issue-icon">
-                </div>
+
+            <div class="issue-card drainage-card" data-type="drainage">
+                <div class="issue-icon-container"><img src="assets/drainage-icon.webp" alt="Drainage Issues" class="issue-icon" /></div>
                 <h3 class="issue-title">Drainage Issues</h3>
                 <p class="issue-description">Water accumulation or blocked drains causing flooding and hazards.</p>
                 <div class="issue-stats">
-                    <span class="issue-count">Loading...</span>
-                    <span class="issue-status">Loading...</span>
+                    <span class="issue-count" data-field="count">Loading...</span>
+                    <span class="issue-status" data-field="status">Loading...</span>
                 </div>
             </div>
         </div>
@@ -367,10 +343,6 @@
     <script src="js/toast-notifications.js"></script>
     <script src="js/modals.js"></script>
     <script src="js/userProfile.js"></script>
-
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8=marker,places&callback=initializeGoogleMap">
-    </script>
-
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8&v=weekly&callback=initializeGoogleMap"></script>
 </body>
 </html>
