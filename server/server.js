@@ -5,25 +5,29 @@ const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
 const geoRoutes = require('./geoRoutes');
-dotenv.config();
 
+dotenv.config();
 const app = express();
 
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: [
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'file://'
-  ],
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) {
+      return cb(null, true);
+    }
+    cb(new Error('Not allowed by CORS'));
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || 'http://127.0.0.1:5500');
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
@@ -34,25 +38,39 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  'mongodb+srv://cityfix_admin:<db_password>@cluster0.z2x8jip.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error('Missing MONGODB_URI');
+  process.exit(1);
+}
+const mongoOpts = { serverSelectionTimeoutMS: 10000 };
 
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(async () => {
-    console.log('✅ Connected to MongoDB successfully');
+async function connectWithRetry() {
+  try {
+    await mongoose.connect(MONGODB_URI, mongoOpts);
+    console.log('✅ Connected to MongoDB Atlas');
     try {
       const initDB = require('./utils/seed');
       if (typeof initDB === 'function') await initDB();
     } catch (_) {}
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
-  });
+  } catch (err) {
+    console.error('❌ MongoDB connect failed:', err.codeName || err.message);
+    setTimeout(connectWithRetry, 5000);
+  }
+}
+connectWithRetry();
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB disconnected, retrying...');
+  connectWithRetry();
+});
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', server: 'CityFix Backend', timestamp: new Date(), uptime: process.uptime() });
+  res.json({
+    status: 'ok',
+    server: 'CityFix Backend',
+    timestamp: new Date(),
+    uptime: process.uptime()
+  });
 });
 
 app.get('/api/districts', (_req, res) => {
@@ -113,15 +131,9 @@ app.get('/api/dashboard/stats', async (_req, res) => {
 app.get('/api/auth/me', (req, res) => {
   const token = req.headers.authorization;
   if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'No authentication token provided'
-    });
+    return res.status(401).json({ success: false, message: 'No authentication token provided' });
   }
-  res.json({
-    success: true,
-    user: null
-  });
+  res.json({ success: true, user: null });
 });
 
 const authRoutes = require('./routes/auth');
@@ -210,6 +222,16 @@ try {
     }
   });
 }
+
+app.get('/', (_req, res) => {
+  res.json({
+    success: true,
+    name: 'CityFix Backend',
+    apiBase: '/api',
+    health: '/api/health',
+    time: new Date()
+  });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
