@@ -4,8 +4,167 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Report = require('../models/Report');
 const auth = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises;
 const { notifyReportStatus, notifyReportNote, notifyAdmins, notifyUser } = require('../utils/notify');
 
+/* ---------- Multer ---------- */
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../uploads/reports');
+    await fs.mkdir(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `report-${unique}${path.extname(file.originalname)}`);
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => file.mimetype.startsWith('image/')
+    ? cb(null, true)
+    : cb(new Error('Only images allowed'))
+});
+
+/* ---------- Helpers ---------- */
+function parseCoordinates(inputObj) {
+  if (!inputObj) return null;
+
+  if (typeof inputObj === 'object' && inputObj.lat != null && inputObj.lng != null) {
+    const lat = Number(inputObj.lat);
+    const lng = Number(inputObj.lng);
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) return [lng, lat];
+  }
+
+  if (typeof inputObj === 'string') {
+    const s = inputObj.trim();
+    try {
+      const j = JSON.parse(s);
+      if (Array.isArray(j) && j.length === 2) {
+        const a = Number(j[0]), b = Number(j[1]);
+        if (!Number.isNaN(a) && !Number.isNaN(b)) return [a, b]; // assume [lng, lat]
+      } else if (j && (j.lat != null || j.latitude != null) && (j.lng != null || j.longitude != null)) {
+        const lat = Number(j.lat ?? j.latitude);
+        const lng = Number(j.lng ?? j.longitude);
+        if (!Number.isNaN(lat) && !Number.isNaN(lng)) return [lng, lat];
+      }
+    } catch { /* not JSON */ }
+
+    if (s.includes(',')) {
+      const parts = s.split(',').map(x => Number(x.trim()));
+      if (parts.length === 2 && parts.every(n => !Number.isNaN(n))) {
+        const lat = parts[0], lng = parts[1];
+        return [lng, lat];
+      }
+    }
+  }
+
+  if (Array.isArray(inputObj) && inputObj.length === 2) {
+    const a = Number(inputObj[0]), b = Number(inputObj[1]);
+    if (!Number.isNaN(a) && !Number.isNaN(b)) return [a, b];
+  }
+
+  return null;
+}
+
+function buildGeoPoint(coords) {
+  return coords ? { type: 'Point', coordinates: coords } : null;
+}
+
+/* ---------- Test & Count ---------- */
+router.get('/test', (_req, res) => {
+  res.json({ success: true, message: 'Reports API is working!' });
+});
+
+router.get('/count', async (_req, res) => {
+  try {
+    const count = await Report.countDocuments();
+    res.json({ success: true, count });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+/* ---------- Public submission (no auth) ---------- */
+router.post('/public', upload.array('images', 5), async (req, res) => {
+  console.log('=== PUBLIC REPORT SUBMISSION ===');
+  console.log('Body fields:', Object.keys(req.body));
+  console.log('Files received:', req.files?.length || 0);
+
+  try {
+    const { title, description, issueType, address, district, urgency } = req.body;
+
+    let coords = null;
+    if (req.body['coordinates[lat]'] && req.body['coordinates[lng]']) {
+      const lat = Number(req.body['coordinates[lat]']);
+      const lng = Number(req.body['coordinates[lng]']);
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) coords = [lng, lat];
+    } else if (req.body.coordinates) {
+      coords = parseCoordinates(req.body.coordinates);
+    }
+
+    const location = buildGeoPoint(coords);
+
+    let images = [];
+    if (Array.isArray(req.files) && req.files.length) {
+      images = req.files.map(f => ({
+        url: `/uploads/reports/${f.filename}`,
+        uploadedAt: new Date()
+      }));
+      console.log('Images processed:', images.length);
+    }
+
+    const publicUserId = new mongoose.Types.ObjectId('507f1f77bcf86cd799439011');
+
+    if (!location) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or missing coordinates. Expected [lng,lat] or {lat,lng}.'
+      });
+    }
+
+    const doc = new Report({
+      trackingNumber: `R${Date.now()}`,
+      title: title || 'Public Report',
+      description: description || 'No description provided',
+      issueType: issueType || 'other',
+      status: 'pending',
+      urgency: urgency || 'medium',
+      location,
+      address: address || 'Not specified',
+      district: district || 'Unknown',
+      images,
+      reportedBy: publicUserId,
+      upvotes: [],
+      views: 0,
+      metadata: { source: 'public_form', submittedAt: new Date() }
+    });
+
+    console.log('Saving report to database...');
+    const saved = await doc.save();
+    console.log('Report saved successfully:', saved._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Report submitted successfully',
+      report: {
+        id: saved._id,
+        trackingNumber: saved.trackingNumber,
+        title: saved.title,
+        status: saved.status
+      },
+      trackingNumber: saved.trackingNumber
+    });
+  } catch (e) {
+    console.error('Error saving report:', e);
+    res.status(500).json({ success: false, message: 'Failed to submit report', error: e.message });
+  }
+});
+
+/* ---------- Fetch all ---------- */
 router.get('/all', async (_req, res) => {
   try {
     const reports = await Report.find().sort({ createdAt: -1 });
@@ -15,6 +174,7 @@ router.get('/all', async (_req, res) => {
   }
 });
 
+/* ---------- My reports ---------- */
 router.get('/my-reports', auth, async (req, res) => {
   try {
     const userId = req.user._id || req.user.id;
@@ -25,6 +185,7 @@ router.get('/my-reports', auth, async (req, res) => {
   }
 });
 
+/* ---------- Statistics ---------- */
 router.get('/statistics', async (_req, res) => {
   try {
     const now = new Date();
@@ -66,6 +227,7 @@ router.get('/statistics', async (_req, res) => {
   }
 });
 
+/* ---------- List with filters ---------- */
 router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 12, sort = 'newest', issueType, district, status, search } = req.query;
@@ -112,6 +274,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+/* ---------- Single ---------- */
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -124,26 +287,61 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', auth, async (req, res) => {
+/* ---------- Create (auth) ---------- */
+router.post('/', [auth, upload.array('images', 5)], async (req, res) => {
   try {
-    const { title, description, issueType, location, address, district, coordinates, images } = req.body;
+    const { title, description, issueType, location, address, district, coordinates, urgency, images } = req.body;
+
+    let processedImages = [];
+    if (Array.isArray(req.files) && req.files.length) {
+      processedImages = req.files.map(file => ({ url: `/uploads/reports/${file.filename}`, uploadedAt: new Date() }));
+    } else if (images && Array.isArray(images)) {
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        if (img.url && img.url.startsWith('data:image')) {
+          const base64Data = img.url.replace(/^data:image\/\w+;base64,/, '');
+          const buffer = Buffer.from(base64Data, 'base64');
+          const filename = `report-${Date.now()}-${i}.jpg`;
+          const filepath = path.join(__dirname, '../uploads/reports', filename);
+          await fs.mkdir(path.dirname(filepath), { recursive: true });
+          await fs.writeFile(filepath, buffer);
+          processedImages.push({ url: `/uploads/reports/${filename}`, uploadedAt: new Date() });
+        } else if (img.url) {
+          processedImages.push(img);
+        }
+      }
+    }
+
     const doc = new Report({
       trackingNumber: `R${Date.now()}`,
       title,
       description,
-      issueType,
+      issueType: issueType || 'other',
       location: location && location.coordinates ? location : undefined,
       address: address || (typeof location === 'string' ? location : undefined),
-      district,
-      images: images || [],
+      district: district || 'Unknown',
+      images: processedImages,
       status: 'pending',
-      urgency: 'medium',
+      urgency: urgency || 'medium',
       reportedBy: req.user._id,
       metadata: {}
     });
-    if (!doc.location && coordinates && typeof coordinates.lat === 'number' && typeof coordinates.lng === 'number') {
-      doc.location = { type: 'Point', coordinates: [coordinates.lng, coordinates.lat] };
+
+    if (!doc.location) {
+      let coords = null;
+      if (coordinates && typeof coordinates === 'object' && coordinates.lat != null && coordinates.lng != null) {
+        const lat = Number(coordinates.lat), lng = Number(coordinates.lng);
+        if (!Number.isNaN(lat) && !Number.isNaN(lng)) coords = [lng, lat];
+      } else if (typeof coordinates === 'string') {
+        coords = parseCoordinates(coordinates);
+      }
+      if (coords) doc.location = buildGeoPoint(coords);
     }
+
+    if (!doc.location) {
+      return res.status(400).json({ success: false, message: 'Missing or invalid coordinates' });
+    }
+
     await doc.save();
 
     await notifyAdmins({
@@ -170,6 +368,7 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
+/* ---------- Update ---------- */
 router.put('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -183,7 +382,9 @@ router.put('/:id', auth, async (req, res) => {
     const isOwner = report.reportedBy?.toString() === req.user?._id?.toString();
     if (!isAdmin && !isOwner) return res.status(403).json({ success: false, message: 'Not authorized' });
 
-    Object.keys(updates).forEach(k => { if (!['_id', 'reportedBy'].includes(k)) report[k] = updates[k]; });
+    Object.keys(updates).forEach(k => {
+      if (!['_id', 'reportedBy'].includes(k)) report[k] = updates[k];
+    });
     report.updatedAt = new Date();
     await report.save();
 
@@ -193,6 +394,7 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
+/* ---------- Delete ---------- */
 router.delete('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -212,6 +414,7 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+/* ---------- Votes ---------- */
 router.post('/:id/upvote', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -244,6 +447,7 @@ router.delete('/:id/upvote', auth, async (req, res) => {
   }
 });
 
+/* ---------- Status ---------- */
 router.patch('/:id/status', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -276,6 +480,7 @@ router.patch('/:id/status', auth, async (req, res) => {
   }
 });
 
+/* ---------- Notes ---------- */
 router.patch('/:id/notes', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -302,7 +507,7 @@ router.patch('/:id/notes', auth, async (req, res) => {
   }
 });
 
-// ========  GET /api/reports/markers =========
+/* ---------- Map markers ---------- */
 router.get('/markers', async (req, res) => {
   try {
     const { startDate, endDate, district, issueTypes } = req.query;
@@ -343,10 +548,9 @@ router.get('/markers', async (req, res) => {
       }));
 
     res.json({ success: true, data });
-  } catch (e) {
+  } catch {
     res.status(500).json({ success: false, message: 'Failed to load markers' });
   }
 });
-// ========================================================
 
 module.exports = router;

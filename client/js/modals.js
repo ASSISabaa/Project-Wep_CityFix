@@ -485,8 +485,8 @@ function showPrivacyModal() {
 }
 
 // ==================== CSS Animations ====================
-const style = document.createElement('style');
-style.textContent = `
+const modalStyle = document.createElement('style');
+modalStyle.textContent = `
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -525,7 +525,7 @@ style.textContent = `
         }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(modalStyle);
 
 // ==================== Initialize ====================
 document.addEventListener('DOMContentLoaded', setupFooterLinks);

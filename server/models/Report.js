@@ -7,9 +7,9 @@ const reportSchema = new mongoose.Schema({
   description: { type: String, required: true, maxlength: 2000 },
   issueType: {
     type: String,
-    required: true,
-    enum: ['pothole', 'lighting', 'drainage', 'traffic', 'safety', 'vandalism', 'garbage', 'other']
-  },
+    required: false,
+    enum: ['pothole', 'streetlight', 'lighting', 'drainage', 'traffic', 'safety', 'vandalism', 'garbage', 'other']
+},
   status: {
     type: String,
     enum: ['new', 'pending', 'in-progress', 'resolved', 'rejected'],
