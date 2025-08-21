@@ -1,164 +1,214 @@
-// server/server.js
-require('dotenv').config();
-
-const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 const fs = require('fs');
+const dotenv = require('dotenv');
+const geoRoutes = require('./geoRoutes');
 
+dotenv.config();
 const app = express();
 
-/* ------------------------- Basic app config ------------------------- */
-app.set('trust proxy', 1); // for Render/Heroku style proxies
-
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-/* --------------------------- CORS handling -------------------------- */
-const DEFAULT_ORIGINS = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'http://localhost:5500',
-  'http://127.0.0.1:5500'
-];
-
-const ENV_ORIGINS = (process.env.CORS_ORIGIN || '')
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
 
-const ALLOWED_ORIGINS = [...new Set([...DEFAULT_ORIGINS, ...ENV_ORIGINS])];
-
 app.use(cors({
-  origin(origin, cb) {
-    // Allow requests without Origin header (Postman, curl, server-to-server)
-    if (!origin) return cb(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
-    console.error('Blocked by CORS. Origin:', origin, 'Allowed:', ALLOWED_ORIGINS);
-    return cb(new Error('Not allowed by CORS'));
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    cb(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
 
-app.options('*', cors()); // quick response for preflight
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
 
-/* ---------------------------- Static files -------------------------- */
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-app.use('/uploads', express.static(uploadsDir));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-/* --------------------------- Health & Root -------------------------- */
-app.get('/', (_req, res) => {
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error('Missing MONGODB_URI');
+  process.exit(1);
+}
+const mongoOpts = { serverSelectionTimeoutMS: 10000 };
+
+async function connectWithRetry() {
+  try {
+    await mongoose.connect(MONGODB_URI, mongoOpts);
+    console.log('Connected to MongoDB');
+    try {
+      const initDB = require('./utils/seed');
+      if (typeof initDB === 'function') await initDB();
+    } catch (_) {}
+  } catch (err) {
+    console.error('MongoDB connect failed:', err.codeName || err.message);
+    setTimeout(connectWithRetry, 5000);
+  }
+}
+connectWithRetry();
+mongoose.connection.on('disconnected', () => connectWithRetry());
+
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', server: 'CityFix Backend', timestamp: new Date(), uptime: process.uptime() });
+});
+
+app.get('/api/districts', (_req, res) => {
   res.json({
-    name: 'CityFix Backend Server',
-    version: '2.0.0',
-    api: '/api',
-    health: '/api/health'
+    success: true,
+    data: [
+      { name: 'Downtown', value: 'downtown' },
+      { name: 'North Side', value: 'north-side' },
+      { name: 'South Side', value: 'south-side' },
+      { name: 'East End', value: 'east-end' },
+      { name: 'West End', value: 'west-end' },
+      { name: 'Central', value: 'central' },
+      { name: 'Kafr Bara', value: 'kafr-bara' },
+      { name: 'Netanya', value: 'netanya' },
+      { name: 'Tel Aviv', value: 'tel-aviv' },
+      { name: 'Jerusalem', value: 'jerusalem' }
+    ]
   });
 });
 
-app.get('/api/health', (_req, res) => {
-  res.status(200).send('OK');
+app.get('/api/report-types', (_req, res) => {
+  res.json({
+    success: true,
+    data: [
+      { id: 'lighting', name: 'Lighting' },
+      { id: 'roads', name: 'Roads' },
+      { id: 'drainage', name: 'Drainage' },
+      { id: 'sanitation', name: 'Sanitation' },
+      { id: 'parks', name: 'Parks' }
+    ]
+  });
 });
 
-/* ------------------------------ Routes ------------------------------ */
+const Report = require('./models/Report');
+app.get('/api/dashboard/stats', async (_req, res) => {
+  try {
+    const totalReports = await Report.countDocuments({});
+    const resolved = await Report.countDocuments({ status: { $in: ['resolved', 'closed'] } });
+    const inProgress = await Report.countDocuments({ status: 'in-progress' });
+    const resolutionRate = totalReports ? Math.round((resolved / totalReports) * 100) : 0;
+    res.json({ success: true, data: { totalReports, resolved, inProgress, resolutionRate, avgResponseTime: null, weeklyTrend: null } });
+  } catch (e) {
+    res.status(500).json({ success: false, message: 'Failed to compute dashboard stats' });
+  }
+});
+
+app.get('/api/auth/me', (req, res) => {
+  const token = req.headers.authorization;
+  if (!token) return res.status(401).json({ success: false, message: 'No authentication token provided' });
+  res.json({ success: true, user: null });
+});
+
 const authRoutes = require('./routes/auth');
-const usersRoutes = require('./routes/users');
+const reportRoutes = require('./routes/reports');
+const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
-const reportsRoutes = require('./routes/reports');
 const contactRoutes = require('./routes/contact');
-const issuesRoutes = require('./routes/issues');
-const districtsRoutes = require('./routes/districts');
-const reportTypesRoutes = require('./routes/reportTypes');
-const notificationsRoutes = require('./routes/notifications');
 const settingsRoutes = require('./routes/settings');
-const teamsRoutes = require('./routes/teams');
-const impactRoutes = require('./routes/impact');
-const geoRoutes = require('./geoRoutes');
+const notificationRoutes = require('./routes/notifications');
+
+let teamsRoutes;
+try {
+  teamsRoutes = require('./routes/teams');
+} catch {
+  teamsRoutes = express.Router();
+  teamsRoutes.get('/members', (_req, res) => res.json({ success: true, data: [] }));
+}
+
+let impactRoutes;
+try {
+  impactRoutes = require('./routes/impact');
+} catch {
+  impactRoutes = express.Router();
+  const auth = require('./middleware/auth');
+  const ReportModel = require('./models/Report');
+
+  impactRoutes.get('/stats', auth, async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const reports = await ReportModel.find({ userId });
+      res.json({ success: true, stats: { totalReports: reports.length, resolvedIssues: reports.filter(r => r.status === 'resolved').length, communityImpact: reports.length * 50, rating: 4.5 } });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+
+  impactRoutes.get('/activities', auth, async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const reports = await ReportModel.find({ userId }).sort({ createdAt: -1 }).limit(20);
+      res.json({ success: true, activities: reports.map(r => ({ id: r._id, title: r.title || r.issueType, type: r.issueType, location: r.location, lat: r.coordinates?.lat, lng: r.coordinates?.lng, status: r.status, timestamp: r.createdAt, description: r.description })) });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+
+  impactRoutes.get('/badges', auth, async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const reports = await ReportModel.find({ userId });
+      const totalReports = reports.length;
+      const resolvedIssues = reports.filter(r => r.status === 'resolved').length;
+      res.json({ success: true, badges: [
+        { id: 1, type: 'first-report', title: 'First Reporter', description: 'Submit your first report', earned: totalReports > 0, earnedDate: totalReports > 0 ? 'Earned' : null, progress: Math.min(100, 100) },
+        { id: 2, type: 'resolved-issues', title: 'Problem Solver', description: 'Get 10 issues resolved', earned: resolvedIssues >= 10, earnedDate: resolvedIssues >= 10 ? 'Earned' : null, progress: Math.min(100, (resolvedIssues / 10) * 100) },
+        { id: 3, type: 'community-hero', title: 'Community Hero', description: 'Help 1000+ residents', earned: totalReports >= 20, earnedDate: totalReports >= 20 ? 'Earned' : null, progress: Math.min(100, (totalReports / 20) * 100) },
+        { id: 4, type: 'top-reporter', title: 'Top Reporter', description: 'Submit 50 reports', earned: totalReports >= 50, earnedDate: totalReports >= 50 ? 'Earned' : null, progress: Math.min(100, (totalReports / 50) * 100) }
+      ] });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+}
 
 app.use('/api/auth', authRoutes);
-app.use('/api/users', usersRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/reports', reportsRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/contact', contactRoutes);
-app.use('/api/issues', issuesRoutes);
-app.use('/api/districts', districtsRoutes);
-app.use('/api/report-types', reportTypesRoutes);
-app.use('/api/notifications', notificationsRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/teams', teamsRoutes);
 app.use('/api/impact', impactRoutes);
-app.use('/api/geo', geoRoutes);
+app.use('/api/teams', teamsRoutes);
+app.use('/api', geoRoutes);
+app.use('/api/settings', settingsRoutes);
 
-/* --------------------------- Error handlers ------------------------- */
-app.use((req, res, next) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
+const issuesRoutes = require('./routes/issues');
+app.use('/api/issues', issuesRoutes);
+
+const distPath = path.join(__dirname, '..', 'client', 'dist');
+const publicPath = path.join(__dirname, '..', 'client');
+const frontendPath = fs.existsSync(path.join(distPath, 'index.html')) ? distPath : publicPath;
+app.use(express.static(frontendPath));
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 app.use((err, _req, res, _next) => {
-  const status = err.status || 500;
-  const msg = err.message || 'Internal Server Error';
-  if (msg.includes('CORS')) {
-    return res.status(403).json({ success: false, message: msg });
-  }
-  console.error('Unhandled error:', err);
-  res.status(status).json({ success: false, message: msg });
+  console.error('Error:', err);
+  res.status(err.status || 500).json({ success: false, message: err.message || 'Internal server error' });
 });
 
-/* --------------------------- DB connection -------------------------- */
-const MONGODB_URI = process.env.MONGODB_URI;
-if (!MONGODB_URI) {
-  console.error('❌ Missing MONGODB_URI env variable');
-  process.exit(1);
-}
-
-mongoose.set('strictQuery', true);
-
-mongoose.connect(MONGODB_URI, {
-  maxPoolSize: 10
-}).then(async () => {
-  console.log('✅ Connected to MongoDB Atlas');
-
-  // Optional seed/init
-  try {
-    const seed = require('./utils/seed');
-    if (typeof seed?.init === 'function') {
-      console.log('🌱 Initializing database...');
-      await seed.init();
-    } else {
-      console.log('🌱 Initializing database...');
-      console.log('ℹ️ Database already initialized');
-    }
-  } catch (e) {
-    // If seed.js not present or fails, continue without crashing
-    console.log('🌱 Initializing database...');
-    console.log('ℹ️ Database already initialized');
-  }
-
-}).catch((err) => {
-  console.error('❌ MongoDB connection error:', err.message);
-  process.exit(1);
+app.use((_req, res) => {
+  res.status(404).json({ success: false, message: 'Route not found' });
 });
 
-/* ------------------------------ Server ------------------------------ */
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
-  const base = process.env.BASE_URL || `http://localhost:${PORT}`;
-  const banner = `
-╔════════════════════════════════════════════════╗
-║         CityFix Backend Server v2.0.0          ║
-╠════════════════════════════════════════════════╣
-║   Server: ${base.padEnd(36, ' ')}║
-║   API:    ${`${base}/api`.padEnd(36, ' ')}║
-║   Health: ${`${base}/api/health`.padEnd(36, ' ')}║
-╚════════════════════════════════════════════════╝
-`.trim();
-  console.log(banner);
+  console.log(`Server on :${PORT}`);
 });
 
 module.exports = app;
