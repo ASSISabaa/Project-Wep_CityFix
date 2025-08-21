@@ -8,18 +8,15 @@ const contactSchema = new mongoose.Schema(
     subject:   { type: String, required: true, enum: ['general','report-issue','technical','feedback','partnership','other'] },
     message:   { type: String, required: true, minlength: 10, maxlength: 1000, trim: true },
     priority:  { type: String, enum: ['low','medium','high'], default: 'medium' },
-
     status:    { type: String, enum: ['new','read','replied','closed'], default: 'new' },
-
     userId:    { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     repliedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     reply:     { type: String, default: null },
     repliedAt: { type: Date, default: null },
-
     ipAddress: { type: String },
     userAgent: { type: String }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Contact', contactSchema);
+module.exports = mongoose.models.Contact || mongoose.model('Contact', contactSchema);

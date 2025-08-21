@@ -47,7 +47,7 @@ body {
    =========================== */
 .contact-main {
     flex: 1 0 auto;
-    padding: 80px 20px 120px; /* Increased padding for better spacing */
+    padding: 80px 20px 120px; 
 }
 
 .contact-container {
