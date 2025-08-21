@@ -53,15 +53,11 @@
       .profile-row{display:flex;align-items:center;gap:12px}
       .role-badge{background:#eef2ff;color:#3730a3;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600}
       .panel-actions{padding:12px;border-top:1px solid #f1f5f9;display:flex;gap:10px;justify-content:flex-end}
-      .btn,.btn-link{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600}
-      .btn-primary{background:#1f6feb;color:#fff}
-      .btn-secondary{background:#f3f4f6;color:#111827}
       .mobile-logout{display:block;margin:12px 14px 18px;padding:14px;border-radius:10px;background:#fff1f2;color:#b91c1c;text-align:center;font-weight:700;border:1px solid #ffe4e6}
     `.trim();
     const style=document.createElement('style'); style.id='cityfix-header-injected-css'; style.textContent=css; document.head.appendChild(style);
   }
 
-  // ---------- Panels helper ----------
   const Panels = {
     open(anchor, panel){
       this.position(anchor,panel);
@@ -82,7 +78,6 @@
     _repos(){ if (Panels._cur) Panels.position(Panels._cur.anchor, Panels._cur.panel); }
   };
 
-  // ---------- Notifications ----------
   const Notifs = {
     icon(){ return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'; },
     fmt(ts){ const n=new Date(), d=new Date(ts), s=(n-d)/1000; if (s<60) return 'Just now'; if (s<3600) return `${Math.floor(s/60)} minutes ago`; if (s<86400) return `${Math.floor(s/3600)} hours ago`; if (s<604800) return `${Math.floor(s/86400)} days ago`; return d.toLocaleDateString(); },
@@ -120,7 +115,6 @@
     }
   };
 
-  // ---------- UI ----------
   function avatarHTML(user, large=false){
     const size=large?50:32;
     if (user?.profilePhoto) return `<img src="${user.profilePhoto}" alt="U" class="user-avatar-img" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;">`;
@@ -133,16 +127,22 @@
   function renderAuthArea(){
     const host=qs('.auth-section'); if (!host) return;
     const logged=isLoggedIn();
-    // Always reset to show buttons (in case of logout)
-    qsa('.login-btn,.signup-btn').forEach(b=> b.style.display = logged ? 'none' : '');
+
     if (!logged){
-      host.innerHTML = ''; // no profile/bell when logged out
-      removeMobileLogout();
       removePanels();
+      removeMobileLogout();
+      ensureMobileAuthLinks();
+      host.innerHTML = `
+        <div class="header-actions">
+          <a class="btn btn-secondary login-btn" href="login.html">Log in</a>
+          <a class="btn btn-primary signup-btn" href="signup.html">Sign up</a>
+        </div>`;
       return;
     }
 
-    // Logged in: inject profile + bell
+    removeMobileAuthLinks();
+    ensureMobileLogout();
+
     const user=readUser()||{};
     host.innerHTML = `
       <div class="header-actions">
@@ -161,10 +161,8 @@
           </button>
         </div>
       </div>`;
-
     ensurePanels(user);
     bindAuthEvents();
-    ensureMobileLogout();
   }
 
   function ensurePanels(user){
@@ -233,12 +231,23 @@
   }
   function removeMobileLogout(){ qs('.mobile-logout')?.remove(); }
 
+  function ensureMobileAuthLinks(){
+    const nav=qs('.mobile-nav'); if (!nav) return;
+    removeMobileAuthLinks();
+    const wrap=document.createElement('div');
+    wrap.className='mobile-auth-wrap';
+    wrap.innerHTML = `
+      <a class="nav-item" href="login.html">Log in</a>
+      <a class="nav-item" href="signup.html">Sign up</a>`;
+    nav.appendChild(wrap);
+  }
+  function removeMobileAuthLinks(){ qs('.mobile-auth-wrap')?.remove(); }
+
   function doLogout(){
     localStorage.removeItem(LS_TOKEN); localStorage.removeItem(LS_USER); sessionStorage.clear();
     location.href='login.html';
   }
 
-  // ---------- Mobile menu, active state, guards ----------
   class HeaderCtrl{
     constructor(){
       this.el = {
@@ -274,7 +283,6 @@
     setTimeout(()=> toast('Please sign in to view this page.','warning'), 20000);
   }
 
-  // ---------- Boot ----------
   function boot(){
     injectStyles();
     const header=new HeaderCtrl();
@@ -288,7 +296,7 @@
       isLoggedIn: ()=> isLoggedIn()
     };
 
-    console.log('✅ Header: profile+bell when logged in, login/signup when logged out');
+    console.log('✅ Header wired to common.css for auth buttons; profile/bell on login, login/signup on logout.');
   }
 
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
