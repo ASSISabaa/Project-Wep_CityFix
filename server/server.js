@@ -1,8 +1,8 @@
-// server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const dotenv = require('dotenv');
 const geoRoutes = require('./geoRoutes');
 
@@ -16,9 +16,7 @@ const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || '')
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) {
-      return cb(null, true);
-    }
+    if (!origin || ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
     cb(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -48,29 +46,21 @@ const mongoOpts = { serverSelectionTimeoutMS: 10000 };
 async function connectWithRetry() {
   try {
     await mongoose.connect(MONGODB_URI, mongoOpts);
-    console.log('✅ Connected to MongoDB Atlas');
+    console.log('Connected to MongoDB');
     try {
       const initDB = require('./utils/seed');
       if (typeof initDB === 'function') await initDB();
     } catch (_) {}
   } catch (err) {
-    console.error('❌ MongoDB connect failed:', err.codeName || err.message);
+    console.error('MongoDB connect failed:', err.codeName || err.message);
     setTimeout(connectWithRetry, 5000);
   }
 }
 connectWithRetry();
-mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️ MongoDB disconnected, retrying...');
-  connectWithRetry();
-});
+mongoose.connection.on('disconnected', () => connectWithRetry());
 
 app.get('/api/health', (_req, res) => {
-  res.json({
-    status: 'ok',
-    server: 'CityFix Backend',
-    timestamp: new Date(),
-    uptime: process.uptime()
-  });
+  res.json({ status: 'ok', server: 'CityFix Backend', timestamp: new Date(), uptime: process.uptime() });
 });
 
 app.get('/api/districts', (_req, res) => {
@@ -111,18 +101,7 @@ app.get('/api/dashboard/stats', async (_req, res) => {
     const resolved = await Report.countDocuments({ status: { $in: ['resolved', 'closed'] } });
     const inProgress = await Report.countDocuments({ status: 'in-progress' });
     const resolutionRate = totalReports ? Math.round((resolved / totalReports) * 100) : 0;
-
-    res.json({
-      success: true,
-      data: {
-        totalReports,
-        resolved,
-        inProgress,
-        resolutionRate,
-        avgResponseTime: null,
-        weeklyTrend: null
-      }
-    });
+    res.json({ success: true, data: { totalReports, resolved, inProgress, resolutionRate, avgResponseTime: null, weeklyTrend: null } });
   } catch (e) {
     res.status(500).json({ success: false, message: 'Failed to compute dashboard stats' });
   }
@@ -130,9 +109,7 @@ app.get('/api/dashboard/stats', async (_req, res) => {
 
 app.get('/api/auth/me', (req, res) => {
   const token = req.headers.authorization;
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'No authentication token provided' });
-  }
+  if (!token) return res.status(401).json({ success: false, message: 'No authentication token provided' });
   res.json({ success: true, user: null });
 });
 
@@ -164,15 +141,7 @@ try {
     try {
       const userId = req.user._id;
       const reports = await ReportModel.find({ userId });
-      res.json({
-        success: true,
-        stats: {
-          totalReports: reports.length,
-          resolvedIssues: reports.filter(r => r.status === 'resolved').length,
-          communityImpact: reports.length * 50,
-          rating: 4.5
-        }
-      });
+      res.json({ success: true, stats: { totalReports: reports.length, resolvedIssues: reports.filter(r => r.status === 'resolved').length, communityImpact: reports.length * 50, rating: 4.5 } });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -182,20 +151,7 @@ try {
     try {
       const userId = req.user._id;
       const reports = await ReportModel.find({ userId }).sort({ createdAt: -1 }).limit(20);
-      res.json({
-        success: true,
-        activities: reports.map(r => ({
-          id: r._id,
-          title: r.title || r.issueType,
-          type: r.issueType,
-          location: r.location,
-          lat: r.coordinates?.lat,
-          lng: r.coordinates?.lng,
-          status: r.status,
-          timestamp: r.createdAt,
-          description: r.description
-        }))
-      });
+      res.json({ success: true, activities: reports.map(r => ({ id: r._id, title: r.title || r.issueType, type: r.issueType, location: r.location, lat: r.coordinates?.lat, lng: r.coordinates?.lng, status: r.status, timestamp: r.createdAt, description: r.description })) });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -207,31 +163,17 @@ try {
       const reports = await ReportModel.find({ userId });
       const totalReports = reports.length;
       const resolvedIssues = reports.filter(r => r.status === 'resolved').length;
-
-      res.json({
-        success: true,
-        badges: [
-          { id: 1, type: 'first-report', title: 'First Reporter', description: 'Submit your first report', earned: totalReports > 0, earnedDate: totalReports > 0 ? 'Earned' : null, progress: totalReports > 0 ? 100 : 0 },
-          { id: 2, type: 'resolved-issues', title: 'Problem Solver', description: 'Get 10 issues resolved', earned: resolvedIssues >= 10, earnedDate: resolvedIssues >= 10 ? 'Earned' : null, progress: Math.min(100, (resolvedIssues / 10) * 100) },
-          { id: 3, type: 'community-hero', title: 'Community Hero', description: 'Help 1000+ residents', earned: totalReports >= 20, earnedDate: totalReports >= 20 ? 'Earned' : null, progress: Math.min(100, (totalReports / 20) * 100) },
-          { id: 4, type: 'top-reporter', title: 'Top Reporter', description: 'Submit 50 reports', earned: totalReports >= 50, earnedDate: totalReports >= 50 ? 'Earned' : null, progress: Math.min(100, (totalReports / 50) * 100) }
-        ]
-      });
+      res.json({ success: true, badges: [
+        { id: 1, type: 'first-report', title: 'First Reporter', description: 'Submit your first report', earned: totalReports > 0, earnedDate: totalReports > 0 ? 'Earned' : null, progress: Math.min(100, 100) },
+        { id: 2, type: 'resolved-issues', title: 'Problem Solver', description: 'Get 10 issues resolved', earned: resolvedIssues >= 10, earnedDate: resolvedIssues >= 10 ? 'Earned' : null, progress: Math.min(100, (resolvedIssues / 10) * 100) },
+        { id: 3, type: 'community-hero', title: 'Community Hero', description: 'Help 1000+ residents', earned: totalReports >= 20, earnedDate: totalReports >= 20 ? 'Earned' : null, progress: Math.min(100, (totalReports / 20) * 100) },
+        { id: 4, type: 'top-reporter', title: 'Top Reporter', description: 'Submit 50 reports', earned: totalReports >= 50, earnedDate: totalReports >= 50 ? 'Earned' : null, progress: Math.min(100, (totalReports / 50) * 100) }
+      ] });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
   });
 }
-
-app.get('/', (_req, res) => {
-  res.json({
-    success: true,
-    name: 'CityFix Backend',
-    apiBase: '/api',
-    health: '/api/health',
-    time: new Date()
-  });
-});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
@@ -247,6 +189,14 @@ app.use('/api/settings', settingsRoutes);
 const issuesRoutes = require('./routes/issues');
 app.use('/api/issues', issuesRoutes);
 
+const distPath = path.join(__dirname, '..', 'client', 'dist');
+const publicPath = path.join(__dirname, '..', 'client');
+const frontendPath = fs.existsSync(path.join(distPath, 'index.html')) ? distPath : publicPath;
+app.use(express.static(frontendPath));
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
 app.use((err, _req, res, _next) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({ success: false, message: err.message || 'Internal server error' });
@@ -258,15 +208,7 @@ app.use((_req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`
-╔════════════════════════════════════════════════╗
-║         CityFix Backend Server v2.0.0          ║
-╠════════════════════════════════════════════════╣
-║   Server: http://localhost:${PORT}                  ║
-║   API:    http://localhost:${PORT}/api              ║
-║   Health: http://localhost:${PORT}/api/health       ║
-╚════════════════════════════════════════════════╝
-  `);
+  console.log(`Server on :${PORT}`);
 });
 
 module.exports = app;
