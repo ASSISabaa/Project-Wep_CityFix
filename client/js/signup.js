@@ -2,18 +2,10 @@
   if (window.__CITYFIX_SIGNUP__) return;
   window.__CITYFIX_SIGNUP__ = true;
 
-  function baseURL() {
-    const meta = document.querySelector('meta[name="cityfix-api"]')?.content?.trim();
-    const cfg = (window.API_CONFIG && window.API_CONFIG.BASE_URL) || window.CITYFIX_API_BASE || null;
-    const fallback =
-      location.protocol === 'file:' ? 'http://localhost:5000' :
-      (/^(localhost|127\.0\.0\.1)$/i.test(location.hostname) ? 'http://localhost:5000' : location.origin);
-    return (meta || cfg || fallback).replace(/\/+$/,'');
-  }
-  const API_BASE = baseURL();
-  const api = (p) => `${API_BASE}${p.startsWith('/') ? p : `/${p}`}`;
+  const META_API = document.querySelector('meta[name="cityfix-api"]')?.content?.trim();
+  const API_BASE = `${location.origin}/api`;
 
-  const EP = { SIGNUP_TRY: ['/api/auth/register','/api/auth/signup','/api/users/register','/api/users/signup'] };
+  const EP = { SIGNUP_TRY: ['/api/auth/signup','/api/auth/register','/api/users/register','/api/users/signup'] };
   const ST = { TOKEN:'cityfix_token', USER:'cityfix_user', ROLE:'cityfix_role' };
 
   const TA = () => window.Toast || window.toast || window.toastr || window.Notifier || null;
@@ -23,7 +15,7 @@
     if (t?.clear) t.clear();
     if (t?.[type]) return t[type](msg);
     if (t?.show) return t.show(msg, { type, duration: 3200 });
-    alert((type==='error'?'Error: ':'')+msg);
+    alert(msg);
   }
 
   const emailOk = (e)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e||'').trim());
@@ -31,11 +23,7 @@
   const q = (s, r=document)=>r.querySelector(s);
 
   async function http(path,{method='POST',body}) {
-    const res = await fetch(api(path),{
-      method,
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(body)
-    });
+    const res = await fetch(API_BASE+path,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const txt = await res.text(); const json = txt?JSON.parse(txt):{};
     if(!res.ok){ const err=new Error(json.message||`HTTP ${res.status}`); err.status=res.status; throw err; }
     return json;

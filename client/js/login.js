@@ -1,16 +1,10 @@
+/* CityFix Login — backend verified, single toast, role-strict */
 (() => {
   if (window.__CITYFIX_LOGIN__) return; window.__CITYFIX_LOGIN__ = true;
 
-  function baseURL() {
-    const meta = document.querySelector('meta[name="cityfix-api"]')?.content?.trim();
-    const cfg = (window.API_CONFIG && window.API_CONFIG.BASE_URL) || window.CITYFIX_API_BASE || null;
-    const fallback =
-      location.protocol === 'file:' ? 'http://localhost:5000' :
-      (/^(localhost|127\.0\.0\.1)$/i.test(location.hostname) ? 'http://localhost:5000' : location.origin);
-    return (meta || cfg || fallback).replace(/\/+$/,'');
-  }
-  const API_BASE = baseURL();
-  const api = (p) => `${API_BASE}${p.startsWith('/') ? p : `/${p}`}`;
+  const META_API = document.querySelector('meta[name="cityfix-api"]')?.content?.trim();
+  const API_BASE = `${location.origin}/api`;
+
 
   const EP = { LOGIN:'/api/auth/login', VERIFY:'/api/auth/verify', FORGOT:'/api/auth/forgotpassword' };
   const ST = { TOKEN:'cityfix_token', USER:'cityfix_user', ROLE:'cityfix_role', REM:'cityfix_remember', EMAIL:'remembered_email' };
@@ -37,12 +31,7 @@
   async function http(path,{method='GET',body=null,token=null,timeout=12000}={}){
     const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),timeout);
     try{
-      const res=await fetch(api(path),{
-        method,
-        headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},
-        body:body?JSON.stringify(body):null,
-        signal:ctrl.signal
-      });
+      const res=await fetch(API_BASE+path,{method,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:body?JSON.stringify(body):null,signal:ctrl.signal});
       const txt=await res.text(); let json={}; try{ json=txt?JSON.parse(txt):{} }catch{}
       if(!res.ok){ const err=new Error(json.message||`HTTP ${res.status}`); err.status=res.status; throw err; }
       return json;
@@ -110,12 +99,13 @@
       const email=(this.email?.value||'').trim();
       this.busy(btn,true);
       try{
-        const out=await http(EP.LOGIN,{method:'POST',body:{email,password:this.pass.value,role}});
-        const token=out.token||out.accessToken||out.jwt||out.data?.token;
-        const user=out.user||out.data?.user||{};
-        if(!token) throw new Error('Missing token');
-        if(role==='admin' && user.role!=='admin'){ toast('Not authorized as admin','error'); clearSession(); return; }
-        if(role==='citizen' && user.role==='admin'){ toast('Admins must use admin login','error'); clearSession(); return; }
+      const out=await http(EP.LOGIN,{method:'POST',body:{email,password:this.pass.value,role}});
+      const token=out.token||out.accessToken||out.jwt||out.data?.token;
+      const user=out.user||out.data?.user||{};
+      if(!token) throw new Error('Missing token');
+      // Skip verify - trust the login response
+      if(role==='admin' && user.role!=='admin'){ toast('Not authorized as admin','error'); clearSession(); return; }
+      if(role==='citizen' && user.role==='admin'){ toast('Admins must use admin login','error'); clearSession(); return; }
         saveSession(token,user,remember);
         if(remember) localStorage.setItem(ST.EMAIL,email); else localStorage.removeItem(ST.EMAIL);
         toast('Login successful! Redirecting...','success');
