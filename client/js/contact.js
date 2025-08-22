@@ -1,10 +1,7 @@
 // contact.js — Production-grade submit with professional toasts (uses window.Toast)
 document.addEventListener('DOMContentLoaded', () => {
   /* ---------- API base (auto) ---------- */
-  const API_BASE =
-    (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-      ? 'http://localhost:5000/api'
-      : `${location.origin}/api`;
+  const API_BASE = `${location.origin}/api`;
 
   /* ---------- Elements ---------- */
   const form      = document.getElementById('contactForm');

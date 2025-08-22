@@ -10,7 +10,7 @@
   const CITYFIX_API_BASE =
     (window.API_CONFIG && window.API_CONFIG.BASE_URL) ||
     window.CITYFIX_API_BASE ||
-    'http://localhost:5000';
+    location.origin; 
 
   const apiURL = (p) => `${CITYFIX_API_BASE}${p.startsWith('/') ? p : `/${p}`}`;
   const qs = (s, r=document)=>r.querySelector(s);

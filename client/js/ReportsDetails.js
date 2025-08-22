@@ -4,10 +4,7 @@
 
   /* -------- API helper (no /api/api double-ups) -------- */
   const API = {
-    base:
-      (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-        ? 'http://localhost:5000/api'
-        : location.origin + '/api',
+    base: location.origin + '/api',
 
     token() {
       const keys = ['cityfix_token', 'authToken', 'token', 'jwt', 'accessToken'];

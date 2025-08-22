@@ -9,9 +9,7 @@
 const CFG = {
   API_BASE:
     (window.CITYFIX && window.CITYFIX.API_BASE) ||
-    (location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-      ? 'http://localhost:5000'
-      : location.origin),
+      location.origin,
   NOTIF_REFRESH_MS: 30000 // polling fallback; no streaming calls
 };
 

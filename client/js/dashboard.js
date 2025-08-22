@@ -1,7 +1,7 @@
 'use strict';
 
 const CONFIG = {
-  API_BASE: 'http://localhost:5000',
+  API_BASE: location.origin,
   GMAPS_API_KEY: 'AIzaSyA154jOZoQ_OPgXbusEP0JQ0L5fmMJzOV8',
   MAP_ID: '',
   MAP_CENTER: { lat: 31.0461, lng: 34.8516 },

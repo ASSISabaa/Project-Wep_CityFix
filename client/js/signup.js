@@ -3,10 +3,7 @@
   window.__CITYFIX_SIGNUP__ = true;
 
   const META_API = document.querySelector('meta[name="cityfix-api"]')?.content?.trim();
-  const API_BASE =
-    META_API && /^https?:\/\//i.test(META_API) ? META_API.replace(/\/+$/,'') :
-    (location.protocol === 'file:' ? 'http://localhost:5000' :
-     (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'http://localhost:5000' : location.origin));
+  const API_BASE = `${location.origin}/api`;
 
   const EP = { SIGNUP_TRY: ['/api/auth/signup','/api/auth/register','/api/users/register','/api/users/signup'] };
   const ST = { TOKEN:'cityfix_token', USER:'cityfix_user', ROLE:'cityfix_role' };

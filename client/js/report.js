@@ -3,9 +3,7 @@
   'use strict';
 
   const API = {
-    BASE: (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-      ? 'http://localhost:5000/api'
-      : `${location.origin}/api`,
+    BASE: `${location.origin}/api`,
     PATH: {
       REPORTS: '/reports',
       STATUS: '/reports/:id/status',

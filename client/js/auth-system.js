@@ -7,7 +7,7 @@
 // ==================== Configuration ====================
 const CONFIG = {
     API: {
-        BASE_URL: 'http://localhost:5000',
+        BASE_URL: location.origin,
         TIMEOUT: 10000,
         RETRY_ATTEMPTS: 3
     },

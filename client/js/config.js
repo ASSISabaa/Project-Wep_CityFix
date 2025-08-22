@@ -3,7 +3,7 @@
 
 const CONFIG = {
     // API Configuration
-    API_BASE: 'http://localhost:5000',
+    API_BASE: location.origin,
     
     // API Endpoints
     ENDPOINTS: {

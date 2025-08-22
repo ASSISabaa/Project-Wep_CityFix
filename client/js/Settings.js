@@ -1,9 +1,5 @@
 (() => {
-  const API =
-    (window.CITYFIX && window.CITYFIX.API_BASE) ||
-    ((location.protocol === 'file:' || !location.origin || ['localhost', '127.0.0.1'].includes(location.hostname))
-      ? 'http://localhost:5000/api'
-      : `${location.origin}/api`);
+  const API = `${location.origin}/api`;
 
   function getToken() {
     if (window.CITYFIX && typeof window.CITYFIX.getToken === 'function') return window.CITYFIX.getToken();

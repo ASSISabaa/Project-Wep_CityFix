@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const API_BASE = 'http://localhost:5000';
+  const API_BASE = location.origin;
   const api = (p) => `${API_BASE}${p.startsWith('/api') ? p : `/api${p}`}`;
   const authHeader = () => {
     const t = localStorage.getItem('cityfix_token') || sessionStorage.getItem('cityfix_token');
