@@ -1,0 +1,367 @@
+{
+  "info": {
+    "_postman_id": "4b91e669-1cae-494a-9782-7f17d3f75e57",
+    "name": "CityFix API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "CityFix API collection (prod). Uses {{base_url}} and stores Bearer {{token}} after Login.\n\nHow to:\n1) Import this collection + environment.\n2) Select 'CityFix Prod', run Login to store token.\n3) Call other endpoints."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (citizen)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user0\",\n  \"email\": \"user0@gmail.com\",\n  \"password\": \"secret123\",\n  \"role\": \"citizen\",\n  \"userId\": \"123456789\"\n}"
+            },
+            "description": "Create a citizen user"
+          },
+          "response": [
+            {
+              "name": "201 Created - example",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/register",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"user0\",\n  \"email\": \"user0@gmail.com\",\n  \"password\": \"secret123\",\n  \"role\": \"citizen\",\n  \"userId\": \"123456789\"\n}"
+                },
+                "description": "Create a citizen user"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"_id\": \"65f...\",\n      \"username\": \"user0\",\n      \"email\": \"user0@gmail.com\",\n      \"role\": \"citizen\"\n    },\n    \"token\": \"<jwt-token>\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin0\",\n  \"email\": \"admin0@gmail.com\",\n  \"password\": \"secret123\",\n  \"role\": \"admin\",\n  \"nationalId\": \"123456789\"\n}"
+            },
+            "description": "Create an admin user"
+          },
+          "response": []
+        },
+        {
+          "name": "Login (stores token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin5@gmail.com\",\n  \"password\": \"secret123\",\n  \"role\": \"admin\"\n}"
+            },
+            "description": "Store token to environment"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "var j = {}; try { j = pm.response.json() || {}; } catch(e) {}",
+                  "var t = j.token || j.accessToken || j.jwt || (j.data && j.data.token);",
+                  "if (t) pm.environment.set(\"token\", t);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify token",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify"
+              ]
+            },
+            "description": "Verify current token"
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgotpassword",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgotpassword"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user0@gmail.com\"\n}"
+            },
+            "description": "Send reset link (if enabled)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Create report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reports"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Broken streetlight\",\n  \"issueType\": \"lighting\",\n  \"description\": \"Lamp not working near 5th Ave\",\n  \"district\": \"central\",\n  \"coordinates\": {\n    \"lat\": 32.0901,\n    \"lng\": 34.8037\n  }\n}"
+            },
+            "description": "Requires Bearer token"
+          },
+          "response": []
+        },
+        {
+          "name": "My reports",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "mine",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "List current user's reports"
+          },
+          "response": []
+        },
+        {
+          "name": "All reports (admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reports"
+              ]
+            },
+            "description": "List all reports (admin role)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Meta",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Districts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/districts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "districts"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Report types",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/report-types",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "report-types"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Dashboard stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "stats"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
