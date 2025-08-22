@@ -33,8 +33,8 @@ Manage team members (other admins).
 Configure system settings.
 View and send notifications.
 Admin Login Credentials:
-Email: admin2@cityfix.com
-Password: Admin@123456
+Email: admin5@gmail.com
+Password: Admin123!
 
 User Capabilities
 Create an account and login.
@@ -42,8 +42,8 @@ Submit new reports with description, category, and image.
 View reports on the Browse Reports page.
 Track their own submissions in MyImpact.
 User Login Credentials:
-Email: user@test.com
-Password: User1231234
+Email: user1@test.com
+Password: User123456
 
 Key Features
 Real-time map integration (Google Maps).

@@ -45,15 +45,12 @@ router.post('/signup', async (req, res) => {
                 });
             }
         }
-        
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
+      
         // Create user
         const user = new User({
             username,
             email,
-            password: hashedPassword,
+            password: password, // Don't hash here, let the model do it
             role: role || 'citizen',
             userId: userId || undefined,
             isVerified: true

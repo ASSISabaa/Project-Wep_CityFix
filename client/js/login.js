@@ -101,13 +101,13 @@
       const email=(this.email?.value||'').trim();
       this.busy(btn,true);
       try{
-        const out=await http(EP.LOGIN,{method:'POST',body:{email,password:this.pass.value,role}});
-        const token=out.token||out.accessToken||out.jwt||out.data?.token;
-        const baseUser=out.user||out.data?.user||{};
-        if(!token) throw new Error('Missing token');
-        const {user}=await verifyToken(token).catch(()=>({user:{...baseUser}}));
-        if(role==='admin' && user.role!=='admin'){ toast('Not authorized as admin','error'); clearSession(); return; }
-        if(role==='citizen' && user.role==='admin'){ toast('Admins must use admin login','error'); clearSession(); return; }
+      const out=await http(EP.LOGIN,{method:'POST',body:{email,password:this.pass.value,role}});
+      const token=out.token||out.accessToken||out.jwt||out.data?.token;
+      const user=out.user||out.data?.user||{};
+      if(!token) throw new Error('Missing token');
+      // Skip verify - trust the login response
+      if(role==='admin' && user.role!=='admin'){ toast('Not authorized as admin','error'); clearSession(); return; }
+      if(role==='citizen' && user.role==='admin'){ toast('Admins must use admin login','error'); clearSession(); return; }
         saveSession(token,user,remember);
         if(remember) localStorage.setItem(ST.EMAIL,email); else localStorage.removeItem(ST.EMAIL);
         toast('Login successful! Redirecting...','success');
