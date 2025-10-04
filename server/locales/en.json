@@ -1,0 +1,34 @@
+{
+    "welcome": "Welcome to CityFix",
+    "report": {
+        "new": "New Report",
+        "title": "Title",
+        "description": "Description",
+        "type": "Issue Type",
+        "status": "Status",
+        "priority": "Priority",
+        "submit": "Submit Report",
+        "success": "Report submitted successfully"
+    },
+    "auth": {
+        "login": "Login",
+        "signup": "Sign Up",
+        "email": "Email",
+        "password": "Password",
+        "username": "Username",
+        "forgotPassword": "Forgot Password?",
+        "resetPassword": "Reset Password"
+    },
+    "status": {
+        "new": "New",
+        "assigned": "Assigned",
+        "inProgress": "In Progress",
+        "resolved": "Resolved",
+        "closed": "Closed"
+    },
+    "errors": {
+        "unauthorized": "Unauthorized access",
+        "notFound": "Resource not found",
+        "serverError": "Server error occurred"
+    }
+}

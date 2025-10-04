@@ -1,0 +1,34 @@
+{
+    "welcome": "مرحباً بك في CityFix",
+    "report": {
+        "new": "بلاغ جديد",
+        "title": "العنوان",
+        "description": "الوصف",
+        "type": "نوع المشكلة",
+        "status": "الحالة",
+        "priority": "الأولوية",
+        "submit": "إرسال البلاغ",
+        "success": "تم إرسال البلاغ بنجاح"
+    },
+    "auth": {
+        "login": "تسجيل الدخول",
+        "signup": "إنشاء حساب",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "username": "اسم المستخدم",
+        "forgotPassword": "نسيت كلمة المرور؟",
+        "resetPassword": "إعادة تعيين كلمة المرور"
+    },
+    "status": {
+        "new": "جديد",
+        "assigned": "مُسند",
+        "inProgress": "قيد التنفيذ",
+        "resolved": "تم الحل",
+        "closed": "مغلق"
+    },
+    "errors": {
+        "unauthorized": "غير مصرح بالدخول",
+        "notFound": "المورد غير موجود",
+        "serverError": "حدث خطأ في الخادم"
+    }
+}

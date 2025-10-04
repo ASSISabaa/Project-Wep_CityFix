@@ -1,0 +1,34 @@
+{
+    "welcome": "Добро пожаловать в CityFix",
+    "report": {
+        "new": "Новый отчет",
+        "title": "Заголовок",
+        "description": "Описание",
+        "type": "Тип проблемы",
+        "status": "Статус",
+        "priority": "Приоритет",
+        "submit": "Отправить отчет",
+        "success": "Отчет успешно отправлен"
+    },
+    "auth": {
+        "login": "Войти",
+        "signup": "Регистрация",
+        "email": "Электронная почта",
+        "password": "Пароль",
+        "username": "Имя пользователя",
+        "forgotPassword": "Забыли пароль?",
+        "resetPassword": "Сбросить пароль"
+    },
+    "status": {
+        "new": "Новый",
+        "assigned": "Назначен",
+        "inProgress": "В процессе",
+        "resolved": "Решен",
+        "closed": "Закрыт"
+    },
+    "errors": {
+        "unauthorized": "Неавторизованный доступ",
+        "notFound": "Ресурс не найден",
+        "serverError": "Ошибка сервера"
+    }
+}

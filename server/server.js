@@ -1,215 +1,170 @@
+// server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 const path = require('path');
-const fs = require('fs');
-const dotenv = require('dotenv');
-const geoRoutes = require('./geoRoutes');
+require('dotenv').config();
 
-dotenv.config();
 const app = express();
 
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || '')
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
-
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
-    cb(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
+// ===== Middleware =====
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  if (req.method === 'OPTIONS') return res.sendStatus(204);
-  next();
-});
-
+app.use(compression());
+app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// CORS configuration
+app.use(cors({
+    origin: function(origin, callback) {
+        const allowedOrigins = [
+            'http://localhost:5500',
+            'http://127.0.0.1:5500',
+            'http://localhost:3000',
+            'http://127.0.0.1:3000'
+        ];
+        
+        // Allow requests with no origin (like mobile apps or Postman)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Allow all origins in development
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const MONGODB_URI = process.env.MONGODB_URI;
-if (!MONGODB_URI) {
-  console.error('Missing MONGODB_URI');
-  process.exit(1);
-}
-const mongoOpts = { serverSelectionTimeoutMS: 10000 };
+// ===== Database Connection =====
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cityfix', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
-async function connectWithRetry() {
-  try {
-    await mongoose.connect(MONGODB_URI, mongoOpts);
-    console.log('Connected to MongoDB');
-    try {
-      const initDB = require('./utils/seed');
-      if (typeof initDB === 'function') await initDB();
-    } catch (_) {}
-  } catch (err) {
-    console.error('MongoDB connect failed:', err.codeName || err.message);
-    setTimeout(connectWithRetry, 5000);
-  }
-}
-connectWithRetry();
-mongoose.connection.on('disconnected', () => connectWithRetry());
+// ===== Import Routes =====
+const authRoutes = require('./routes/authRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const userRoutes = require('./routes/userRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const publicRoutes = require('./routes/publicRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', server: 'CityFix Backend', timestamp: new Date(), uptime: process.uptime() });
+// ===== Health Check =====
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development'
+    });
 });
 
-app.get('/api/districts', (_req, res) => {
-  res.json({
-    success: true,
-    data: [
-      { name: 'Downtown', value: 'downtown' },
-      { name: 'North Side', value: 'north-side' },
-      { name: 'South Side', value: 'south-side' },
-      { name: 'East End', value: 'east-end' },
-      { name: 'West End', value: 'west-end' },
-      { name: 'Central', value: 'central' },
-      { name: 'Kafr Bara', value: 'kafr-bara' },
-      { name: 'Netanya', value: 'netanya' },
-      { name: 'Tel Aviv', value: 'tel-aviv' },
-      { name: 'Jerusalem', value: 'jerusalem' }
-    ]
-  });
+// ===== Districts Endpoint =====
+app.get('/api/districts', (req, res) => {
+    const districts = [
+        { value: 'downtown', name: 'Downtown' },
+        { value: 'north', name: 'North District' },
+        { value: 'south', name: 'South District' },
+        { value: 'east', name: 'East District' },
+        { value: 'west', name: 'West District' },
+        { value: 'central', name: 'Central District' }
+    ];
+    
+    res.json({
+        success: true,
+        data: districts,
+        count: districts.length
+    });
 });
 
-app.get('/api/report-types', (_req, res) => {
-  res.json({
-    success: true,
-    data: [
-      { id: 'lighting', name: 'Lighting' },
-      { id: 'roads', name: 'Roads' },
-      { id: 'drainage', name: 'Drainage' },
-      { id: 'sanitation', name: 'Sanitation' },
-      { id: 'parks', name: 'Parks' }
-    ]
-  });
+// ===== Report Types Endpoint =====
+app.get('/api/report-types', (req, res) => {
+    const types = [
+        { value: 'pothole', name: 'Pothole', icon: '🕳️' },
+        { value: 'lighting', name: 'Street Lighting', icon: '💡' },
+        { value: 'drainage', name: 'Drainage', icon: '🚰' },
+        { value: 'traffic', name: 'Traffic', icon: '🚦' },
+        { value: 'vandalism', name: 'Vandalism', icon: '🎨' },
+        { value: 'garbage', name: 'Garbage', icon: '🗑️' },
+        { value: 'noise', name: 'Noise', icon: '🔊' },
+        { value: 'other', name: 'Other', icon: '📋' }
+    ];
+    
+    res.json({
+        success: true,
+        data: types,
+        count: types.length
+    });
 });
 
-const Report = require('./models/Report');
-app.get('/api/dashboard/stats', async (_req, res) => {
-  try {
-    const totalReports = await Report.countDocuments({});
-    const resolved = await Report.countDocuments({ status: { $in: ['resolved', 'closed'] } });
-    const inProgress = await Report.countDocuments({ status: 'in-progress' });
-    const resolutionRate = totalReports ? Math.round((resolved / totalReports) * 100) : 0;
-    res.json({ success: true, data: { totalReports, resolved, inProgress, resolutionRate, avgResponseTime: null, weeklyTrend: null } });
-  } catch (e) {
-    res.status(500).json({ success: false, message: 'Failed to compute dashboard stats' });
-  }
-});
-
-app.get('/api/auth/me', (req, res) => {
-  const token = req.headers.authorization;
-  if (!token) return res.status(401).json({ success: false, message: 'No authentication token provided' });
-  res.json({ success: true, user: null });
-});
-
-const authRoutes = require('./routes/auth');
-const reportRoutes = require('./routes/reports');
-const userRoutes = require('./routes/users');
-const adminRoutes = require('./routes/admin');
-const contactRoutes = require('./routes/contact');
-const settingsRoutes = require('./routes/settings');
-const notificationRoutes = require('./routes/notifications');
-
-let teamsRoutes;
-try {
-  teamsRoutes = require('./routes/teams');
-} catch {
-  teamsRoutes = express.Router();
-  teamsRoutes.get('/members', (_req, res) => res.json({ success: true, data: [] }));
-}
-
-let impactRoutes;
-try {
-  impactRoutes = require('./routes/impact');
-} catch {
-  impactRoutes = express.Router();
-  const auth = require('./middleware/auth');
-  const ReportModel = require('./models/Report');
-
-  impactRoutes.get('/stats', auth, async (req, res) => {
-    try {
-      const userId = req.user._id;
-      const reports = await ReportModel.find({ userId });
-      res.json({ success: true, stats: { totalReports: reports.length, resolvedIssues: reports.filter(r => r.status === 'resolved').length, communityImpact: reports.length * 50, rating: 4.5 } });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+// ===== Locales Endpoint =====
+app.get('/api/locales/:lang', (req, res) => {
+    const { lang } = req.params;
+    const supportedLanguages = ['en', 'ar', 'he'];
+    
+    if (!supportedLanguages.includes(lang)) {
+        return res.status(404).json({
+            success: false,
+            message: 'Language not supported'
+        });
     }
-  });
-
-  impactRoutes.get('/activities', auth, async (req, res) => {
+    
     try {
-      const userId = req.user._id;
-      const reports = await ReportModel.find({ userId }).sort({ createdAt: -1 }).limit(20);
-      res.json({ success: true, activities: reports.map(r => ({ id: r._id, title: r.title || r.issueType, type: r.issueType, location: r.location, lat: r.coordinates?.lat, lng: r.coordinates?.lng, status: r.status, timestamp: r.createdAt, description: r.description })) });
+        const translations = require(`./locales/${lang}.json`);
+        res.json(translations);
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+        res.status(404).json({
+            success: false,
+            message: 'Language file not found'
+        });
     }
-  });
+});
 
-  impactRoutes.get('/badges', auth, async (req, res) => {
-    try {
-      const userId = req.user._id;
-      const reports = await ReportModel.find({ userId });
-      const totalReports = reports.length;
-      const resolvedIssues = reports.filter(r => r.status === 'resolved').length;
-      res.json({ success: true, badges: [
-        { id: 1, type: 'first-report', title: 'First Reporter', description: 'Submit your first report', earned: totalReports > 0, earnedDate: totalReports > 0 ? 'Earned' : null, progress: Math.min(100, 100) },
-        { id: 2, type: 'resolved-issues', title: 'Problem Solver', description: 'Get 10 issues resolved', earned: resolvedIssues >= 10, earnedDate: resolvedIssues >= 10 ? 'Earned' : null, progress: Math.min(100, (resolvedIssues / 10) * 100) },
-        { id: 3, type: 'community-hero', title: 'Community Hero', description: 'Help 1000+ residents', earned: totalReports >= 20, earnedDate: totalReports >= 20 ? 'Earned' : null, progress: Math.min(100, (totalReports / 20) * 100) },
-        { id: 4, type: 'top-reporter', title: 'Top Reporter', description: 'Submit 50 reports', earned: totalReports >= 50, earnedDate: totalReports >= 50 ? 'Earned' : null, progress: Math.min(100, (totalReports / 50) * 100) }
-      ] });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  });
-}
+// ===== API Routes =====
+// Public routes (no authentication required)
+app.use('/api/public', publicRoutes);
 
+// Protected routes
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/contact', contactRoutes);
-app.use('/api/impact', impactRoutes);
-app.use('/api/teams', teamsRoutes);
-app.use('/api', geoRoutes);
-app.use('/api/settings', settingsRoutes);
 
-const issuesRoutes = require('./routes/issues');
-app.use('/api/issues', issuesRoutes);
-
-const distPath = path.join(__dirname, '..', 'client', 'dist');
-const publicPath = path.join(__dirname, '..', 'client');
-const frontendPath = fs.existsSync(path.join(distPath, 'index.html')) ? distPath : publicPath;
-app.use(express.static(frontendPath));
-app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
+// ===== Error Handling =====
+app.use((req, res, next) => {
+    res.status(404).json({
+        success: false,
+        message: 'Route not found'
+    });
 });
 
-app.use((err, _req, res, _next) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({ success: false, message: err.message || 'Internal server error' });
+app.use((err, req, res, next) => {
+    console.error('Error:', err.stack);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Internal server error',
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
 });
 
-app.use((_req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
-});
-
+// ===== Start Server =====
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server on :${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 API available at http://localhost:${PORT}/api`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
-
-
-module.exports = app;

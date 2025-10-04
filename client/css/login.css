@@ -54,15 +54,15 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
   display: block;
 }
 
-/* Image overlay - positioned relative to image-wrapper */
+/* Image overlay - FIXED positioning relative to image-wrapper */
 .image-overlay {
   width: 260px;
   height: 86px;
   border-radius: 12px;
   opacity: 1;
   position: absolute;
-  bottom: 70px;
-  left: 60px;
+  bottom: 50px;
+  left: 50px;
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid #E5E7EB;
   box-shadow: 0px 10px 15px 0px rgba(0, 0, 0, 0.1), 0px 4px 6px 0px rgba(0, 0, 0, 0.1);
@@ -72,6 +72,7 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
   padding: 14px 16px;
   backdrop-filter: blur(10px);
   z-index: 10;
+  transition: all 0.3s ease;
 }
 
 .overlay-title {
@@ -150,8 +151,8 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
   .image-overlay {
     width: 300px;
     height: 100px;
-    bottom: 90px;
-    left: 75px;
+    bottom: 50px;
+    left: 50px;
     padding: 18px 20px;
   }
   .overlay-title {
@@ -166,18 +167,88 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
 @media (min-width: 1200px) and (max-width: 1399px) {
   .image-wrapper {
     max-width: 600px;
+    position: relative !important;
   }
   .image-overlay {
-    bottom: 80px;
-    left: 65px;
+    width: 240px !important;
+    height: 86px !important;
+    position: absolute !important;
+    bottom: 50px !important;
+    left: 50px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid #E5E7EB !important;
+    box-shadow: 0px 10px 15px 0px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
+    z-index: 10 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  .overlay-title {
+    font-size: 22px !important;
+    color: #1E3A8A !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+  }
+  .overlay-subtitle {
+    font-size: 15px !important;
+    color: #4B5563 !important;
+    margin: 8px 0 0 0 !important;
   }
 }
 
 /* Medium-Large Screens */
 @media (min-width:993px) and (max-width:1199px) {
+  .split-container {
+    flex-direction: row !important;
+  }
+  .left-container {
+    width: 50% !important;
+    padding: 40px 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .right-container {
+    width: 50% !important;
+    padding: 40px 35px;
+  }
+  .image-wrapper {
+    max-width: 400px;
+    position: relative !important;
+  }
+  .login-image {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
   .image-overlay {
-    bottom: 75px;
-    left: 60px;
+    width: 200px !important;
+    height: 75px !important;
+    position: absolute !important;
+    bottom: 50px !important;
+    left: 50px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid #E5E7EB !important;
+    box-shadow: 0px 10px 15px 0px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
+    z-index: 10 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  .overlay-title {
+    font-size: 20px !important;
+    color: #1E3A8A !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+  }
+  .overlay-subtitle {
+    font-size: 14px !important;
+    color: #4B5563 !important;
+    margin: 8px 0 0 0 !important;
   }
 }
 
@@ -204,8 +275,8 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
   .image-overlay {
     width: 220px;
     height: 80px;
-    bottom: 30px;
-    left: 20px;
+    bottom: 50px;
+    left: 50px;
     padding: 12px;
   }
   .right-content{
@@ -228,8 +299,8 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
   .image-overlay{
     width: 200px;
     height: 75px;
-    left: 20px;
-    bottom: 30px; 
+    left: 50px;
+    bottom: 50px;
     padding: 10px;
   }
   .overlay-title {
@@ -260,8 +331,8 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
   .image-overlay{
     width: 180px;
     height: 70px;
-    left: 15px;
-    bottom: 25px; 
+    left: 50px;
+    bottom: 50px;
     padding: 10px;
   }
   .overlay-title {
@@ -288,7 +359,7 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
   .image-overlay{
     width: 160px;
     height: 65px;
-    left: 20px;
+    left: 50px;
     bottom: 50px;
     padding: 8px;
   }
@@ -320,7 +391,7 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
   .image-overlay{
     width: 150px;
     height: 60px;
-    left: 17px;
+    left: 30px;
     bottom: 30px;
     padding: 8px;
   }
@@ -344,4 +415,221 @@ html,body{height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Robot
     font-size:14px;
     padding:0 12px;
   }
+}
+
+/* Special handling for tablets - adjusted positioning */
+/* iPad Mini and similar tablets */
+@media screen and (min-width: 768px) and (max-width: 768px) and (min-height: 1024px) {
+    .split-container {
+        flex-direction: row !important;  /* Changed to row for split view */
+    }
+    .left-container {
+        width: 50% !important;
+        padding: 30px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .right-container {
+        width: 50% !important;
+        padding: 30px 20px;
+    }
+    .image-wrapper {
+        max-width: 320px;
+        position: relative !important;
+    }
+    .login-image {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    .image-overlay {
+        width: 170px !important;
+        height: 65px !important;
+        position: absolute !important;
+        bottom: 45px !important;
+        left: 35px !important;
+        padding: 10px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0px 10px 15px 0px rgba(0, 0, 0, 0.1) !important;
+        border-radius: 12px !important;
+        z-index: 10 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+    }
+    .overlay-title {
+        font-size: 17px !important;
+        color: #1E3A8A !important;
+        font-weight: 700 !important;
+    }
+    .overlay-subtitle {
+        font-size: 13px !important;
+        color: #4B5563 !important;
+        margin-top: 6px !important;
+    }
+    .right-content {
+        max-width: 320px;
+        padding: 25px 20px;
+    }
+}
+
+/* iPad Air - 820x1180 */
+@media screen and (min-width: 820px) and (max-width: 820px) and (min-height: 1180px) {
+    .split-container {
+        flex-direction: row;
+    }
+    .left-container {
+        width: 50%;
+        padding: 40px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .right-container {
+        width: 50%;
+        padding: 40px 30px;
+    }
+    .image-wrapper {
+        max-width: 350px;
+        position: relative !important;
+    }
+    .login-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 16px;
+    }
+    .image-overlay {
+        width: 180px !important;
+        height: 70px !important;
+        position: absolute !important;
+        bottom: 60px !important;
+        left: 40px !important;
+        padding: 12px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0px 10px 15px 0px rgba(0, 0, 0, 0.1) !important;
+        border-radius: 12px !important;
+        z-index: 10 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+    }
+    .overlay-title {
+        font-size: 18px !important;
+        color: #1E3A8A !important;
+        font-weight: 700 !important;
+    }
+    .overlay-subtitle {
+        font-size: 14px !important;
+        color: #4B5563 !important;
+        margin-top: 8px !important;
+    }
+}
+
+/* iPad Pro - 1024x1366 */
+@media screen and (min-width: 1024px) and (max-width: 1024px) and (min-height: 1366px) {
+    .split-container {
+        flex-direction: row;
+    }
+    .left-container {
+        width: 50%;
+        padding: 50px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #EFF6FF;
+    }
+    .right-container {
+        width: 50%;
+        padding: 50px 40px;
+    }
+    .image-wrapper {
+        max-width: 420px;
+        position: relative !important;
+    }
+    .login-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 16px;
+    }
+    .image-overlay {
+        width: 200px !important;
+        height: 75px !important;
+        position: absolute !important;
+        bottom: 70px !important;
+        left: 45px !important;
+        padding: 14px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0px 10px 15px 0px rgba(0, 0, 0, 0.1) !important;
+        border-radius: 12px !important;
+        z-index: 10 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+    }
+    .overlay-title {
+        font-size: 20px !important;
+        color: #1E3A8A !important;
+        font-weight: 700 !important;
+    }
+    .overlay-subtitle {
+        font-size: 15px !important;
+        color: #4B5563 !important;
+        margin-top: 8px !important;
+    }
+}
+
+/* Surface Pro 7 and similar tablets - 912x1368 */
+@media screen and (min-width: 912px) and (max-width: 912px) and (min-height: 1368px) {
+    .split-container {
+        flex-direction: row;
+    }
+    .left-container {
+        width: 50%;
+        padding: 45px 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .right-container {
+        width: 50%;
+        padding: 45px 35px;
+    }
+    .image-wrapper {
+        max-width: 380px;
+        position: relative !important;
+    }
+    .image-overlay {
+        width: 190px !important;
+        height: 72px !important;
+        position: absolute !important;
+        bottom: 65px !important;
+        left: 42px !important;
+        padding: 13px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0px 10px 15px 0px rgba(0, 0, 0, 0.1) !important;
+        z-index: 10 !important;
+    }
+    .overlay-title {
+        font-size: 19px !important;
+        color: #1E3A8A !important;
+        font-weight: 700 !important;
+    }
+    .overlay-subtitle {
+        font-size: 14px !important;
+        color: #4B5563 !important;
+    }
+}
+
+/* Disable transition on window resize for better performance */
+@media screen and (prefers-reduced-motion: reduce) {
+    .image-overlay {
+        transition: none;
+    }
 }
