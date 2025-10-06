@@ -1,0 +1,21 @@
+{
+  "id": "ecacf1cb-915e-4870-925d-1c892d35e12c",
+  "name": "CityFix Prod",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "https://cityfix-k6j3-ggh4.onrender.com",
+      "type": "text",
+      "enabled": true
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "text",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2025-08-22T18:56:57.942062Z",
+  "_postman_exported_using": "ChatGPT generator"
+}
