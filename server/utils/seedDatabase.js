@@ -1,178 +1,104 @@
-// server/utils/seedDatabase.js
 const mongoose = require('mongoose');
-const Report = require('../models/Report');
 const User = require('../models/User');
+const Tenant = require('../models/Tenant');
+const Report = require('../models/Report');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-const sampleReports = [
-    {
-        title: 'Large pothole on Main Street',
-        description: 'Dangerous pothole near the intersection causing damage to vehicles',
-        issueType: 'pothole',
-        status: 'pending',
-        priority: 'high',
-        location: {
-            address: '123 Main Street, Downtown',
-            district: 'downtown',
-            coordinates: [34.7818, 32.0853] // Tel Aviv
-        },
-        images: [],
-        upvotes: 15,
-        downvotes: 2
-    },
-    {
-        title: 'Street light not working',
-        description: 'Multiple street lights out on North Avenue',
-        issueType: 'lighting',
-        status: 'in-progress',
-        priority: 'medium',
-        location: {
-            address: '456 North Avenue, North District',
-            district: 'north',
-            coordinates: [34.7920, 32.0953]
-        },
-        images: [],
-        upvotes: 8,
-        downvotes: 1
-    },
-    {
-        title: 'Blocked drainage causing flooding',
-        description: 'Heavy rain causes street flooding due to blocked drains',
-        issueType: 'drainage',
-        status: 'resolved',
-        priority: 'urgent',
-        location: {
-            address: '789 South Road, South District',
-            district: 'south',
-            coordinates: [34.7718, 32.0753]
-        },
-        images: [],
-        upvotes: 25,
-        downvotes: 0
-    },
-    {
-        title: 'Traffic signal malfunction',
-        description: 'Traffic lights not synchronized causing congestion',
-        issueType: 'traffic',
-        status: 'pending',
-        priority: 'high',
-        location: {
-            address: '321 East Boulevard, East District',
-            district: 'east',
-            coordinates: [34.8018, 32.0853]
-        },
-        images: [],
-        upvotes: 12,
-        downvotes: 3
-    },
-    {
-        title: 'Pothole near school entrance',
-        description: 'Small but dangerous pothole right at the school gate',
-        issueType: 'pothole',
-        status: 'resolved',
-        priority: 'urgent',
-        location: {
-            address: '555 School Street, Central District',
-            district: 'central',
-            coordinates: [34.7818, 32.0900]
-        },
-        images: [],
-        upvotes: 30,
-        downvotes: 0
-    },
-    {
-        title: 'Park lighting issues',
-        description: 'Several lights in the public park are not working',
-        issueType: 'lighting',
-        status: 'pending',
-        priority: 'low',
-        location: {
-            address: '999 Park Lane, West District',
-            district: 'west',
-            coordinates: [34.7618, 32.0853]
-        },
-        images: [],
-        upvotes: 5,
-        downvotes: 1
-    }
-];
-
 async function seedDatabase() {
-    try {
-        // Connect to MongoDB
-        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cityfix', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cityfix');
+    console.log('✅ MongoDB Connected');
 
-        console.log('✅ Connected to MongoDB');
+    await Report.deleteMany({});
+    await User.deleteMany({});
+    await Tenant.deleteMany({});
+    console.log('🗑️ Cleared data');
 
-        // Clear existing data
-        await Report.deleteMany({});
-        await User.deleteMany({});
-        console.log('🗑️ Cleared existing data');
+    const tenant = await Tenant.create({ 
+      name: 'Tel Aviv Municipality', 
+      code: 'TLVMUN', 
+      city: 'Tel Aviv', 
+      country: 'Israel',
+      language: 'he',
+      timezone: 'Asia/Jerusalem'
+    });
+    console.log('🏛️ Tenant created');
 
-        // Create test user
-        const hashedPassword = await bcrypt.hash('password123', 10);
-        const testUser = await User.create({
-            name: 'Test User',
-            email: 'test@cityfix.com',
-            password: hashedPassword,
-            role: 'citizen',
-            phoneNumber: '+1234567890'
-        });
+    const pwd = await bcrypt.hash('password123', 10);
 
-        const adminUser = await User.create({
-            name: 'Admin User',
-            email: 'admin@cityfix.com',
-            password: hashedPassword,
-            role: 'admin',
-            phoneNumber: '+0987654321'
-        });
+    await User.create({ 
+      username: 'Super Admin', 
+      email: 'superadmin@cityfix.com', 
+      password: pwd, 
+      role: 'SUPER_SUPER_ADMIN', 
+      profile: { firstName: 'Super', lastName: 'Admin', language: 'en' } 
+    });
+    
+    await User.create({ 
+      username: 'Municipality Admin', 
+      email: 'admin@tlv.com', 
+      password: pwd, 
+      role: 'MUNICIPALITY_ADMIN', 
+      tenant: tenant._id, 
+      profile: { firstName: 'Admin', lastName: 'User', language: 'he' } 
+    });
+    
+    const employee = await User.create({ 
+      username: 'Field Employee', 
+      email: 'employee@tlv.com', 
+      password: pwd, 
+      role: 'EMPLOYEE', 
+      tenant: tenant._id, 
+      department: 'infrastructure', 
+      profile: { firstName: 'John', lastName: 'Doe', language: 'en' } 
+    });
+    
+    const citizen = await User.create({ 
+      username: 'Test Citizen', 
+      email: 'citizen@example.com', 
+      password: pwd, 
+      role: 'CITIZEN', 
+      tenant: tenant._id, 
+      profile: { firstName: 'Test', lastName: 'User', language: 'en' } 
+    });
+    
+    console.log('👤 Users created');
 
-        console.log('👤 Created test users');
+    // NO GeoLocation - Just coordinates!
+    await Report.create({
+      title: 'Pothole on Main Street',
+      description: 'Large dangerous pothole',
+      type: 'pothole',
+      status: 'new',
+      priority: 'high',
+      tenant: tenant._id,
+      reporter: citizen._id,
+      department: 'infrastructure',
+      location: {
+        address: '123 Main St, Downtown',
+        district: 'downtown',
+        coordinates: { 
+          lat: 32.0853, 
+          lng: 34.7818 
+        }
+      }
+    });
+    
+    console.log('📝 Reports created');
 
-        // Create reports
-        const reportsToCreate = sampleReports.map(report => ({
-            ...report,
-            userId: testUser._id,
-            createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random date within last week
-            updatedAt: new Date()
-        }));
+    console.log('\n✨ Success!\n');
+    console.log('🔑 Login Credentials:');
+    console.log('Super Admin: superadmin@cityfix.com / password123');
+    console.log('Admin: admin@tlv.com / password123');
+    console.log('Employee: employee@tlv.com / password123');
+    console.log('Citizen: citizen@example.com / password123');
 
-        await Report.insertMany(reportsToCreate);
-        console.log(`📝 Created ${reportsToCreate.length} sample reports`);
-
-        // Display summary
-        const stats = await Report.aggregate([
-            {
-                $group: {
-                    _id: '$status',
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
-
-        console.log('\n📊 Database Statistics:');
-        console.log('------------------------');
-        stats.forEach(stat => {
-            console.log(`${stat._id}: ${stat.count} reports`);
-        });
-        console.log(`Total: ${reportsToCreate.length} reports`);
-        console.log('\n✨ Database seeded successfully!');
-        
-        console.log('\n🔑 Test Credentials:');
-        console.log('------------------------');
-        console.log('User: test@cityfix.com / password123');
-        console.log('Admin: admin@cityfix.com / password123');
-
-    } catch (error) {
-        console.error('❌ Error seeding database:', error);
-    } finally {
-        mongoose.connection.close();
-    }
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error:', error.message);
+    process.exit(1);
+  }
 }
 
-// Run the seed function
 seedDatabase();
