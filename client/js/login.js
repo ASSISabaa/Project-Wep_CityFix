@@ -1,145 +1,413 @@
-/* CityFix Login — backend verified, single toast, role-strict */
+/* CityFix Login - Updated for New Backend API */
 (() => {
-  if (window.__CITYFIX_LOGIN__) return; window.__CITYFIX_LOGIN__ = true;
+  if (window.__CITYFIX_LOGIN__) return;
+  window.__CITYFIX_LOGIN__ = true;
 
-  const META_API = document.querySelector('meta[name="cityfix-api"]')?.content?.trim();
-  const API_BASE = `${location.origin}/api`;
+  const API_BASE = 'http://localhost:5000/api';
+  
+  const EP = {
+    LOGIN: '/auth/login',
+    VERIFY: '/auth/verify',
+    FORGOT: '/auth/forgot-password'
+  };
+  
+  const ST = {
+    TOKEN: 'cityfix_token',
+    USER: 'cityfix_user',
+    ROLE: 'cityfix_role',
+    REM: 'cityfix_remember',
+    EMAIL: 'remembered_email'
+  };
+  
+  const RD = {
+    SUPER_SUPER_ADMIN: 'dashboard-super-admin.html',
+    MUNICIPALITY_ADMIN: 'dashboard-admin.html',
+    DEPARTMENT_MANAGER: 'dashboard-manager.html',
+    SUPERVISOR: 'dashboard-supervisor.html',
+    EMPLOYEE: 'dashboard-employee.html',
+    CITIZEN: 'index.html'
+  };
 
+  let ACTIVE_TOAST = null;
 
-  const EP = { LOGIN:'/api/auth/login', VERIFY:'/api/auth/verify', FORGOT:'/api/auth/forgotpassword' };
-  const ST = { TOKEN:'cityfix_token', USER:'cityfix_user', ROLE:'cityfix_role', REM:'cityfix_remember', EMAIL:'remembered_email' };
-  const RD = { ADMIN:'dashboard.html', CITIZEN:'index.html' };
-
-  let ACTIVE = null;
-  const T = () => window.Toast || window.toast || window.cityToast || window.toastr || window.Notifier || null;
-  function closeToast(){ const t=T(); if(t?.dismissAll) t.dismissAll(); if(t?.clear) t.clear(); if(ACTIVE?.remove) ACTIVE.remove(); ACTIVE=null; }
-  function msg(m){ if(!m) return 'Something went wrong'; if(typeof m==='string') return m; if(typeof m.message==='string') return m.message; try{ return JSON.stringify(m) }catch{ return String(m) } }
-  function toast(m,type='info'){
-    closeToast(); const text=msg(m), t=T();
-    if(t?.[type]) return t[type](text);
-    if(t?.show) return t.show(text,{type,duration:3200});
-    const d=document.createElement('div'); d.textContent=text;
-    d.style.cssText='position:fixed;top:20px;right:20px;padding:14px 16px;background:'+
-      ({success:'#10b981',error:'#ef4444',warning:'#f59e0b',info:'#3b82f6'}[type]||'#3b82f6')+
-      ';color:#fff;border-radius:8px;z-index:10000;box-shadow:0 6px 18px rgba(0,0,0,.15);font-weight:600';
-    document.body.appendChild(d); ACTIVE=d; setTimeout(closeToast,3500);
+  function getToastLib() {
+    return window.Toast || window.toast || window.cityToast || window.toastr || window.Notifier || null;
   }
 
-  const q=(s,r=document)=>r.querySelector(s);
-  const emailOk=(e)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e||'').trim());
+  function closeToast() {
+    const t = getToastLib();
+    if (t?.dismissAll) t.dismissAll();
+    if (t?.clear) t.clear();
+    if (ACTIVE_TOAST?.remove) ACTIVE_TOAST.remove();
+    ACTIVE_TOAST = null;
+  }
 
-  async function http(path,{method='GET',body=null,token=null,timeout=12000}={}){
-    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),timeout);
-    try{
-      const res=await fetch(API_BASE+path,{method,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:body?JSON.stringify(body):null,signal:ctrl.signal});
-      const txt=await res.text(); let json={}; try{ json=txt?JSON.parse(txt):{} }catch{}
-      if(!res.ok){ const err=new Error(json.message||`HTTP ${res.status}`); err.status=res.status; throw err; }
+  function toast(message, type = 'info') {
+    closeToast();
+    const text = typeof message === 'string' ? message : message?.message || 'Something went wrong';
+    const t = getToastLib();
+    
+    if (t?.[type]) return t[type](text);
+    if (t?.show) return t.show(text, { type, duration: 3200 });
+    
+    const colors = {
+      success: '#10b981',
+      error: '#ef4444',
+      warning: '#f59e0b',
+      info: '#3b82f6'
+    };
+    
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 14px 16px;
+      background: ${colors[type] || colors.info};
+      color: #fff;
+      border-radius: 8px;
+      z-index: 10000;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      font-weight: 600;
+      animation: slideIn 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(div);
+    ACTIVE_TOAST = div;
+    setTimeout(closeToast, 3500);
+  }
+
+  const q = (selector, root = document) => root.querySelector(selector);
+  const emailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+
+  async function httpRequest(path, { method = 'GET', body = null, token = null } = {}) {
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(API_BASE + path, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null
+      });
+
+      const text = await response.text();
+      let json = {};
+      
+      try {
+        json = text ? JSON.parse(text) : {};
+      } catch (e) {
+        console.error('JSON parse error:', e);
+      }
+
+      if (!response.ok) {
+        const error = new Error(json.message || `HTTP ${response.status}`);
+        error.status = response.status;
+        throw error;
+      }
+
       return json;
-    } finally{ clearTimeout(to); }
+    } catch (error) {
+      console.error('HTTP Request Error:', error);
+      throw error;
+    }
   }
 
-  async function verifyToken(token){
-    const r=await http(EP.VERIFY,{token});
-    const user=r.user||r.data?.user||{};
-    const role=r.role||user.role;
-    if(!role) throw new Error('Invalid token');
-    return { user:{...user, role} };
+  async function verifyToken(token) {
+    const result = await httpRequest(EP.VERIFY, { token });
+    const user = result.user || result.data?.user || {};
+    const role = user.role || result.role;
+    
+    if (!role) throw new Error('Invalid token - no role');
+    
+    return { user: { ...user, role } };
   }
 
-  function saveSession(token,user,remember){
-    if(remember){
-      localStorage.setItem(ST.REM,'true');
-      localStorage.setItem(ST.TOKEN,token||''); localStorage.setItem(ST.USER,JSON.stringify(user||{})); localStorage.setItem(ST.ROLE,user?.role||'');
-      sessionStorage.removeItem(ST.TOKEN); sessionStorage.removeItem(ST.USER); sessionStorage.removeItem(ST.ROLE);
-    }else{
+  function saveSession(token, user, remember) {
+    const storage = remember ? localStorage : sessionStorage;
+    
+    if (remember) {
+      localStorage.setItem(ST.REM, 'true');
+      sessionStorage.removeItem(ST.TOKEN);
+      sessionStorage.removeItem(ST.USER);
+      sessionStorage.removeItem(ST.ROLE);
+    } else {
       localStorage.removeItem(ST.REM);
-      sessionStorage.setItem(ST.TOKEN,token||''); sessionStorage.setItem(ST.USER,JSON.stringify(user||{})); sessionStorage.setItem(ST.ROLE,user?.role||'');
-      localStorage.setItem(ST.TOKEN,token||''); localStorage.setItem(ST.USER,JSON.stringify(user||{})); localStorage.setItem(ST.ROLE,user?.role||'');
     }
-  }
-  function clearSession(){ [localStorage,sessionStorage].forEach(s=>{ s.removeItem(ST.TOKEN); s.removeItem(ST.USER); s.removeItem(ST.ROLE); }); }
-  const getToken=()=> localStorage.getItem(ST.TOKEN)||sessionStorage.getItem(ST.TOKEN)||'';
-
-  function mapLoginError(e,role){
-    const s=e?.status, m=String(e?.message||'').toLowerCase();
-    if(s===401||m.includes('invalid')) return 'Invalid email or password';
-    if(s===403&&role==='admin') return 'Not authorized as admin';
-    if(s===403&&role==='citizen') return 'Not authorized as citizen';
-    if(s===400) return 'Bad request';
-    if(s===500) return 'Server error. Please try again';
-    return e?.message||'Login failed. Please try again';
+    
+    storage.setItem(ST.TOKEN, token || '');
+    storage.setItem(ST.USER, JSON.stringify(user || {}));
+    storage.setItem(ST.ROLE, user?.role || '');
+    
+    // Also save to localStorage for persistent login
+    localStorage.setItem(ST.TOKEN, token || '');
+    localStorage.setItem(ST.USER, JSON.stringify(user || {}));
+    localStorage.setItem(ST.ROLE, user?.role || '');
   }
 
-  class LoginUI{
-    constructor(){
-      this.email=q('#email'); this.pass=q('#password'); this.rem=q('#rememberMe');
-      this.btnAdmin=q('.admin-login-btn'); this.btnUser=q('.user-login-btn');
-      this.linkForgot=q('.forgot-password, #forgotPassword, a[href*="forgot"]');
-      this.bind(); this.prefill(); this.resume();
+  function clearSession() {
+    [localStorage, sessionStorage].forEach(storage => {
+      storage.removeItem(ST.TOKEN);
+      storage.removeItem(ST.USER);
+      storage.removeItem(ST.ROLE);
+    });
+  }
+
+  function getToken() {
+    return localStorage.getItem(ST.TOKEN) || sessionStorage.getItem(ST.TOKEN) || '';
+  }
+
+  function getRedirectUrl(role) {
+    return RD[role] || RD.CITIZEN;
+  }
+
+  function mapLoginError(error) {
+    const status = error?.status;
+    const message = String(error?.message || '').toLowerCase();
+    
+    if (status === 401 || message.includes('invalid') || message.includes('credentials')) {
+      return 'Invalid email or password';
     }
-    busy(btn,on){
-      if(!btn) return;
-      btn.disabled=on; const t=btn.querySelector('.admin-btn-text, .user-btn-text');
-      if(on){ btn.dataset._txt=t?t.textContent:btn.textContent; if(t) t.textContent='Authenticating...'; else btn.textContent='Authenticating...';
-        [this.email,this.pass,this.rem].forEach(x=>x&&(x.disabled=true));
-      }else{
-        if(t&&btn.dataset._txt) t.textContent=btn.dataset._txt; else if(btn.dataset._txt) btn.textContent=btn.dataset._txt;
-        [this.email,this.pass,this.rem].forEach(x=>x&&(x.disabled=false));
+    if (status === 403) {
+      return 'Access denied. Please check your role permissions.';
+    }
+    if (status === 423) {
+      return 'Account is locked. Please try again later.';
+    }
+    if (status === 400) {
+      return 'Invalid request. Please check your input.';
+    }
+    if (status === 500) {
+      return 'Server error. Please try again later.';
+    }
+    
+    return error?.message || 'Login failed. Please try again.';
+  }
+
+  class LoginUI {
+    constructor() {
+      this.email = q('#email');
+      this.password = q('#password');
+      this.remember = q('#rememberMe');
+      this.btnAdmin = q('.admin-login-btn');
+      this.btnUser = q('.user-login-btn');
+      this.linkForgot = q('.forgot-password, #forgotPassword, a[href*="forgot"]');
+      
+      this.bind();
+      this.prefillEmail();
+      this.checkExistingSession();
+    }
+
+    setBusy(button, isBusy) {
+      if (!button) return;
+      
+      button.disabled = isBusy;
+      const textEl = button.querySelector('.admin-btn-text, .user-btn-text');
+      
+      if (isBusy) {
+        button.dataset._originalText = textEl ? textEl.textContent : button.textContent;
+        if (textEl) {
+          textEl.textContent = 'Authenticating...';
+        } else {
+          button.textContent = 'Authenticating...';
+        }
+        [this.email, this.password, this.remember].forEach(el => {
+          if (el) el.disabled = true;
+        });
+      } else {
+        if (textEl && button.dataset._originalText) {
+          textEl.textContent = button.dataset._originalText;
+        } else if (button.dataset._originalText) {
+          button.textContent = button.dataset._originalText;
+        }
+        [this.email, this.password, this.remember].forEach(el => {
+          if (el) el.disabled = false;
+        });
       }
     }
-    valid(){
-      const e=(this.email?.value||'').trim(), p=(this.pass?.value||'').trim();
-      if(!emailOk(e)){ toast('Invalid email','error'); return false; }
-      if(p.length<6){ toast('Password too short','error'); return false; }
+
+    validateInputs() {
+      const email = (this.email?.value || '').trim();
+      const password = (this.password?.value || '').trim();
+      
+      if (!emailValid(email)) {
+        toast('Please enter a valid email address', 'error');
+        return false;
+      }
+      
+      if (password.length < 6) {
+        toast('Password must be at least 6 characters', 'error');
+        return false;
+      }
+      
       return true;
     }
-    async go(role,btn){
-      if(!this.valid()) return;
-      const remember=!!(this.rem&&this.rem.checked);
-      const email=(this.email?.value||'').trim();
-      this.busy(btn,true);
-      try{
-      const out=await http(EP.LOGIN,{method:'POST',body:{email,password:this.pass.value,role}});
-      const token=out.token||out.accessToken||out.jwt||out.data?.token;
-      const user=out.user||out.data?.user||{};
-      if(!token) throw new Error('Missing token');
-      // Skip verify - trust the login response
-      if(role==='admin' && user.role!=='admin'){ toast('Not authorized as admin','error'); clearSession(); return; }
-      if(role==='citizen' && user.role==='admin'){ toast('Admins must use admin login','error'); clearSession(); return; }
-        saveSession(token,user,remember);
-        if(remember) localStorage.setItem(ST.EMAIL,email); else localStorage.removeItem(ST.EMAIL);
-        toast('Login successful! Redirecting...','success');
-        setTimeout(()=>{ location.href=(user.role==='admin'?RD.ADMIN:RD.CITIZEN); },500);
-      }catch(e){
-        toast(mapLoginError(e,role),'error');
-      }finally{
-        this.busy(btn,false);
+
+    async performLogin(loginType, button) {
+      if (!this.validateInputs()) return;
+      
+      const remember = !!(this.remember && this.remember.checked);
+      const email = (this.email?.value || '').trim();
+      const password = this.password?.value || '';
+      
+      this.setBusy(button, true);
+      
+      try {
+        const response = await httpRequest(EP.LOGIN, {
+          method: 'POST',
+          body: { email, password }
+        });
+        
+        const token = response.token || response.accessToken || response.data?.token;
+        const user = response.user || response.data?.user || {};
+        
+        if (!token) {
+          throw new Error('No authentication token received');
+        }
+        
+        console.log('Login successful:', { role: user.role, loginType });
+        
+        // Validate role for admin login
+        if (loginType === 'admin') {
+          const adminRoles = ['SUPER_SUPER_ADMIN', 'MUNICIPALITY_ADMIN', 'DEPARTMENT_MANAGER'];
+          if (!adminRoles.includes(user.role)) {
+            toast('This account does not have admin privileges', 'error');
+            clearSession();
+            return;
+          }
+        }
+        
+        // Validate role for citizen login
+        if (loginType === 'citizen' && user.role !== 'CITIZEN') {
+          toast('Please use the Admin login button', 'warning');
+          clearSession();
+          return;
+        }
+        
+        saveSession(token, user, remember);
+        
+        if (remember) {
+          localStorage.setItem(ST.EMAIL, email);
+        } else {
+          localStorage.removeItem(ST.EMAIL);
+        }
+        
+        toast('Login successful! Redirecting...', 'success');
+        
+        setTimeout(() => {
+          const redirectUrl = getRedirectUrl(user.role);
+          console.log('Redirecting to:', redirectUrl);
+          window.location.href = redirectUrl;
+        }, 800);
+        
+      } catch (error) {
+        console.error('Login error:', error);
+        toast(mapLoginError(error), 'error');
+      } finally {
+        this.setBusy(button, false);
       }
     }
-    async forgot(){
-      const e=(this.email?.value||'').trim();
-      if(!emailOk(e)){ toast('Enter a valid email first','warning'); this.email?.focus(); return; }
-      try{ await http(EP.FORGOT,{method:'POST',body:{email:e}}); toast('Reset link sent to your email','success'); }
-      catch(err){ toast(err?.message||'Could not send reset link','error'); }
+
+    async handleForgotPassword() {
+      const email = (this.email?.value || '').trim();
+      
+      if (!emailValid(email)) {
+        toast('Please enter a valid email address first', 'warning');
+        this.email?.focus();
+        return;
+      }
+      
+      try {
+        await httpRequest(EP.FORGOT, {
+          method: 'POST',
+          body: { email }
+        });
+        toast('Password reset link sent to your email', 'success');
+      } catch (error) {
+        toast(error?.message || 'Could not send reset link', 'error');
+      }
     }
-    bind(){
-      this.btnAdmin?.addEventListener('click',ev=>{ ev.preventDefault(); this.go('admin',this.btnAdmin); });
-      this.btnUser ?.addEventListener('click',ev=>{ ev.preventDefault(); this.go('citizen',this.btnUser); });
-      this.linkForgot?.addEventListener('click',ev=>{ ev.preventDefault(); this.forgot(); });
-      this.email?.addEventListener('keypress',e=>{ if(e.key==='Enter'){ e.preventDefault(); this.pass?.focus(); }});
-      this.pass ?.addEventListener('keypress',e=>{ if(e.key==='Enter'){ e.preventDefault(); (this.btnUser||this.btnAdmin)?.click(); }});
+
+    bind() {
+      if (this.btnAdmin) {
+        this.btnAdmin.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.performLogin('admin', this.btnAdmin);
+        });
+      }
+      
+      if (this.btnUser) {
+        this.btnUser.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.performLogin('citizen', this.btnUser);
+        });
+      }
+      
+      if (this.linkForgot) {
+        this.linkForgot.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.handleForgotPassword();
+        });
+      }
+      
+      if (this.email) {
+        this.email.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            this.password?.focus();
+          }
+        });
+      }
+      
+      if (this.password) {
+        this.password.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            (this.btnUser || this.btnAdmin)?.click();
+          }
+        });
+      }
     }
-    prefill(){ const em=localStorage.getItem(ST.EMAIL); if(em&&this.email){ this.email.value=em; if(this.rem) this.rem.checked=true; } }
-    async resume(){
-      const t=getToken(); if(!t) return;
-      try{
-        const {user}=await verifyToken(t);
-        setTimeout(()=>{ location.href=(user.role==='admin'?RD.ADMIN:RD.CITIZEN); },150);
-      }catch{
-        clearSession(); toast('Session expired. Please log in.','warning');
+
+    prefillEmail() {
+      const savedEmail = localStorage.getItem(ST.EMAIL);
+      if (savedEmail && this.email) {
+        this.email.value = savedEmail;
+        if (this.remember) {
+          this.remember.checked = true;
+        }
+      }
+    }
+
+    async checkExistingSession() {
+      const token = getToken();
+      if (!token) return;
+      
+      try {
+        const { user } = await verifyToken(token);
+        console.log('Existing session found:', user.role);
+        
+        toast('Resuming session...', 'info');
+        
+        setTimeout(() => {
+          const redirectUrl = getRedirectUrl(user.role);
+          window.location.href = redirectUrl;
+        }, 500);
+        
+      } catch (error) {
+        console.log('Session expired or invalid');
+        clearSession();
       }
     }
   }
 
-  document.addEventListener('DOMContentLoaded',()=>{ new LoginUI(); });
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      new LoginUI();
+    });
+  } else {
+    new LoginUI();
+  }
 })();
