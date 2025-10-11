@@ -29,13 +29,12 @@ app.use(cors({
             'http://127.0.0.1:3000'
         ];
         
-        // Allow requests with no origin (like mobile apps or Postman)
         if (!origin) return callback(null, true);
         
         if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(null, true); // Allow all origins in development
+            callback(null, true);
         }
     },
     credentials: true,
@@ -134,7 +133,7 @@ app.get('/api/locales/:lang', (req, res) => {
 });
 
 // ===== API Routes =====
-// Public routes (no authentication required)
+// IMPORTANT: Public routes FIRST (no authentication required)
 app.use('/api/public', publicRoutes);
 
 // Protected routes
