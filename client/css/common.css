@@ -140,10 +140,18 @@ body {
 
 /* Auth Section */
 .auth-section {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-left: 243px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Hide Desktop Login/Signup buttons on mobile screens */
+@media (max-width: 768px) {
+  .auth-section .login-btn,
+  .auth-section .signup-btn {
+    display: none !important;
+  }
 }
 
 .login-btn {
@@ -1365,5 +1373,66 @@ input:checked + .toggle-slider:before{transform:translateX(24px)}
     text-align: center;
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+}
+/* Hide desktop auth buttons */
+.auth-section .header-actions {
+  display: none !important;
+}
+
+/* Show only mobile menu button */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block !important;
+  }
+}
+
+/* Update mobile auth buttons with new gradient */
+.mobile-auth-wrap {
+  display: flex !important;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.mobile-auth-wrap .nav-item:last-child {
+  background: linear-gradient(90deg, #155FA0 0%, #344A75 75%, #13243C 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.mobile-auth-wrap .nav-item:last-child:hover {
+  background: linear-gradient(90deg, #1a6bb8 0%, #3d5586 75%, #1a2e4d 100%) !important;
+}
+
+.mobile-auth-wrap .nav-item:first-child {
+  background: white !important;
+  border: 2px solid #155FA0 !important;
+  color: #155FA0 !important;
+}
+
+.mobile-auth-wrap .nav-item:first-child:hover {
+  background: #f0f9ff !important;
+  border-color: #1a6bb8 !important;
+}
+
+/* Hide mobile auth wrap on desktop */
+@media (min-width: 769px) {
+  .mobile-auth-wrap {
+    display: none !important;
+  }
+}
+
+/* Style mobile auth buttons on mobile only */
+@media (max-width: 768px) {
+  .mobile-auth-wrap .nav-item:last-child {
+    background: linear-gradient(90deg, #155FA0 0%, #344A75 75%, #13243C 100%) !important;
+    color: white !important;
+  }
+  
+  .mobile-auth-wrap .nav-item:first-child {
+    border: 2px solid #155FA0 !important;
+    color: #155FA0 !important;
   }
 }
