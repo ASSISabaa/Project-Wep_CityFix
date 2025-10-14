@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
+const aiRoutes = require('./routes/aiRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -137,6 +138,7 @@ app.get('/api/locales/:lang', (req, res) => {
 app.use('/api/public', publicRoutes);
 
 // Protected routes
+app.use('/api/ai', aiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/users', userRoutes);

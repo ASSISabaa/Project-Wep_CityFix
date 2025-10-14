@@ -1,4 +1,4 @@
-/* CityFix Login - Updated for New Backend API */
+/* CityFix Login - Updated with i18n Support */
 (() => {
   if (window.__CITYFIX_LOGIN__) return;
   window.__CITYFIX_LOGIN__ = true;
@@ -44,7 +44,9 @@
 
   function toast(message, type = 'info') {
     closeToast();
-    const text = typeof message === 'string' ? message : message?.message || 'Something went wrong';
+    
+    // Translate message if i18n is available
+    const text = window.i18n?.t(message) || message;
     const t = getToastLib();
     
     if (t?.[type]) return t[type](text);
@@ -140,7 +142,6 @@
     storage.setItem(ST.USER, JSON.stringify(user || {}));
     storage.setItem(ST.ROLE, user?.role || '');
     
-    // Also save to localStorage for persistent login
     localStorage.setItem(ST.TOKEN, token || '');
     localStorage.setItem(ST.USER, JSON.stringify(user || {}));
     localStorage.setItem(ST.ROLE, user?.role || '');
@@ -167,22 +168,22 @@
     const message = String(error?.message || '').toLowerCase();
     
     if (status === 401 || message.includes('invalid') || message.includes('credentials')) {
-      return 'Invalid email or password';
+      return 'error.invalidCredentials';
     }
     if (status === 403) {
-      return 'Access denied. Please check your role permissions.';
+      return 'error.accessDenied';
     }
     if (status === 423) {
-      return 'Account is locked. Please try again later.';
+      return 'error.accountLocked';
     }
     if (status === 400) {
-      return 'Invalid request. Please check your input.';
+      return 'error.invalidRequest';
     }
     if (status === 500) {
-      return 'Server error. Please try again later.';
+      return 'error.serverError';
     }
     
-    return error?.message || 'Login failed. Please try again.';
+    return 'error.loginFailed';
   }
 
   class LoginUI {
@@ -207,10 +208,12 @@
       
       if (isBusy) {
         button.dataset._originalText = textEl ? textEl.textContent : button.textContent;
+        const authText = window.i18n?.t('auth.authenticating') || 'Authenticating...';
+        
         if (textEl) {
-          textEl.textContent = 'Authenticating...';
+          textEl.textContent = authText;
         } else {
-          button.textContent = 'Authenticating...';
+          button.textContent = authText;
         }
         [this.email, this.password, this.remember].forEach(el => {
           if (el) el.disabled = true;
@@ -230,17 +233,17 @@
     validateInputs() {
       const email = (this.email?.value || '').trim();
       const password = (this.password?.value || '').trim();
-      
+
       if (!emailValid(email)) {
-        toast('Please enter a valid email address', 'error');
+        toast('validation.emailInvalid', 'error');
         return false;
       }
-      
+
       if (password.length < 6) {
-        toast('Password must be at least 6 characters', 'error');
+        toast('validation.passwordShort', 'error');
         return false;
       }
-      
+
       return true;
     }
 
@@ -268,19 +271,17 @@
         
         console.log('Login successful:', { role: user.role, loginType });
         
-        // Validate role for admin login
         if (loginType === 'admin') {
           const adminRoles = ['SUPER_SUPER_ADMIN', 'MUNICIPALITY_ADMIN', 'DEPARTMENT_MANAGER'];
           if (!adminRoles.includes(user.role)) {
-            toast('This account does not have admin privileges', 'error');
+            toast('error.noAdminPrivileges', 'error');
             clearSession();
             return;
           }
         }
         
-        // Validate role for citizen login
         if (loginType === 'citizen' && user.role !== 'CITIZEN') {
-          toast('Please use the Admin login button', 'warning');
+          toast('error.useAdminLogin', 'warning');
           clearSession();
           return;
         }
@@ -293,7 +294,7 @@
           localStorage.removeItem(ST.EMAIL);
         }
         
-        toast('Login successful! Redirecting...', 'success');
+        toast('success.login', 'success');
         
         setTimeout(() => {
           const redirectUrl = getRedirectUrl(user.role);
@@ -313,7 +314,7 @@
       const email = (this.email?.value || '').trim();
       
       if (!emailValid(email)) {
-        toast('Please enter a valid email address first', 'warning');
+        toast('warning.emailFirst', 'warning');
         this.email?.focus();
         return;
       }
@@ -323,9 +324,9 @@
           method: 'POST',
           body: { email }
         });
-        toast('Password reset link sent to your email', 'success');
+        toast('success.passwordReset', 'success');
       } catch (error) {
-        toast(error?.message || 'Could not send reset link', 'error');
+        toast('warning.resetSent', 'info');
       }
     }
 
@@ -388,7 +389,7 @@
         const { user } = await verifyToken(token);
         console.log('Existing session found:', user.role);
         
-        toast('Resuming session...', 'info');
+        toast('success.resuming', 'info');
         
         setTimeout(() => {
           const redirectUrl = getRedirectUrl(user.role);
@@ -402,7 +403,6 @@
     }
   }
 
-  // Initialize on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       new LoginUI();

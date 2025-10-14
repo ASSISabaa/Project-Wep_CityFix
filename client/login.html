@@ -1,39 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="cityfix-api" content="https://cityfix-k6j3.onrender.com">
-    <title>CityFix - Login</title>
+    <title data-i18n="app.name">CityFix - Login</title>
     
-    <!-- Favicon -->
     <link rel="icon" href="assets/Logo-cityfix.jpg" type="image/png">
-    
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <meta name="cityfix-api" content="http://localhost:5000">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- CSS Stylesheet -->
     <link rel="stylesheet" href="css/toast.css">
     <link rel="stylesheet" href="css/login.css">
     <link rel="Stylesheet" href="css/common.css">
 </head>
-<body>
+<body class="rtl">
     <!-- Header -->
     <header class="header">
         <a href="index.html" class="logo-section">
             <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="logo-image">
-            <span class="logo-text">CityFix</span>
+            <span class="logo-text" data-i18n="app.name">CityFix</span>
         </a>
         
         <nav class="nav-section">
-            <a href="index.html" class="nav-item active">Home</a>
-            <a href="BrowseReports.html" class="nav-item">Reports</a>
-            <a href="SubmitReport.html" class="nav-item">Submit Report</a>
-            <a href="MyImpact.html" class="nav-item">My Impact</a>
-            <a href="Contact.html" class="nav-item">Contact</a>
+            <a href="index.html" class="nav-item active" data-i18n="nav.home">Home</a>
+            <a href="BrowseReports.html" class="nav-item" data-i18n="nav.reports">Reports</a>
+            <a href="SubmitReport.html" class="nav-item" data-i18n="nav.submit">Submit Report</a>
+            <a href="MyImpact.html" class="nav-item" data-i18n="nav.impact">My Impact</a>
+            <a href="Contact.html" class="nav-item" data-i18n="nav.contact">Contact</a>
         </nav>
 
         <!-- Mobile Menu Button -->
@@ -43,126 +37,122 @@
             <span></span>
         </button>
     </header>
-<nav class="mobile-nav">
-    <a href="index.html" class="nav-item active">Home</a>
-    <a href="reports.html" class="nav-item">Reports</a>
-    <a href="submit-report.html" class="nav-item">Submit Report</a>
-    <a href="MyImpact.html" class="nav-item">My Impact</a>
-    <a href="contact.html" class="nav-item">Contact</a>
-</nav>
- <main class="main-content">
-    <div class="split-container">
-      <div class="left-container">
-        <img src="assets/login_img.png" alt="Login Image" class="login-image" />
-        <!-- <div class="image-overlay">
-          <h3 class="overlay-title">CityFix</h3>
-          <p class="overlay-subtitle">Making our city better, together.</p>
-        </div> -->
-      </div>
-      <div class="right-container">
-        <div class="right-content">
-          <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="login-logo" />
-          <h1 class="welcome-title">Welcome to CityFix</h1>
-          <p class="welcome-subtitle">Sign in to report and track city issues</p>
-          
-          <!-- Status message appears here at the top -->
-          <div id="login-status" class="status-message" style="display: none;"></div>
-          
-         <div class="login-form-container">
-        <label class="email-label">Email address</label>
-        <div class="email-input-container">
-            <input type="email" id="email" class="email-input" placeholder="Enter your email" />
-        </div>
-        
-        <label class="password-label">Password</label>
-        <div class="password-input-container">
-            <input type="password" id="password" class="password-input" placeholder="Enter your password" />
-        </div>
-        
-        <div class="form-options">
-            <div class="checkbox-container">
-                <input type="checkbox" id="rememberMe" class="checkbox">
-                <label for="rememberMe" class="checkbox-label">Remember me</label>
+
+    <nav class="mobile-nav">
+        <a href="index.html" class="nav-item active" data-i18n="nav.home">Home</a>
+        <a href="reports.html" class="nav-item" data-i18n="nav.reports">Reports</a>
+        <a href="submit-report.html" class="nav-item" data-i18n="nav.submit">Submit Report</a>
+        <a href="MyImpact.html" class="nav-item" data-i18n="nav.impact">My Impact</a>
+        <a href="contact.html" class="nav-item" data-i18n="nav.contact">Contact</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="split-container">
+            <div class="left-container">
+                <img src="assets/login_img.png" alt="Login Image" class="login-image" />
             </div>
-            <a href="#" class="forgot-password">Forgot password?</a>
-        </div>
-    </div>
-              
-          <button type="button" class="admin-login-btn">
-            <img src="assets/login-admin.svg" alt="Admin Icon" class="admin-icon">
-            <span class="admin-btn-text">Login as Admin</span>
-          </button>
+            <div class="right-container">
+                <div class="right-content">
+                    <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="login-logo" />
+                    <h1 class="welcome-title" data-i18n="auth.welcome">Welcome to CityFix</h1>
+                    <p class="welcome-subtitle" data-i18n="auth.subtitle">Sign in to report and track city issues</p>
+                    
+                    <div id="login-status" class="status-message" style="display: none;"></div>
+                    
+                    <div class="login-form-container">
+                        <label class="email-label" data-i18n="auth.email">Email address</label>
+                        <div class="email-input-container">
+                            <input type="email" id="email" class="email-input" data-i18n-placeholder="auth.email" />
+                        </div>
+                        
+                        <label class="password-label" data-i18n="auth.password">Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="password" class="password-input" data-i18n-placeholder="auth.password" />
+                        </div>
+                        
+                        <div class="form-options">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="rememberMe" class="checkbox">
+                                <label for="rememberMe" class="checkbox-label" data-i18n="auth.remember">Remember me</label>
+                            </div>
+                            <a href="#" class="forgot-password" data-i18n="auth.forgot">Forgot password?</a>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="admin-login-btn">
+                        <img src="assets/login-admin.svg" alt="Admin Icon" class="admin-icon">
+                        <span class="admin-btn-text" data-i18n="auth.loginAdmin">Login as Admin</span>
+                    </button>
 
-          <button type="button" class="user-login-btn">
-            <img src="assets/login-user.svg" alt="User Icon" class="user-icon">
-            <span class="user-btn-text">Login as Citizen</span>
-          </button>
+                    <button type="button" class="user-login-btn">
+                        <img src="assets/login-user.svg" alt="User Icon" class="user-icon">
+                        <span class="user-btn-text" data-i18n="auth.loginCitizen">Login as Citizen</span>
+                    </button>
 
-          <div class="signup-prompt">
-            Don't have an account? <a href="signup.html" class="signup-link">Sign up</a>
-          </div>
+                    <div class="signup-prompt">
+                        <span data-i18n="auth.noAccount">Don't have an account?</span> 
+                        <a href="signup.html" class="signup-link" data-i18n="auth.signup">Sign up</a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </main>
+    </main>
 
     <!-- Footer -->
     <footer class="main-footer">
-    <div class="footer-container">
-      <div class="footer-top">
-        <div class="footer-column">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-column">
+                    <a href="../index.html" class="footer-logo">
+                        <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
+                        <span class="brand-name" data-i18n="app.name">CityFix</span>
+                    </a>
+                    <p class="footer-description" data-i18n="footer.tagline">Making our city better together.</p>
+                </div>
 
-          <a href="../index.html" class="footer-logo">
-            <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" />
-            <span class="brand-name">CityFix</span>
-          </a>
+                <div class="footer-column">
+                    <h4 data-i18n="footer.quickLinks">Quick Links</h4>
+                    <a href="index.html" data-i18n="nav.home">Home</a>
+                    <a href="BrowseReports.html" data-i18n="nav.reports">Reports</a>
+                    <a href="SubmitReport.html" data-i18n="nav.submit">Submit Report</a>
+                </div>
 
-          <p class="footer-description">Making our city better together.</p>
+                <div class="footer-column">
+                    <h4 data-i18n="footer.connect">Connect</h4>
+                    <a href="about.html" data-i18n="footer.about">About Us</a>
+                    <a href="contact.html" data-i18n="nav.contact">Contact</a>
+                    <a href="privacy.html" data-i18n="footer.privacy">Privacy Policy</a>
+                </div>
+
+                <div class="footer-column">
+                    <h4 data-i18n="footer.followUs">Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon" />
+                        </a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                        </a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <hr />
+                <p data-i18n="footer.rights">© 2025 CityFix. All rights reserved.</p>
+            </div>
         </div>
+    </footer>
 
-        <div class="footer-column">
-          <h4>Quick Links</h4>
-          <a href="index.html">Home</a>
-          <a href="BrowseReports.html">Reports</a>
-          <a href="SubmitReport.html">Submit Report</a>
-        </div>
-
-        <div class="footer-column">
-          <h4>Connect</h4>
-          <a href="about.html">About Us</a>
-          <a href="contact.html">Contact</a>
-          <a href="privacy.html">Privacy Policy</a>
-        </div>
-
-        <div class="footer-column">
-          <h4>Follow Us</h4>
-          <div class="social-icons">
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter"
-                class="social-icon" />
-            </a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook"
-                class="social-icon" />
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram"
-                class="social-icon" />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <hr />
-        <p>© 2025 CityFix. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
-  <script src="js/toast-notifications.js" defer></script>
-  <script src="js/modals.js" defer></script>
-  <script src="js/login.js" defer></script>
-  <script src="js/auth-protection.js" defer></script>
-  <script src="js/header-User.js"></script>
+    <script src="js/chatbot-widget.js"></script>
+    <script src="js/i18n-login.js"></script>
+    <script src="js/toast-notifications.js" defer></script>
+    <script src="js/modals.js" defer></script>
+    <script src="js/login.js" defer></script>
+    <script src="js/auth-protection.js" defer></script>
+    <script src="js/header-User.js"></script>
 </body>
 </html>
