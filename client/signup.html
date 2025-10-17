@@ -19,108 +19,106 @@
 </head>
 <body>
   <!-- Header -->
-<header class="header">
+  <header class="header">
     <div class="header-content">
         <!-- Logo -->
         <a href="index.html" class="logo-section">
-            <img src="assets/Logo-cityfix.jpg" alt="CityFix" class="logo-image">
+            <img src="assets/CityFix-logo.svg" alt="CityFix" class="logo-image">
             <span class="logo-text" data-i18n="app.name">CityFix</span>
         </a>
         
         <!-- Desktop Navigation -->
         <nav class="nav-section">
             <a href="index.html" class="nav-item active" data-i18n="nav.home">Home</a>
-            <a href="BrowseReports.html" class="nav-item">Reports</a>
-            <a href="submit-report.html" class="nav-item">Submit Report</a>
-            <a href="MyImpact.html" class="nav-item">My Impact</a>
-            <a href="contact.html" class="nav-item">Contact</a>
+            <a href="BrowseReports.html" class="nav-item" data-i18n="nav.reports">Reports</a>
+            <a href="submit-report.html" class="nav-item" data-i18n="nav.submit">Submit Report</a>
+            <a href="MyImpact.html" class="nav-item" data-i18n="nav.impact">My Impact</a>
+            <a href="contact.html" class="nav-item" data-i18n="nav.contact">Contact</a>
         </nav>
         
-        <!-- Mobile Menu Button - -->
+        <!-- Mobile Menu Button -->
         <button class="mobile-menu-btn" aria-label="Menu">
             <span></span>
             <span></span>
             <span></span>
         </button>
     </div>
-</header>
+  </header>
 
-<!-- Mobile Navigation Menu -->
-<nav class="mobile-nav">
-    <a href="index.html" class="nav-item active">Home</a>
-    <a href="reports.html" class="nav-item">Reports</a>
-    <a href="submit-report.html" class="nav-item">Submit Report</a>
-    <a href="MyImpact.html" class="nav-item">My Impact</a>
-    <a href="contact.html" class="nav-item">Contact</a>
-</nav>
+  <!-- Mobile Navigation Menu -->
+  <nav class="mobile-nav">
+    <a href="index.html" class="nav-item active" data-i18n="nav.home">Home</a>
+    <a href="BrowseReports.html" class="nav-item" data-i18n="nav.reports">Reports</a>
+    <a href="submit-report.html" class="nav-item" data-i18n="nav.submit">Submit Report</a>
+    <a href="MyImpact.html" class="nav-item" data-i18n="nav.impact">My Impact</a>
+    <a href="contact.html" class="nav-item" data-i18n="nav.contact">Contact</a>
+  </nav>
 
   <main class="main-content">
     <div class="split-container">
       <div class="left-container">
         <img src="assets/login_img.png" alt="Signup Image" class="signup-image"/>
-        <div class="image-overlay">
-          <h3 class="overlay-title">CityFix</h3>
-          <p class="overlay-subtitle">Making our city better, together.</p>
-        </div>
+        
       </div>
 
       <div class="right-container">
         <div class="right-content">
           <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="signup-logo"/>
-          <h1 class="welcome-title">Join CityFix</h1>
-          <p class="welcome-subtitle">Create your account to start reporting</p>
+          <h1 class="welcome-title" data-i18n="auth.join">Join CityFix</h1>
+          <p class="welcome-subtitle" data-i18n="auth.createAccount">Create your account to start reporting</p>
 
           <!-- FORM -->
           <form id="signupForm" enctype="multipart/form-data" novalidate>
             <div class="signup-form-container">
-              <label class="fullname-label">Username</label>
+              <label class="fullname-label" data-i18n="auth.username">Username</label>
               <div class="fullname-input-container">
-                <input type="text" class="fullname-input" placeholder="Enter your username" name="username" required/>
+                <input type="text" class="fullname-input" data-i18n-placeholder="auth.enterUsername" placeholder="Enter your username" name="username" required/>
               </div>
 
-              <label class="email-label">Email address</label>
+              <label class="email-label" data-i18n="auth.email">Email address</label>
               <div class="email-input-container">
-                <input type="email" class="email-input" placeholder="Enter your email" name="email" required/>
+                <input type="email" class="email-input" data-i18n-placeholder="auth.enterEmail" placeholder="Enter your email" name="email" required/>
               </div>
 
-              <label class="password-label">Password</label>
+              <label class="password-label" data-i18n="auth.password">Password</label>
               <div class="password-input-container">
-                <input type="password" class="password-input" placeholder="Create a password" name="password" minlength="6" required/>
+                <input type="password" class="password-input" data-i18n-placeholder="auth.createPassword" placeholder="Create a password" name="password" minlength="6" required/>
               </div>
 
-              <label class="confirm-password-label">User ID (optional)</label>
+              <label class="confirm-password-label" data-i18n="auth.userId">User ID (optional)</label>
               <div class="confirm-password-input-container">
-                <input type="text" class="confirm-password-input" placeholder="Enter your User ID" name="userId"/>
+                <input type="text" class="confirm-password-input" data-i18n-placeholder="auth.enterUserId" placeholder="Enter your User ID" name="userId"/>
               </div>
 
-              <label class="photo-label">Profile Photo (optional)</label>
+              <label class="photo-label" data-i18n="auth.profilePhoto">Profile Photo (optional)</label>
               <div class="photo-input-container">
                 <input type="file" class="photo-input" name="photo" accept="image/*"/>
               </div>
 
               <div class="user-type-container">
-                <label>I am a :</label>
+                <label data-i18n="auth.iAmA">I am a :</label>
                 <div class="radio-option">
                   <input type="radio" id="citizen" name="role" value="citizen" class="radio-input" checked/>
-                  <label for="citizen" class="radio-label">Citizen</label>
+                  <label for="citizen" class="radio-label" data-i18n="auth.citizen">Citizen</label>
                 </div>
                 <div class="radio-option">
                   <input type="radio" id="admin" name="role" value="admin" class="radio-input"/>
-                  <label for="admin" class="radio-label">Admin</label>
+                  <label for="admin" class="radio-label" data-i18n="auth.admin">Admin</label>
                 </div>
               </div>
             </div>
 
             <div class="signup-button-container">
               <button class="signup-btn" type="submit">
-                <span class="signup-btn-text">Sign Up</span>
+                <span class="signup-btn-text" data-i18n="auth.signup">Sign Up</span>
               </button>
               <div id="signup-status" class="status" aria-live="polite"></div>
             </div>
           </form>
 
           <div class="login-prompt">
-            Already have an account? <a href="login.html" class="login-link">Log in</a>
+            <span data-i18n="auth.haveAccount">Already have an account?</span> 
+            <a href="login.html" class="login-link" data-i18n="auth.login">Log in</a>
           </div>
         </div>
       </div>
@@ -133,25 +131,25 @@
       <div class="footer-top">
         <div class="footer-column">
           <a href="index.html" class="footer-logo">
-            <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img"/>
-            <span class="brand-name">CityFix</span>
+            <img src="assets/CityFix-logo.svg" alt="CityFix Logo" class="footer-logo-img" style="filter: brightness(0) invert(1);"/>
+            <span class="brand-name" data-i18n="app.name">CityFix</span>
           </a>
-          <p class="footer-description">Making our city better together.</p>
+          <p class="footer-description" data-i18n="footer.tagline">Making our city better together.</p>
         </div>
         <div class="footer-column">
-          <h4>Quick Links</h4>
-          <a href="index.html">Home</a>
-          <a href="BrowseReports.html">Reports</a>
-          <a href="SubmitReport.html">Submit Report</a>
+          <h4 data-i18n="footer.quickLinks">Quick Links</h4>
+          <a href="index.html" data-i18n="footer.home">Home</a>
+          <a href="BrowseReports.html" data-i18n="footer.reports">Reports</a>
+          <a href="SubmitReport.html" data-i18n="footer.submitReport">Submit Report</a>
         </div>
         <div class="footer-column">
-          <h4>Connect</h4>
-          <a href="about.html">About Us</a>
-          <a href="contact.html">Contact</a>
-          <a href="privacy.html">Privacy Policy</a>
+          <h4 data-i18n="footer.connect">Connect</h4>
+          <a href="about.html" data-i18n="footer.aboutUs">About Us</a>
+          <a href="contact.html" data-i18n="footer.contact">Contact</a>
+          <a href="privacy.html" data-i18n="footer.privacyPolicy">Privacy Policy</a>
         </div>
         <div class="footer-column">
-          <h4>Follow Us</h4>
+          <h4 data-i18n="footer.followUs">Follow Us</h4>
           <div class="social-icons">
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
               <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" class="social-icon"/>
@@ -167,10 +165,11 @@
       </div>
       <div class="footer-bottom">
         <hr/>
-        <p>© 2025 CityFix. All rights reserved.</p>
+        <p data-i18n="footer.rights">© 2025 CityFix. All rights reserved.</p>
       </div>
     </div>
   </footer>
+  
     <script src="js/chatbot-widget.js"></script> 
     <script src="js/i18n.js"></script>
     <script type="module" src="js/signup.js"></script>
@@ -179,7 +178,6 @@
     <script src="js/toast-notifications.js"></script>
     <script src="js/header-User.js"></script> 
     <script src="js/api-config.js"></script>
-    <script src="js/chatbot-widget.js"></script>
 
 </body>
 </html>
