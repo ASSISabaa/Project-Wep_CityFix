@@ -312,3 +312,150 @@
 .lang-option.active:focus {
   background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 }
+
+/* client/css/translation-fix.css - Fix images and layout during translation */
+
+html[dir="rtl"] .logo-section,
+html[dir="rtl"] .footer-logo {
+  flex-direction: row !important;
+  direction: ltr !important;
+}
+
+html[dir="rtl"] .logo-image,
+html[dir="rtl"] .footer-logo-img,
+html[dir="rtl"] .logo-icon,
+html[dir="rtl"] .logo-icon-mobile {
+  order: -1 !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+html[dir="rtl"] img,
+html[dir="rtl"] svg,
+html[dir="rtl"] picture {
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+.logo-section,
+.footer-logo,
+.mobile-logo {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.logo-section img,
+.footer-logo img,
+.mobile-logo img {
+  max-height: 40px !important;
+  width: auto !important;
+  object-fit: contain !important;
+}
+
+html[dir="rtl"] .social-icons {
+  direction: ltr !important;
+  display: flex !important;
+  gap: 10px !important;
+}
+
+html[dir="rtl"] .social-icon {
+  display: inline-block !important;
+}
+
+html[dir="rtl"] .stat-icon,
+html[dir="rtl"] .report-icon,
+html[dir="rtl"] .nav-icon {
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+.logo-text,
+.brand-name,
+.logo-name {
+  display: inline-block !important;
+  white-space: nowrap !important;
+}
+
+html[dir="rtl"] .header-content,
+html[dir="rtl"] .nav-section {
+  display: flex !important;
+  align-items: center !important;
+}
+
+html[dir="rtl"] .footer-logo-img {
+  filter: none !important;
+}
+
+html[dir="rtl"] .language-switcher {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+[data-i18n] img,
+[data-i18n] svg,
+[data-i18n] picture {
+  pointer-events: auto !important;
+  user-select: none !important;
+}
+
+.rtl .logo-section {
+  direction: ltr !important;
+}
+
+.rtl .footer-logo {
+  direction: ltr !important;
+}
+
+img, svg, picture {
+  max-width: 100%;
+  height: auto;
+}
+
+.logo-section > *,
+.footer-logo > * {
+  flex-shrink: 0;
+}
+
+html[dir="rtl"] .hero-image-container,
+html[dir="rtl"] .hero-image,
+html[dir="rtl"] .map-container,
+html[dir="rtl"] .signup-image,
+html[dir="rtl"] .login-image {
+  direction: ltr !important;
+}
+
+html[dir="rtl"] .hero-image-container img,
+html[dir="rtl"] .signup-image,
+html[dir="rtl"] .login-image {
+  transform: none !important;
+}
+
+.rtl img {
+  transform: scaleX(1) !important;
+}
+
+html[dir="rtl"] [data-i18n]:has(img),
+html[dir="rtl"] [data-i18n]:has(svg) {
+  direction: ltr !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.logo-section,
+.footer-logo,
+.mobile-logo,
+.social-icons {
+  isolation: isolate;
+}
+
+html[dir="rtl"] .logo-section .logo-image,
+html[dir="rtl"] .logo-section .logo-text {
+  display: inline-block !important;
+}
+
+html[dir="rtl"] .footer-logo .footer-logo-img,
+html[dir="rtl"] .footer-logo .brand-name {
+  display: inline-block !important;
+}

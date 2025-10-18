@@ -5,7 +5,7 @@ const { REPORT_TYPES, REPORT_PRIORITY } = require('../config/constants');
 class AdvancedAIService {
   constructor() {
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: process.env.OPENAI_API_KEY || 'dummy-key-not-used'
     });
     
     // Context window 
@@ -44,7 +44,6 @@ class AdvancedAIService {
     try {
       let context = this.conversationContexts.get(userId) || [];
       
-      // System prompt 
       const systemPrompt = this.systemPrompts[userRole]?.[language] || this.systemPrompts.CITIZEN.en;
       
       const messages = [
@@ -91,7 +90,6 @@ class AdvancedAIService {
     }
   }
 
-  // machine learning insights
   async analyzeReport(reportData, language = 'en') {
     try {
       const prompt = `
@@ -104,19 +102,15 @@ Report Details:
 - Location: ${reportData.location?.address || 'Not specified'}
 
 Please provide:
-1. suggestedCategory: Best matching category from [${Object.values(REPORT_TYPES).join(', ')}]
-2. suggestedPriority: Priority level from [${Object.values(REPORT_PRIORITY).join(', ')}]
-3. suggestedDepartment: Best department from [maintenance, infrastructure, sanitation, parks, traffic, general]
+1. suggestedCategory: Best matching category
+2. suggestedPriority: Priority level
+3. suggestedDepartment: Best department
 4. severityScore: Number 1-10
 5. estimatedResolutionTime: In hours
-6. estimatedCost: In local currency (rough estimate)
-7. urgencyFactors: Array of reasons for urgency
-8. keywords: Top 5 relevant keywords
-9. similarIssuesProbability: Likelihood of similar issues nearby (0-100%)
-10. recommendedActions: Array of 3-5 specific action steps
-11. safetyRisk: boolean
-12. weatherDependent: boolean
-13. requiresSpecialEquipment: boolean
+6. estimatedCost: In local currency
+7. urgencyFactors: Array of reasons
+8. keywords: Top 5 keywords
+9. recommendedActions: Array of 3-5 action steps
 
 Respond in valid JSON format only.`;
 
@@ -141,13 +135,11 @@ Respond in valid JSON format only.`;
     }
   }
 
- 
   async getManagerInsights(tenantId, timeframe = '30days', language = 'en') {
     try {
       const Report = require('../models/Report');
       const User = require('../models/User');
 
-      // جمع البيانات
       const [reports, employees, stats] = await Promise.all([
         Report.find({ tenant: tenantId })
           .sort('-createdAt')
@@ -160,32 +152,14 @@ Respond in valid JSON format only.`;
       ]);
 
       const prompt = `
-As a municipal management AI consultant, analyze this data and provide strategic insights:
+As a municipal management AI consultant, analyze this data:
 
 Statistics:
 - Total Reports: ${stats.total}
-- Resolved: ${stats.resolved} (${stats.resolutionRate}%)
-- Average Resolution Time: ${stats.avgResolutionTime} hours
+- Resolved: ${stats.resolved}
 - Pending: ${stats.pending}
-- High Priority: ${stats.highPriority}
 
-Recent Trends:
-${this.summarizeReports(reports)}
-
-Team Performance:
-${this.summarizeTeam(employees)}
-
-Provide in JSON:
-1. priorityRecommendations: Array of top 3 priorities
-2. resourceOptimization: Suggestions for better resource allocation
-3. performanceInsights: Team performance analysis
-4. costSavingOpportunities: Ways to reduce costs
-5. riskAreas: Areas requiring immediate attention
-6. efficiencyImprovements: Process improvement suggestions
-7. predictedTrends: Forecast for next 30 days
-8. actionItems: Specific tasks with priority levels
-
-Language: ${language}`;
+Provide JSON with insights and recommendations.`;
 
       const response = await this.openai.chat.completions.create({
         model: 'gpt-4-turbo-preview',
@@ -206,84 +180,12 @@ Language: ${language}`;
     }
   }
 
-  async analyzeHotspots(reports, language = 'en') {
-    const locations = reports
-      .filter(r => r.location?.coordinates?.lat && r.location?.coordinates?.lng)
-      .map(r => ({
-        lat: r.location.coordinates.lat,
-        lng: r.location.coordinates.lng,
-        type: r.type,
-        priority: r.priority
-      }));
-
-    if (locations.length < 5) {
-      return { message: 'Insufficient location data' };
-    }
-
-    const prompt = `
-Analyze these report locations and identify patterns:
-
-Locations: ${JSON.stringify(locations)}
-
-Provide in JSON:
-1. hotspots: Array of {lat, lng, issueCount, mainType}
-2. patterns: Discovered spatial patterns
-3. recommendations: Infrastructure improvement suggestions
-4. clustering: Areas with similar issues
-
-Language: ${language}`;
-
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.3,
-        response_format: { type: 'json_object' }
-      });
-
-      return JSON.parse(response.choices[0].message.content);
-    } catch (error) {
-      return { error: 'Hotspot analysis failed' };
-    }
-  }
-
-  // مساعدات مخصصة للمواطنين
-  async getCitizenGuidance(reportType, language = 'en') {
-    const guidancePrompts = {
-      en: `Provide step-by-step guidance for reporting a ${reportType} issue. Include: what information to gather, photos to take, safety precautions, and what to expect. Keep it simple and helpful.`,
-      ar: `قدم إرشادات خطوة بخطوة للإبلاغ عن مشكلة ${reportType}. قم بتضمين: المعلومات التي يجب جمعها، والصور التي يجب التقاطها، واحتياطات السلامة، وما يمكن توقعه. اجعلها بسيطة ومفيدة.`,
-      he: `ספק הדרכה שלב אחר שלב לדיווח על בעיית ${reportType}. כלול: איזה מידע לאסוף, תמונות לצלם, אמצעי בטיחות ומה לצפות. שמור על זה פשוט ומועיל.`,
-      ru: `Предоставьте пошаговое руководство для сообщения о проблеме ${reportType}. Включите: какую информацию собрать, какие фотографии сделать, меры безопасности и чего ожидать. Держите это просто и полезно.`
-    };
-
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [{
-          role: 'user',
-          content: guidancePrompts[language] || guidancePrompts.en
-        }],
-        temperature: 0.7,
-        max_tokens: 300
-      });
-
-      return {
-        guidance: response.choices[0].message.content,
-        reportType,
-        language
-      };
-    } catch (error) {
-      return { error: 'Failed to generate guidance' };
-    }
-  }
-
-  // Helper methods
   getFallbackMessage(language) {
     const messages = {
-      en: "I'm having trouble responding right now. Please try again in a moment.",
-      ar: "أواجه مشكلة في الرد الآن. يرجى المحاولة مرة أخرى بعد لحظة.",
-      he: "יש לי בעיה להגיב כרגע. נסה שוב עוד רגע.",
-      ru: "У меня проблемы с ответом прямо сейчас. Пожалуйста, попробуйте снова через мгновение."
+      en: "I'm having trouble responding right now. Please try again.",
+      ar: "أواجه مشكلة في الرد الآن. يرجى المحاولة مرة أخرى.",
+      he: "יש לי בעיה להגיב כרגע. נסה שוב.",
+      ru: "У меня проблемы с ответом. Попробуйте снова."
     };
     return messages[language] || messages.en;
   }
@@ -304,30 +206,14 @@ Language: ${language}`;
     const total = await Report.countDocuments({ tenant: tenantId });
     const resolved = await Report.countDocuments({ tenant: tenantId, status: 'resolved' });
     const pending = await Report.countDocuments({ tenant: tenantId, status: 'pending' });
-    const highPriority = await Report.countDocuments({ tenant: tenantId, priority: 'high' });
     
     return {
       total,
       resolved,
       pending,
-      highPriority,
       resolutionRate: total > 0 ? ((resolved / total) * 100).toFixed(1) : 0,
       avgResolutionTime: 24
     };
-  }
-
-  summarizeReports(reports) {
-    const types = {};
-    reports.forEach(r => {
-      types[r.type] = (types[r.type] || 0) + 1;
-    });
-    return Object.entries(types)
-      .map(([type, count]) => `${type}: ${count}`)
-      .join(', ');
-  }
-
-  summarizeTeam(employees) {
-    return `${employees.length} employees active`;
   }
 
   clearConversation(userId) {
