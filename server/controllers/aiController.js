@@ -32,14 +32,27 @@ const chatbot = async (req, res, next) => {
 
 const analyzeImage = async (req, res, next) => {
     try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'No image file provided'
+            });
+        }
+
+        const aiService = new AIService();
+        const imageUrl = req.file.location || req.file.path;
+
+        const analysis = await aiService.analyzeImageWithVision(imageUrl);
+
         res.json({
             success: true,
             data: {
-                message: 'Image analysis feature coming soon',
-                placeholder: true
+                analysis,
+                imageUrl
             }
         });
     } catch (error) {
+        console.error('Image analysis error:', error);
         next(error);
     }
 };

@@ -78,6 +78,83 @@ class AIService {
             return 'I apologize, but I am having trouble understanding. Please try rephrasing your question.';
         }
     }
+
+    async analyzeImageWithVision(imageUrl) {
+        try {
+            const response = await this.openai.chat.completions.create({
+                model: 'gpt-4-vision-preview',
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'text',
+                                text: `Analyze this city infrastructure image and provide a detailed JSON response with the following structure:
+{
+  "suggestedCategory": "one of: pothole, streetlight, garbage, graffiti, traffic, parks, infrastructure, sanitation, other",
+  "suggestedPriority": "one of: low, medium, high, urgent",
+  "suggestedTitle": "a concise title (max 60 chars)",
+  "description": "detailed description (150-300 chars)",
+  "severityScore": "number 1-10",
+  "suggestedDepartment": "maintenance, infrastructure, sanitation, parks, traffic, or general",
+  "keywords": ["array", "of", "5", "keywords"],
+  "detectedIssues": ["list of specific problems visible"],
+  "recommendedActions": ["suggested actions to resolve"],
+  "urgencyFactors": ["reasons for urgency level"],
+  "estimatedResolutionTime": "estimated hours as number",
+  "safetyRisk": "low, medium, or high"
+}
+
+Be specific, accurate, and actionable. Focus on infrastructure problems visible in the image.`
+                            },
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: imageUrl,
+                                    detail: 'high'
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_tokens: 1000,
+                temperature: 0.3
+            });
+
+            const content = response.choices[0].message.content;
+
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                const analysis = JSON.parse(jsonMatch[0]);
+                return {
+                    ...analysis,
+                    analyzedAt: new Date(),
+                    confidence: 0.9,
+                    model: 'gpt-4-vision'
+                };
+            }
+
+            throw new Error('Could not parse AI response');
+
+        } catch (error) {
+            console.error('Vision AI analysis failed:', error);
+
+            return {
+                suggestedCategory: 'other',
+                suggestedPriority: 'medium',
+                suggestedTitle: 'City Issue Detected',
+                description: 'Please provide details about the issue in the image.',
+                severityScore: 5,
+                suggestedDepartment: 'general',
+                keywords: ['city', 'infrastructure', 'issue'],
+                detectedIssues: ['Unable to analyze automatically'],
+                recommendedActions: ['Manual review required'],
+                analyzedAt: new Date(),
+                confidence: 0.3,
+                error: true
+            };
+        }
+    }
 }
 
 module.exports = AIService;
